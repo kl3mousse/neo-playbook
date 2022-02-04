@@ -11,6 +11,7 @@ Done
 - all games from NeoGeo era (~90's) are there
 - visuals & texts OK
 To Do list
+- the biggest missing piece to date is: MOVES LIST. At least for Fighting games, I'd like to provide moves list on a separate page than the Game info. I'm wondering how I tackle that best. My latest idea is to scrap the command.dat file from MAME, which covers NeoGeo games quite well. There will be a lot of formatting tricks to really make it happen into a PDF, knowing that the number of players per game vary a lot.
 - crediting various indirect sources, platforms & contributors which made medias available on the net. This book is only scraping their work, these folks deserve thanks.
 - crediting opensource software properly
 - games from NeoGeo resurrection era (2000-2020), in progress
