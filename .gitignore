@@ -3,7 +3,7 @@
 *img-cache*
 *test*.py
 *.pdf
-*.xlsx
+games.xlsx
 secrets.json
 *.pkl
 *.pptx
