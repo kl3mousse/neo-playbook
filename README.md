@@ -17,6 +17,7 @@ To Do list
 - additional metadata & graphical elements for each game (genre, type, sizes, platforms, ...)
 - summary page / table of all games
 - versionning of PDF
+- ensuring translations are available in English & French for all games. More languages (then plz ask for it...) maybe?
 - footers for all games 
 
 # how it works
