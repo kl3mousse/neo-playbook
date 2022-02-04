@@ -12,4 +12,4 @@ I wanted a little book showing all NeoGeo games, so that we can have a look in a
 
 # example of output
 
-![neo playbook sample image](https://github.com/kl3mousse/neo-playbook/blob/main/img/neo-playbook-proto.png?raw=true)
+![neo playbook sample image](https://github.com/kl3mousse/neo-geo-game-mag/blob/main/img/neo-playbook-proto.png)
