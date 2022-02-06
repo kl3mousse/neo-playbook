@@ -22,7 +22,7 @@ import json
 
 # constants / prog parameters
 NEOGEO_DATA_XLS                = "games.xlsx"
-NEOGEO_DATA_XLS_SHEET          = "Games" #switch from "Games" to "Games-test" for testing a smaller chunk of games
+NEOGEO_DATA_XLS_SHEET          = "Games-test" #switch from "Games" to "Games-test" for testing a smaller chunk of games
 NEOGEO_MAME_XLS_SHEET          = "MAME.xml (cleaned)"
 NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGeo Era' or 'Post NeoGeo' to filter the right set of games 
 NEOGEO_MAG_OUTPUT_PDF_PAGESMAX = 90
@@ -85,7 +85,7 @@ def add_game_page(pdf, game, page_num):
     else:
         #odd / left page
         MAIN_POSX = 40-5
-        BAR_POSX = 5
+        BAR_POSX = 0
         FOOTER_POSX = 35-5
 
     #game background in footer
@@ -256,8 +256,14 @@ def add_game_page(pdf, game, page_num):
         #pdf.cell(w = 10, h = 7, txt = version.mame_game_release,  ln = 0, align = 'L')
         #pdf.cell(w = 9, h = 7, txt = version.mame_game_platform,  ln = 0, align = 'L')
         #pdf.cell(w = 8, h = 7, txt = version.mame_game_compatibility,  ln = 0, align = 'L')
-
         row_i += 1
+    
+    # MEGs (size of NeoGeo cart)
+    if game.megs is not None:
+        pdf.image("img/MEGs.png", x = BAR_POSX+5, y = 70, w = 25, h = 0, type = '', link = '')
+        pdf.set_font("ErbosDracoNova", size = 20)
+        pdf.set_xy(BAR_POSX+6, 71)
+        pdf.cell(w = 25, h = 20, txt = str(game.megs),  ln = 0, align = 'C')
 
     # number of players
     if game.nb_players is not None:
@@ -279,15 +285,15 @@ def add_game_page(pdf, game, page_num):
     if game.type is not None:
         pdf.set_text_color(255, 240, 240)
         pdf.set_font("ErbosDracoNova", size = 7)
-        pdf.set_xy(BAR_POSX, 77)
-        pdf.cell(w = 30, h = 7, txt = game.type,  ln = 0, align = 'C')
+        pdf.set_xy(BAR_POSX, 110)
+        pdf.cell(w = 30, h = 7, txt = game.type,  ln = 0, align = 'L')
 
     # genre of game (fight, puzzle, ...)
     if game.genre is not None:
         pdf.set_text_color(255, 240, 240)
         pdf.set_font("ErbosDracoNova", size = 7)
-        pdf.set_xy(BAR_POSX, 87)
-        pdf.cell(w = 30, h = 7, txt = game.genre,  ln = 0, align = 'C')
+        pdf.set_xy(BAR_POSX, 120)
+        pdf.cell(w = 30, h = 7, txt = game.genre,  ln = 0, align = 'L')
 
 
 ############################################################################
@@ -374,7 +380,8 @@ while (not (page_type is None)) :
                 game.invert_ingamescreenshots = ws.cell(column=13, row=rowNb).value
                 game.game_background          = ws.cell(column=14, row=rowNb).value
                 game.vshift                   = ws.cell(column=15, row=rowNb).value
-
+                game.ngm_id                   = ws.cell(column=16, row=rowNb).value
+                game.megs                     = ws.cell(column=17, row=rowNb).value
 
                 #get roms & boots/hacks data from MAME data
                 # loop in XLS file, for each game found

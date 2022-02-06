@@ -43,6 +43,8 @@ class game_data:
         self.wallpaper = None
         self.game_background = None
         self.vshift = None
+        self.ngm_id = None 
+        self.megs = None 
 
     def addrom(self, rom):
         self.mame_versions.append(rom)
