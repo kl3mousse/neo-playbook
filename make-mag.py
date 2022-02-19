@@ -93,6 +93,7 @@ def add_game_page(pdf, game, page_num):
         pic = download_image(game.game_background)
         bg_h = 40
         bg_w = 160
+        pic = clean_JPG(pic)
         crop_upright(pic, bg_w / bg_h, vshift = game.vshift)
         add_scanlines(pic)
         footer_effect(pic, (123, 134, 145))
@@ -137,6 +138,10 @@ def add_game_page(pdf, game, page_num):
     # Year & Publisher
     pdf.set_font("Osaka", size = 8)
     pdf.cell(w = 200, h = 3, txt = str(game.year) + ' ' + str(game.publisher) + '            ', ln = 2, align = 'R')
+
+    if game.ngm_id is not None:
+        pdf.set_font("Osaka", size = 8)
+        pdf.cell(w = 10, h = 3, txt = "NGM-" + str(game.ngm_id), ln = 0, align = 'R')
 
     pdf.set_line_width(0.5)
     pdf.set_draw_color(0,0,0)
@@ -283,11 +288,20 @@ def add_game_page(pdf, game, page_num):
 
     # type of game (homebrew, proto, licenced...)
     if game.type is not None:
-        pdf.set_text_color(255, 240, 240)
-        pdf.set_font("ErbosDracoNova", size = 7)
-        pdf.set_xy(BAR_POSX, 110)
-        pdf.cell(w = 30, h = 7, txt = game.type,  ln = 0, align = 'L')
-
+        icon_ok = True
+        match game.type:
+            case 'Licenced'  : gametype_icon = 'img/icons/type-licenced.png'
+            case 'Homebrew'  : gametype_icon = 'img/icons/type-homebrew.png'
+            case 'Unreleased': gametype_icon = 'img/icons/type-unreleased.png'
+            case 'Unlicenced': gametype_icon = 'img/icons/type-unlicenced.png'
+            case 'Hack'      : gametype_icon = 'img/icons/type-hack.png'
+            case 'intro demo': gametype_icon = 'img/icons/type-intro-demo.png'
+            case 'Bootleg'   : gametype_icon = 'img/icons/type-bootleg.png'
+            case 'Port'      : gametype_icon = 'img/icons/type-port.png'
+            case _: icon_ok = False
+        if icon_ok:
+            pdf.image(gametype_icon, x = BAR_POSX+5, y = 110, w = 25, h = 0, type = '', link = '')
+            
     # genre of game (fight, puzzle, ...)
     if game.genre is not None:
         pdf.set_text_color(255, 240, 240)
