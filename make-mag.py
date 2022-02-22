@@ -139,9 +139,16 @@ def add_game_page(pdf, game, page_num):
     pdf.set_font("Osaka", size = 8)
     pdf.cell(w = 200, h = 3, txt = str(game.year) + ' ' + str(game.publisher) + '            ', ln = 2, align = 'R')
 
+    # NGH/NGM ID
     if game.ngm_id is not None:
         pdf.set_font("Osaka", size = 8)
-        pdf.cell(w = 10, h = 3, txt = "NGM-" + str(game.ngm_id), ln = 0, align = 'R')
+        pdf.set_xy(21, 26)
+        if game.ngm_id < 10: ngm_id_txt = "00" + str(game.ngm_id)
+        else:
+            if game.ngm_id < 100: ngm_id_txt = "0" + str(game.ngm_id)
+            else: ngm_id_txt = game.ngm_id
+        
+        pdf.cell(w = 10, h = 3, txt = "NGM-" + ngm_id_txt, ln = 0, align = 'L')
 
     pdf.set_line_width(0.5)
     pdf.set_draw_color(0,0,0)
