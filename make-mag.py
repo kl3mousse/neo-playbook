@@ -22,7 +22,7 @@ import json
 
 # constants / prog parameters
 NEOGEO_DATA_XLS                = "games.xlsx"
-NEOGEO_DATA_XLS_SHEET          = "Games-test" #switch from "Games" to "Games-test" for testing a smaller chunk of games
+NEOGEO_DATA_XLS_SHEET          = "Games" #switch from "Games" to "Games-test" for testing a smaller chunk of games
 NEOGEO_MAME_XLS_SHEET          = "MAME.xml (cleaned)"
 NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGeo Era' or 'Post NeoGeo' to filter the right set of games 
 NEOGEO_MAG_OUTPUT_PDF_PAGESMAX = 90
@@ -146,7 +146,7 @@ def add_game_page(pdf, game, page_num):
         if game.ngm_id < 10: ngm_id_txt = "00" + str(game.ngm_id)
         else:
             if game.ngm_id < 100: ngm_id_txt = "0" + str(game.ngm_id)
-            else: ngm_id_txt = game.ngm_id
+            else: ngm_id_txt = str(game.ngm_id)
         
         pdf.cell(w = 10, h = 3, txt = "NGM-" + ngm_id_txt, ln = 0, align = 'L')
 
@@ -311,10 +311,29 @@ def add_game_page(pdf, game, page_num):
             
     # genre of game (fight, puzzle, ...)
     if game.genre is not None:
-        pdf.set_text_color(255, 240, 240)
-        pdf.set_font("ErbosDracoNova", size = 7)
-        pdf.set_xy(BAR_POSX, 120)
-        pdf.cell(w = 30, h = 7, txt = game.genre,  ln = 0, align = 'L')
+        #pdf.set_text_color(255, 240, 240)
+        #pdf.set_font("ErbosDracoNova", size = 7)
+        #pdf.set_xy(BAR_POSX, 120)
+        #pdf.cell(w = 30, h = 7, txt = game.genre,  ln = 0, align = 'L')
+        icon_ok = True
+        match game.genre:
+            case 'Sport'         : gamegenre_icon = 'img/icons/genre-sport.png'
+            case 'Divers'        : gamegenre_icon = 'img/icons/genre-misc.png'
+            case 'Shoot them up' : gamegenre_icon = 'img/icons/genre-shootthemup.png'
+            case 'Shooter'       : gamegenre_icon = 'img/icons/genre-shootthemup.png'
+            case 'Combat'        : gamegenre_icon = 'img/icons/genre-combat.png'
+            case 'Reflexion'     : gamegenre_icon = 'img/icons/genre-reflexion.png'
+            case 'Plate-formes'  : gamegenre_icon = 'img/icons/genre-platformer.png'
+            case 'Quiz'          : gamegenre_icon = 'img/icons/genre-quizz.png'
+            case 'Puzzle-Game'   : gamegenre_icon = 'img/icons/genre-puzzle.png'
+            case 'Run and gun'   : gamegenre_icon = 'img/icons/genre-runandgun.png'
+            case 'Beat them all' : gamegenre_icon = 'img/icons/genre-beatthemall.png'
+            case 'Action'        : gamegenre_icon = 'img/icons/genre-action.png'
+            case 'Course'        : gamegenre_icon = 'img/icons/genre-racing.png'
+            case 'RPG'           : gamegenre_icon = 'img/icons/genre-rpg.png'
+            case _: icon_ok = False
+        if icon_ok:
+            pdf.image(gamegenre_icon, x = BAR_POSX+5, y = 140, w = 25, h = 0, type = '', link = '')
 
 
 ############################################################################
