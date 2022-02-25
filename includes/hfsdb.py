@@ -1,11 +1,15 @@
 import requests
 import json
+import time
 
 # loading secrets from local file
 f = open('secrets.json')
 secrets=json.load(f)
 HFSDB_APP_ACCESS_TOKEN=secrets["HFSDB_APP_ACCESS_TOKEN"]
 f.close()
+
+#request counter, used to measure how frequent the API is called
+hfs_api_counter = 0
 
 class game_mame_version:
     def __init__(self, mame_game_id, mame_game_rom, mame_game_description, mame_game_year, mame_game_publisher, mame_game_serial,mame_game_release, mame_game_platform, mame_game_compatibility):
@@ -54,17 +58,26 @@ class game_data:
 
 
 def get_game_from_hfsdb(hfs_game_id):
+    global hfs_api_counter
+    
     url = "https://db.hfsplay.fr/api/v1/games/" + str(hfs_game_id)
     
     payload={}
     headers = {
         'Authorization': 'Bearer '+HFSDB_APP_ACCESS_TOKEN,
         }
+    
+    hfs_api_counter += 1
+    time.sleep(5) 
     response = requests.request("GET", url, headers=headers, data=payload)
     
-    game = response.json()
+    try:
+        game = response.json()
+        return game    
+    except requests.HTTPError as exception:
+        print(exception)
+        print("HFSdb API error (after " + str(hfs_api_counter) + " API calls)")
 
-    return game
 
 def hfsdb_scraper(game_hfsdb_id):
 # this function scraps data from HFSdb API, and loads into a game_data variable

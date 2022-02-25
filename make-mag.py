@@ -326,7 +326,7 @@ def add_game_page(pdf, game, page_num):
             case 'Plate-formes'  : gamegenre_icon = 'img/icons/genre-platformer.png'
             case 'Quiz'          : gamegenre_icon = 'img/icons/genre-quizz.png'
             case 'Puzzle-Game'   : gamegenre_icon = 'img/icons/genre-puzzle.png'
-            case 'Run and gun'   : gamegenre_icon = 'img/icons/genre-runandgun.png'
+            case 'Run and gun'   : gamegenre_icon = 'img/icons/genre-runngun.png'
             case 'Beat them all' : gamegenre_icon = 'img/icons/genre-beatthemall.png'
             case 'Action'        : gamegenre_icon = 'img/icons/genre-action.png'
             case 'Course'        : gamegenre_icon = 'img/icons/genre-racing.png'
