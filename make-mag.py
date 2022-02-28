@@ -116,9 +116,9 @@ def add_game_page(pdf, game, page_num):
     # page number in footer
     if page_num is not None:
         pdf.set_text_color(255, 240, 240)
-        pdf.set_font("ErbosDracoNova", size = 7)
-        pdf.set_xy(0, 290)
-        pdf.cell(w = 210, h = 6, txt = str(page_num),  ln = 0, align = 'C')
+        pdf.set_font("ErbosDracoNova", size = 8)
+        pdf.set_xy(BAR_POSX + 5, 290)
+        pdf.cell(w = 25, h = 6, txt = str(page_num),  ln = 0, align = 'C')
 
     # Label for title
     pdf.set_xy(5, 8)
@@ -281,16 +281,16 @@ def add_game_page(pdf, game, page_num):
     if game.nb_players is not None:
         pdf.set_text_color(255, 240, 240)
         if game.nb_players == "2P":
-            pdf.set_xy(BAR_POSX, 265)
+            pdf.set_xy(BAR_POSX+3, 230)
             pdf.image("img/2players.png", x = None, y = None, w = 30, h = 0, type = '', link = '')
             pdf.set_font("ErbosDracoNova", size = 8)
-            pdf.set_xy(BAR_POSX, 277)
+            pdf.set_xy(BAR_POSX+3, 242)
             pdf.cell(w = 30, h = 7, txt = "2 PLAYERS",  ln = 0, align = 'C')
         if game.nb_players == "1P":
-            pdf.set_xy(BAR_POSX, 265)
+            pdf.set_xy(BAR_POSX+3, 230)
             pdf.image("img/1player.png", x = None, y = None, w = 30, h = 0, type = '', link = '')
             pdf.set_font("ErbosDracoNova", size = 8)
-            pdf.set_xy(BAR_POSX, 277)
+            pdf.set_xy(BAR_POSX+3, 242)
             pdf.cell(w = 30, h = 7, txt = "1 PLAYER",  ln = 0, align = 'C')
 
     # type of game (homebrew, proto, licenced...)
@@ -308,13 +308,12 @@ def add_game_page(pdf, game, page_num):
             case _: icon_ok = False
         if icon_ok:
             pdf.image(gametype_icon, x = BAR_POSX+5, y = 110, w = 25, h = 0, type = '', link = '')
-            
+    
+    
+    pdf.image('img/icons/placeholder-yellow.png', x = BAR_POSX+5, y = 140, w = 25, h = 0, type = '', link = '')
+
     # genre of game (fight, puzzle, ...)
     if game.genre is not None:
-        #pdf.set_text_color(255, 240, 240)
-        #pdf.set_font("ErbosDracoNova", size = 7)
-        #pdf.set_xy(BAR_POSX, 120)
-        #pdf.cell(w = 30, h = 7, txt = game.genre,  ln = 0, align = 'L')
         icon_ok = True
         match game.genre:
             case 'Sport'         : gamegenre_icon = 'img/icons/genre-sport.png'
@@ -333,8 +332,9 @@ def add_game_page(pdf, game, page_num):
             case 'RPG'           : gamegenre_icon = 'img/icons/genre-rpg.png'
             case _: icon_ok = False
         if icon_ok:
-            pdf.image(gamegenre_icon, x = BAR_POSX+5, y = 140, w = 25, h = 0, type = '', link = '')
+            pdf.image(gamegenre_icon, x = BAR_POSX+5, y = 170, w = 25, h = 0, type = '', link = '')
 
+    pdf.image('img/icons/placeholder-blue.png', x = BAR_POSX+5, y = 200, w = 25, h = 0, type = '', link = '')
 
 ############################################################################
 # Init PDF file
