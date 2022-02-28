@@ -38,6 +38,7 @@ def crop_bottomright(filename, ratio):
 def crop_upright(filename, ratio, vshift):
     im = Image.open(filename)
     width, height = im.size
+    if vshift is None: vshift = 0
     #print("##### cropping "+filename)
     prev_ratio = getImgAspectRatio(filename)
     if ratio > prev_ratio:
