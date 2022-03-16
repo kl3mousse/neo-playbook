@@ -1,0 +1,92 @@
+https://sites.google.com/site/procyonsjj/home/command-dat/authors-guide
+
+Author's guide
+English COMMAND.DAT Author's Guide
+UPDATE: For versions 0.96u2 and up the following are codes changes that you should be aware of:
+
+old  new    old  new    old  new 
+
+---  ---    ---  ---    ---  --- 
+
+_#   ^2     _<   ^4     _>   ^6 
+
+_{   ^1     _}   ^3     _E   ^E 
+
+_F   ^F     _G   ^G     _H   ^H 
+
+_I   ^I     _J   ^J     _T   ^T 
+
+_U   ^U     _V   ^V     _W   ^W
+
+And lastly, NO MORE COMMA BUG! ^_^
+
+Welcome and thank you for reading this. This guide will be my attempt to help new authors write efficient and clear command.dat entries. Please note that these are merely suggestions, and you are ultimately free to write your entry however you like. The following are a set of guidelines that will help you write your entry in a manner that conforms to much of the rest of the dat so that players will be able to understand what you have written.
+
+Step 1: Choose a game. Make sure that the game you would like to cover has not been completed yet. Believe it or not, I occassionally get submissions from people for games that have already been completed and I have to reject them because they don't offer any new information. If the game you wanted to cover is already covered, please feel free to look it over and make sure that everything is correct and complete. Corrections and additions are always welcome and encouraged.
+
+Step 2: Find out your games display width. Because different games have different resolutions in MAME, you must determine what your actual display width is. Some widths are known, Most Capcom games have a display width of 62 characters, and a majority of Neo-Geo game have a display width of 51, although some have 48. For this reason, it is important that you determine the maximum extent of characters you can have in a row before you begin. To do this, start your entry and put some dummy symbols in. For example, if you choose to do Fatal Fury, you would start with:
+
+$info=fatfury1 $cmd [Width Test]          
+
+1         2         3         4         5         6         7 
+
+1234567890123456789012345678901234567890123456789012345678901234567890 
+
+$end
+
+Now start Fatal Fury and press Tab. Choose Game Documents, and choose show commands. Now choose the Width Test entry and see how many numbers you can see, like so.
+
+The last number that you can see clearly is your width. In this case, it's 51 since the 2 is chopped off. Once you have that, it's a good idea to create a dashed line or a solid line that corresponds to that width so you can line up your text properly. Sometimes your game will have a very long width. However, if you stretch your moves very far from the text, it may be hard for the reader to visually line up the name of the move with the move itself. Therefore, I recommend that you do not extend beyond the standard Capcom width of 62, even if the game can display more.
+
+Step 3: Begin writing your entry. There are only a few rules to set up your entry properly. Obviously, every entry must start with a $info= and the rom name. If this is the rom name of a parent rom, then your entry will automatically apply to all of the child roms. If your entry is meant only for a child rom, then only use the child rom name and not the parent. For example, Street Fighter 2 Turbo is a child of Street Fighter 2 Champion Edition. If I wanted to write a specific entry for Trubo, I would have one entry for $info=sf2ce and a seperate entry for $info=sf2t. (Actually, I would have to write three entries for all three turbo children, sf2t, sf2hf, and sf2tj. That's why I kept the two games together.)
+
+Next, you begin each section of the entry with $cmd. The next line will be the title of that section, as well as the name of that section in the Show Commands menu. After that, anything you type will only be shown when that section was selected in the menu, until you end the section with $end. You may add as many $cmd/$end's as you like, and each one will belong to the game in the preceeding $info. Once you start a new $info, you end the previous $info's entry.
+
+Step 4: Finishing your entry. Before you submit your entry, please go in to MAME and examine every aspect of it. Check every section, look at every line, and make sure it looks the way you expect it to. The # symbol is a comment character. Anything after the # is ignored by MAME. It is common for people to put a header above their new entry like so:
+
+############################################################## 
+
+# Fatal Fury                                    (C)1991  SNK # 
+
+#                                           Made by: Procyon # 
+
+##############################################################
+
+Traditionally, this just contains the full title of the game, the year and manufacturer, and your own credits for writing the entry. It is also common practice for the first two sections of your entries to be Buttons and Common Commands. The Buttons section helps define which symbols you plan to use for each button and any other symbol that you plan to use that may not be obvious to some people. The Common Commands section is a place where you can mention moves that are common to every character, as well as where you might add extra information about aspects of the game's system that are unusual or need explination.
+
+Guidelines
+Longhand:
+
+Always use _+ instead of +
+
+Try to use the air glyph with _^ instead of typing "air"
+
+Try to use the dir glyph with _? instead of typing "any direction"
+
+Try to use the tap glyph with _x instead of typing "tap"
+
+It's OK for the longhand version to use _X for 360 degree rotations instead of spelling out _6_3_2_1_4_7_8_9_6.
+
+Indent follow up moves beneath the beginning move to make it clear that the move can not be performed on it's own. See for example, this exceprt from KOF2001 Kyo Kusanagi:
+
+  114 Shiki Aragami                  _2_3_6_+_A      - 128 Shiki Kono Kizu            _2_3_6_+_P           - Ge Shiki: Migiri Ugachi           _P           - 125 Shiki Nana Se                 _K      - 127 Shiki Yano Sabi        _6_3_2_1_4_+_P           - Ge Shiki: Migiri Ugachi           _P           - 125 Shiki Nana Se                 _K           - 212 Shiki Kototsuki You                                   _6_3_2_1_4_+_K
+
+As in the above example, if the name of the move and the move itself won't fit together in one line, put the move down on the following line.
+
+Shorthand: All of the Longhand guidelines plus the following.
+
+Always use the air glyph with _^ instead of typing "air"
+
+Always use the dir glyph with _? instead of typing "any direction"
+
+Always use the tap glyph with _x instead of typing "tap"
+
+Try to use _L instead of _6_6 or _M instead of _4_4 if you are indicating a double tap motion for dashes or backdashes. Do not use them if the move is supposed to be even paced, like some Mortal Kombat moves for example.
+
+Use shorthand notation for moves that have an obvious shorthand, e.g. quarter circles: _t for _2_3_6, _p for _2_1_4, half circles:_m for _4_1_2_3_6, _k for _6_1_2_3_4, dragon punches: _Q for _6_2_3, _R for _4_2_1.
+
+Use combinations of shorthands when the move is composed for complete motions. For example, two quater circles forward is _t_t. Quarter circle back and half circle forward is _p_m. Back and half circle back is _4_k.
+
+Do NOT use a shorthand for the middle directions of a continuous motion. This one can be confusing. Take Cammy's Hooligan Combo move in Super Street Fighter II. The motion is down back, down, down forward, forward, up forward. This should be written as _1_2_3_6_9, not _1_t_9. It does not look clear and some people will think they need to center the joystick before doing the quarter circle motion. As another example, Terry Bogard's Crack Shoot is down through up back, so it is listed as _2_1_4_7, not _p_7.
+
+However, a common super motion in King of Fighters is quarter circle back, down back, forward. You may list this as _p_1_6. Use your best judgement, and when in doubt, refer to what other authors have done in the past.

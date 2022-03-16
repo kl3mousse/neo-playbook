@@ -4,6 +4,7 @@
 ############################################################################
 
 from includes.get_image import download_image
+from includes.mame_command_dat_tools import get_command_blocks
 # from get_fragments import get_wikisummary
 from includes.img_tools import clean_JPG, footer_effect, getImgAspectRatio, crop_bottomright, add_scanlines, crop_upright
 from includes.hfsdb import get_game_from_hfsdb, hfsdb_scraper, game_data, game_mame_version
@@ -22,8 +23,9 @@ import json
 
 # constants / prog parameters
 NEOGEO_DATA_XLS                = "games.xlsx"
-NEOGEO_DATA_XLS_SHEET          = "Games" #switch from "Games" to "Games-test" for testing a smaller chunk of games
+NEOGEO_DATA_XLS_SHEET          = "Games-test" #switch from "Games" to "Games-test" for testing a smaller chunk of games
 NEOGEO_MAME_XLS_SHEET          = "MAME.xml (cleaned)"
+COMMAND_DAT_FILE               = "./command-dat/command.dat"
 NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGeo Era' or 'Post NeoGeo' to filter the right set of games 
 NEOGEO_MAG_OUTPUT_PDF_PAGESMAX = 90
 
@@ -67,6 +69,9 @@ def add_credits(pdf):
     pdf.set_left_margin(35)
     pdf.set_right_margin(35)
     pdf.write_html(html_text)
+
+def add_moveslist_page(pdf, command_files):
+    pdf.add_page()
 
 
 ############################################################################
@@ -450,6 +455,19 @@ while (not (page_type is None)) :
 
                 #add page in PDF
                 add_game_page(pdf, game, page_num )
+
+                #check if moves lists are available for that game in command.dat file from MAME
+                commands_found = False
+                for rom in game.mame_versions:
+                    rom_name = rom.mame_game_rom
+                    command_files = get_command_blocks(rom_name, COMMAND_DAT_FILE)
+                    if len(command_files)>0:
+                        print(".. moves lists found ! in rom: " + rom_name + " (" + str(len(command_files)) + " blocks)" , end = '')
+                        commands_found = True
+                
+                #if found, then let's add dedicated page(s) for the moves lists
+                if commands_found:
+                    add_moveslist_page(pdf, command_files)
 
                 print(".. done")
 
