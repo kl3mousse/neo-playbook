@@ -6,7 +6,7 @@
 from includes.get_image import download_image
 from includes.mame_command_dat_tools import get_command_blocks
 # from get_fragments import get_wikisummary
-from includes.img_tools import clean_JPG, footer_effect, getImgAspectRatio, crop_bottomright, add_scanlines, crop_upright
+from includes.img_tools import clean_JPG, footer_effect, getImgAspectRatio, crop_bottomright, add_scanlines, crop_upright, getImgSize
 from includes.hfsdb import get_game_from_hfsdb, hfsdb_scraper, game_data, game_mame_version
 import datetime;
 #from PIL import Image
@@ -72,6 +72,47 @@ def add_credits(pdf):
 
 def add_moveslist_page(pdf, command_files):
     pdf.add_page()
+
+    pdf.set_font("ErbosDracoNova", size = 8)
+    pdf.set_text_color(12, 23, 34)
+    
+    TOP_MARGIN = 20
+    LEFT_MARGIN = 25
+    BLOCKS_MARGIN = 3
+    BLOCK_WIDTH = 90
+    PAGE_H = 292
+
+    current_column = 0 # 0 or 1
+    col0_y = TOP_MARGIN
+    col1_y = TOP_MARGIN
+
+    # for each image to add
+    for command_file in command_files:
+        im_w, im_h = getImgSize(command_file)
+
+        # check if too tall and add new page if required
+        if (im_h / im_w * BLOCK_WIDTH) + min(col0_y, col1_y) > PAGE_H:
+            pdf.add_page()
+            current_column = 0 # 0 or 1
+            col0_y = TOP_MARGIN
+            col1_y = TOP_MARGIN
+
+        # add image in column and switch column
+        filename = command_file
+        im_x = LEFT_MARGIN + current_column * (BLOCK_WIDTH + BLOCKS_MARGIN)
+        if current_column == 0: im_y = col0_y
+        if current_column == 1: im_y = col1_y
+        im_y += BLOCKS_MARGIN
+        pdf.image(filename, x = im_x, y = im_y, w = BLOCK_WIDTH, h = round(BLOCK_WIDTH * im_h / im_w), type = '', link = '')
+        
+        # increment colunms y index
+        if current_column == 0: col0_y += round(BLOCK_WIDTH * im_h / im_w) + BLOCKS_MARGIN
+        if current_column == 1: col1_y += round(BLOCK_WIDTH * im_h / im_w) +BLOCKS_MARGIN
+        if col0_y > col1_y: current_column = 1
+        if col0_y < col1_y: current_column = 0
+
+
+
 
 
 ############################################################################
@@ -458,12 +499,14 @@ while (not (page_type is None)) :
 
                 #check if moves lists are available for that game in command.dat file from MAME
                 commands_found = False
+                command_files = []
                 for rom in game.mame_versions:
                     rom_name = rom.mame_game_rom
                     command_files = get_command_blocks(rom_name, COMMAND_DAT_FILE)
                     if len(command_files)>0:
                         print(".. moves lists found ! in rom: " + rom_name + " (" + str(len(command_files)) + " blocks)" , end = '')
                         commands_found = True
+                        break
                 
                 #if found, then let's add dedicated page(s) for the moves lists
                 if commands_found:

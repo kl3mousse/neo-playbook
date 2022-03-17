@@ -18,6 +18,11 @@ def getImgAspectRatio(filename):
     img_ratio = width / height
     return img_ratio
 
+def getImgSize(filename):
+    im = Image.open(filename)
+    width, height = im.size
+    return width, height
+
 def crop_bottomright(filename, ratio):
     im = Image.open(filename)
     width, height = im.size
