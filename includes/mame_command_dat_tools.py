@@ -2,10 +2,12 @@
 from PIL import Image, ImageDraw, ImageFont
 
 class command_block:
-    def __init__(self, rom, title):
+    def __init__(self, rom, title, num):
         self.rom              = rom
         self.block_title      = title
+        self.num              = num
         self.block_rows       = []
+        # print("**** "+rom+" * "+title)
 
 def txt_commands_dat_convert(text):
 # this function replaces special characters of command.dat, for example  "_(" by the right char code in the arcade.ttf font.
@@ -97,26 +99,14 @@ def render_coloured_text(x, y, image_draw, text, default_color, font, charspacin
             continue
         width, height = image_draw.textsize(text[i], font)
         x_pos += charspacing #width
-        #print(str(width)+"-", end = '')
-        #result.append(((width, height), lastColour, bold, italics, message[i]))
+
         image_draw.text((x_pos, y), text[i], fill = txtcolor, font = font, align = align)
     
     return 1
 
 
 def command_block_img_gen(block: command_block):
-    SIZEH    = 10
-    SIZEL    = 10
-    FONTSIZE = 14
-    TXTCOLOR = (255, 255, 255)
-    BGCOLOR  = (0, 0, 0)
-    LMARGIN  = 5
-    HMARGIN  = 5
-    IMGWIDTH = 420
-    CHARSPACING = 7
-
     SIZEH    = 20
-    SIZEL    = 10
     FONTSIZE = 24
     TXTCOLOR = (255, 255, 255)
     BGCOLOR  = (0, 0, 0)
@@ -124,13 +114,9 @@ def command_block_img_gen(block: command_block):
     HMARGIN  = 5
     IMGWIDTH = 820
     CHARSPACING = 12
-
-    #im1 = Image.open(filename).convert("RGBA")
     
     im = Image.new("RGBA", (IMGWIDTH, 2*HMARGIN + SIZEH * len(block.block_rows)), BGCOLOR)
     draw = ImageDraw.Draw(im)
-
-    #draw.line((0,1,20,30),fill=(255,255,255))
 
     # there are many empty spaces chars on each line
     # ..let's find where we can start to remove them
@@ -140,7 +126,7 @@ def command_block_img_gen(block: command_block):
         spaces_pos_row = text.find("        ")
         if(spaces_pos_row > spaces_pos):spaces_pos=spaces_pos_row
 
-    # print title
+    # Print title
     font = ImageFont.truetype('./fonts/AnonymousPro-Regular-arcade-controls.ttf', FONTSIZE)
     text = block.block_title
     text = text[0:spaces_pos+2] + text[spaces_pos+2:1000].replace("  ","")
@@ -152,19 +138,13 @@ def command_block_img_gen(block: command_block):
         text = text[0:spaces_pos+2] + text[spaces_pos+2:1000].replace("  ","")
         text = txt_commands_dat_convert(text)
 
-        #width, height = draw.textsize(text, font=font)
-        #draw.text((LMARGIN, HMARGIN + SIZEH * i), text, fill = TXTCOLOR, font = font, align = 'left')
         render_coloured_text(x = LMARGIN, y = HMARGIN + SIZEH * i, image_draw = draw, text = text, default_color = TXTCOLOR, font = font, charspacing = CHARSPACING, align = 'left')
 
-    #out = Image.composite(im2, im1, im_mask)
-    #out.save(filename)
-
     #im.show()
-
-    filename = './img-cache/cmd-block-'+ block.rom + block.block_title[0:spaces_pos].replace(" ", "")+'.png'
-    filename = filename.replace("\n", "")
-    filename = filename.replace("'", "")
+    filename = './img-cache/cmd-block-'+ block.rom + '-' + str(block.num) +'.png'
+    #print(filename)
     im.save(filename)
+
     return(filename)
 
 
@@ -194,17 +174,18 @@ def get_command_blocks(gamename, command_dat_filename):
         if found:
             if row[0:4] == "$end":
                 finished = True
-            if nb_blocks == 0:
-                if row[0:2] == "- ":
-                    nb_blocks += 1
-                    block = command_block(gamename, row)
             else:
-                if row[0:2] == "- ":
-                    nb_blocks += 1
-                    game_command_blocks.append(block)
-                    block = command_block(gamename, row)
+                if nb_blocks == 0:
+                    if (row[0:2] == "- ")*(row[0:10].find("_")==-1): #new blocks start with "- " and should not have "_" near start of row
+                        nb_blocks += 1
+                        block = command_block(gamename, row, nb_blocks)
                 else:
-                    block.block_rows.append(row)
+                    if (row[0:2] == "- ")*(row[0:10].find("_")==-1):
+                        nb_blocks += 1
+                        game_command_blocks.append(block)
+                        block = command_block(gamename, row, nb_blocks)
+                    else:
+                        block.block_rows.append(row)
 
         if finished:
             break
@@ -212,9 +193,9 @@ def get_command_blocks(gamename, command_dat_filename):
     for b in game_command_blocks:
         #print(b.block_title[0:30]) #, end='')
 
-        if (b.block_title[0:13] == "- BLUE MARY -") :
+#        if (b.block_title[0:13] == "- BLUE MARY -") :
 #        if (b.block_title[0:13] ==  "- TERRY BOGAR") :
-            block_filename = command_block_img_gen(b)
+#            block_filename = command_block_img_gen(b)
 
         block_filename = command_block_img_gen(b)
         block_files.append(block_filename)

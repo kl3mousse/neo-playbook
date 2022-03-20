@@ -30,7 +30,7 @@ NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGe
 NEOGEO_MAG_OUTPUT_PDF_PAGESMAX = 90
 
 ct = datetime.datetime.now()
-NEOGEO_MAG_OUTPUT_PDF          = "./pdf-output/neo-what2playbook-" + str(ct.timestamp())[0:9] # .pdf will be added automatically
+NEOGEO_MAG_OUTPUT_PDF          = "./pdf-output/neo-playbook-alpha-" + str(ct.timestamp())[0:9] # .pdf will be added automatically
 
 # loading secrets from local file
 f = open('secrets.json')
@@ -70,17 +70,74 @@ def add_credits(pdf):
     pdf.set_right_margin(35)
     pdf.write_html(html_text)
 
-def add_moveslist_page(pdf, command_files):
+def set_page_background(pdf, game, page_num):
+    pdf.set_left_margin(5)
+    # fill color
+    pdf.set_fill_color(123, 134, 145)
+    pdf.rect(0, 0, 210, 297, 'F')
+
+    if (page_num % 2) == 0:
+        #even / right page
+        MAIN_POSX = 13+5
+        BAR_POSX = 175
+        FOOTER_POSX = 5+5
+    else:
+        #odd / left page
+        MAIN_POSX = 40-5
+        BAR_POSX = 0
+        FOOTER_POSX = 35-5
+
+    #game background in footer
+    if game.game_background is not None:
+        pic = download_image(game.game_background)
+        bg_h = 40
+        bg_w = 160
+        pic = clean_JPG(pic)
+        crop_upright(pic, bg_w / bg_h, vshift = game.vshift)
+        add_scanlines(pic)
+        footer_effect(pic, (123, 134, 145))
+        pdf.image(pic, x = FOOTER_POSX, y = 297 - bg_h, w = bg_w, h = bg_h, type = '', link = '')
+
+    # page background
+    if (page_num % 2) == 0:
+        #even page
+        pdf.set_xy(0, 0)
+        pdf.image("./img/margin-left-2-darkbluesc19.png", x = None, y = None, w = 0, h = 297, type = '', link = '')
+        pdf.set_xy(133, 0)
+        pdf.image("./img/margin-right-2-redsc19.png", x = None, y = None, w = 0, h = 297, type = '', link = '')
+    else:
+        #odd page
+        pdf.set_xy(0, 0)
+        pdf.image("./img/margin-left-2-redsc19.png", x = None, y = None, w = 0, h = 297, type = '', link = '')
+        pdf.set_xy(161, 0)
+        pdf.image("./img/margin-right-2-darkbluesc19.png", x = None, y = None, w = 0, h = 297, type = '', link = '')
+
+    # page number in footer
+    if page_num is not None:
+        pdf.set_text_color(255, 240, 240)
+        pdf.set_font("ErbosDracoNova", size = 8)
+        pdf.set_xy(BAR_POSX + 5, 290)
+        pdf.cell(w = 25, h = 6, txt = str(page_num),  ln = 0, align = 'C')
+
+def add_moveslist_page(pdf, command_files, game, page_num):
     pdf.add_page()
+    added_pages = 1
+
+    set_page_background(pdf, game, page_num + added_pages)
 
     pdf.set_font("ErbosDracoNova", size = 8)
     pdf.set_text_color(12, 23, 34)
     
     TOP_MARGIN = 20
-    LEFT_MARGIN = 25
     BLOCKS_MARGIN = 3
     BLOCK_WIDTH = 90
     PAGE_H = 292
+    if ((page_num + added_pages) % 2) == 0:
+        #even / right page
+        LEFT_MARGIN = 20
+    else:
+        #odd / left page
+        LEFT_MARGIN = 6
 
     current_column = 0 # 0 or 1
     col0_y = TOP_MARGIN
@@ -93,6 +150,15 @@ def add_moveslist_page(pdf, command_files):
         # check if too tall and add new page if required
         if (im_h / im_w * BLOCK_WIDTH) + min(col0_y, col1_y) > PAGE_H:
             pdf.add_page()
+            added_pages+=1
+            if ((page_num + added_pages) % 2) == 0:
+                #even / right page
+                LEFT_MARGIN = 20
+            else:
+                #odd / left page
+                LEFT_MARGIN = 6
+            set_page_background(pdf, game, page_num + added_pages)
+
             current_column = 0 # 0 or 1
             col0_y = TOP_MARGIN
             col1_y = TOP_MARGIN
@@ -111,7 +177,7 @@ def add_moveslist_page(pdf, command_files):
         if col0_y > col1_y: current_column = 1
         if col0_y < col1_y: current_column = 0
 
-
+    return added_pages
 
 
 
@@ -510,7 +576,8 @@ while (not (page_type is None)) :
                 
                 #if found, then let's add dedicated page(s) for the moves lists
                 if commands_found:
-                    add_moveslist_page(pdf, command_files)
+                    added_pages = add_moveslist_page(pdf, command_files, game, page_num)
+                    page_num += added_pages
 
                 print(".. done")
 
