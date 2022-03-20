@@ -1,5 +1,5 @@
 beautifulsoup4==4.10.0
 fpdf2==2.5.0
 openpyxl==3.0.9
-Pillow==9.0.0
+Pillow==9.0.1
 requests==2.27.1
