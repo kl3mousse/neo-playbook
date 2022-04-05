@@ -421,8 +421,12 @@ def add_game_page(pdf, game, page_num):
         if icon_ok:
             pdf.image(gametype_icon, x = BAR_POSX+5, y = 110, w = 25, h = 0, type = '', link = '')
     
-    
+    # game platforms
     pdf.image('img/icons/placeholder-yellow.png', x = BAR_POSX+5, y = 140, w = 25, h = 0, type = '', link = '')
+    if game.platforms is not None:
+        pdf.set_font("ErbosDracoNova", size = 12)
+        pdf.set_xy(BAR_POSX+5, 140)
+        pdf.cell(w = 25, h = 25, txt = game.platforms,  ln = 0, align = 'C')
 
     # genre of game (fight, puzzle, ...)
     if game.genre is not None:
@@ -471,7 +475,7 @@ pdf.add_font("ErbosDracoNova", "", "fonts/ErbosdracoNovaOpenNbpRegular-yGa5.ttf"
 # Load data from Ms Excel file
 ############################################################################
 
-wb           = load_workbook(NEOGEO_DATA_XLS)
+wb           = load_workbook(NEOGEO_DATA_XLS, data_only=True)
 ws           = wb[NEOGEO_DATA_XLS_SHEET]
 ws_mame      = wb[NEOGEO_MAME_XLS_SHEET]
 sheet_ranges = wb[NEOGEO_DATA_XLS_SHEET]
@@ -534,6 +538,7 @@ while (not (page_type is None)) :
                 game.vshift                   = ws.cell(column=15, row=rowNb).value
                 game.ngm_id                   = ws.cell(column=16, row=rowNb).value
                 game.megs                     = ws.cell(column=17, row=rowNb).value
+                game.platforms                = ws.cell(column=18, row=rowNb).value
 
                 #get roms & boots/hacks data from MAME data
                 # loop in XLS file, for each game found

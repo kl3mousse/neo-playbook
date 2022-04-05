@@ -2,6 +2,8 @@ import requests
 import json
 import time
 
+LANG = 'FR'
+
 # loading secrets from local file
 f = open('secrets.json')
 secrets=json.load(f)
@@ -49,6 +51,7 @@ class game_data:
         self.vshift = None
         self.ngm_id = None 
         self.megs = None 
+        self.platforms = None
 
     def addrom(self, rom):
         self.mame_versions.append(rom)
@@ -86,7 +89,6 @@ def hfsdb_scraper(game_hfsdb_id):
         #get game info from HFSdb API
         hfs_game = get_game_from_hfsdb(game_hfsdb_id)
 
-        LANG = 'FR'
         #get description
         if LANG == 'FR':
             game.description = hfs_game['description_fr']

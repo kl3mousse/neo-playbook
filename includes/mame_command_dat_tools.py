@@ -15,7 +15,7 @@ def txt_commands_dat_convert(text):
     conversion_table = {
     # https://minecraft.fandom.com/wiki/Formatting_codes
         # icons from ./key1.bmp
-        "_A" : "§c" + chr(57355) +"§r", # button: A
+        "_A" : "§c" +"A§r",  # + chr(57355) +"§r" # button: A
         "_B" : "§6" + chr(57356) +"§r", # button: B
         "_C" : "§a" + chr(57357) +"§r", # button: C
         "_D" : "§b" + chr(57358) +"§r", # button: D
@@ -115,6 +115,15 @@ def command_block_img_gen(block: command_block):
     IMGWIDTH = 820
     CHARSPACING = 12
     
+    SIZEH    = 35
+    FONTSIZE = 40
+    TXTCOLOR = (255, 255, 255)
+    BGCOLOR  = (0, 0, 0)
+    LMARGIN  = 15
+    HMARGIN  = 15
+    IMGWIDTH = 1600
+    CHARSPACING = 22
+
     im = Image.new("RGBA", (IMGWIDTH, 2*HMARGIN + SIZEH * len(block.block_rows)), BGCOLOR)
     draw = ImageDraw.Draw(im)
 
