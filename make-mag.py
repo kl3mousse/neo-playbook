@@ -389,22 +389,6 @@ def add_game_page(pdf, game, page_num):
         pdf.set_xy(BAR_POSX+6, 71)
         pdf.cell(w = 25, h = 20, txt = str(game.megs),  ln = 0, align = 'C')
 
-    # number of players
-    if game.nb_players is not None:
-        pdf.set_text_color(255, 240, 240)
-        if game.nb_players == "2P":
-            pdf.set_xy(BAR_POSX+3, 230)
-            pdf.image("img/2players.png", x = None, y = None, w = 30, h = 0, type = '', link = '')
-            pdf.set_font("ErbosDracoNova", size = 8)
-            pdf.set_xy(BAR_POSX+3, 242)
-            pdf.cell(w = 30, h = 7, txt = "2 PLAYERS",  ln = 0, align = 'C')
-        if game.nb_players == "1P":
-            pdf.set_xy(BAR_POSX+3, 230)
-            pdf.image("img/1player.png", x = None, y = None, w = 30, h = 0, type = '', link = '')
-            pdf.set_font("ErbosDracoNova", size = 8)
-            pdf.set_xy(BAR_POSX+3, 242)
-            pdf.cell(w = 30, h = 7, txt = "1 PLAYER",  ln = 0, align = 'C')
-
     # type of game (homebrew, proto, licenced...)
     if game.type is not None:
         icon_ok = True
@@ -422,11 +406,10 @@ def add_game_page(pdf, game, page_num):
             pdf.image(gametype_icon, x = BAR_POSX+5, y = 110, w = 25, h = 0, type = '', link = '')
     
     # game platforms
-    pdf.image('img/icons/placeholder-yellow.png', x = BAR_POSX+5, y = 140, w = 25, h = 0, type = '', link = '')
     if game.platforms is not None:
-        pdf.set_font("ErbosDracoNova", size = 12)
-        pdf.set_xy(BAR_POSX+5, 140)
-        pdf.cell(w = 25, h = 25, txt = game.platforms,  ln = 0, align = 'C')
+        filename = 'img/icons/platform-' + game.platforms + '.png'
+        pdf.image(filename, x = BAR_POSX+5, y = 140, w = 25, h = 0, type = '', link = '')
+
 
     # genre of game (fight, puzzle, ...)
     if game.genre is not None:
@@ -450,7 +433,25 @@ def add_game_page(pdf, game, page_num):
         if icon_ok:
             pdf.image(gamegenre_icon, x = BAR_POSX+5, y = 170, w = 25, h = 0, type = '', link = '')
 
-    pdf.image('img/icons/placeholder-blue.png', x = BAR_POSX+5, y = 200, w = 25, h = 0, type = '', link = '')
+
+    # number of players
+    if game.nb_players is not None:
+        pdf.image('img/icons/placeholder-blue.png', x = BAR_POSX+5, y = 200, w = 25, h = 0, type = '', link = '')        
+        pdf.set_text_color(255, 240, 240)
+        pdf.set_font("ErbosDracoNova", size = 8)
+        pdf.set_xy(BAR_POSX+3, 210)
+        
+        if game.nb_players == "2P":
+            #pdf.set_xy(BAR_POSX+3, 230)
+            #pdf.image("img/2players.png", x = None, y = None, w = 30, h = 0, type = '', link = '')
+            
+            pdf.cell(w = 30, h = 7, txt = "2 PLAYERS",  ln = 0, align = 'C')
+        if game.nb_players == "1P":
+            #pdf.set_xy(BAR_POSX+3, 230)
+            #pdf.image("img/1player.png", x = None, y = None, w = 30, h = 0, type = '', link = '')
+            #pdf.set_font("ErbosDracoNova", size = 8)
+            #pdf.set_xy(BAR_POSX+3, 202)
+            pdf.cell(w = 30, h = 7, txt = "1 PLAYER",  ln = 0, align = 'C')
 
 ############################################################################
 # Init PDF file
