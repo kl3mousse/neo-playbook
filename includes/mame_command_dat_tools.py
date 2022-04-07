@@ -15,12 +15,12 @@ def txt_commands_dat_convert(text):
     conversion_table = {
     # https://minecraft.fandom.com/wiki/Formatting_codes
         # icons from ./key1.bmp
-        "_A" : "§c" +"A§r",  # + chr(57355) +"§r" # button: A
-        "_B" : "§6" + chr(57356) +"§r", # button: B
-        "_C" : "§a" + chr(57357) +"§r", # button: C
-        "_D" : "§b" + chr(57358) +"§r", # button: D
-        "_P" : "§d" + chr(57366) +"§r", # button: punch
-        "_K" : "§5" + chr(57367) +"§r", # button: kick
+        "_A" : "§cA§r",  # + chr(57355) +"§r" # button: A
+        "_B" : "§gB§r", # button: B
+        "_C" : "§aC§r", # button: C
+        "_D" : "§bD§r", # button: D
+        "_P" : "§dP§r", # button: punch
+        "_K" : "§5K§r", # button: kick
 
         "_S" : "§c" + chr(57368) +"§r", # button: Taunt
         "^S" : "§6" + chr(57369) +"§r", # button: Select (AES)
@@ -35,17 +35,22 @@ def txt_commands_dat_convert(text):
         "_8" : chr(57364), # joy: up
         "_9" : chr(57365), # joy: up+right        
         "_+" : "+",
-
-        "^1" : chr(57372), # joy: down+left+dot
-        "^2" : chr(57373), # joy: down+left+dot
+        "^1" : chr(57359)+".", # joy: down+left
+        "^2" : chr(57360)+".", # joy: down
+        "^3" : chr(57361)+".", # joy: down+right
+        "^4" : chr(57353)+".", # joy: left
+        "^6" : chr(57354)+".", # joy: right
+        "^7" : chr(57363)+".", # joy: up+left
+        "^8" : chr(57364)+".", # joy: up
+        "^9" : chr(57365)+".", # joy: up+right      
 
         # icons from ./key2.bmp
-        "_(": chr(8226),
-        "_)": "2",
-        "_@": "§93§r",
-        "_*": chr(57344),
-        "_&": "§c5§r",
-        "_#": "6",
+        "_(":      chr(8226),
+        "_)": "§6"+chr(8226)+"§r",
+        "_@": "§7"+chr(8226)+"§r",
+        "_*": "§9"+chr(8226)+"§r",
+        "_&": "§a"+chr(8226)+"§r",
+        "_#": "§b"+chr(8226)+"§r",
         "(-)":"(-)",
         "(!)":"(!)",
         "_>" : chr(9670),
@@ -53,6 +58,7 @@ def txt_commands_dat_convert(text):
         "_m" : chr(57349),
         "_^": chr(57370), # AIR
         "_?": chr(57371), # DIR
+        "_X": "[tap]" # tap
 
     }
 
@@ -106,26 +112,20 @@ def render_coloured_text(x, y, image_draw, text, default_color, font, charspacin
 
 
 def command_block_img_gen(block: command_block):
-    SIZEH    = 20
-    FONTSIZE = 24
-    TXTCOLOR = (255, 255, 255)
-    BGCOLOR  = (0, 0, 0)
-    LMARGIN  = 5
-    HMARGIN  = 5
-    IMGWIDTH = 820
-    CHARSPACING = 12
-    
     SIZEH    = 35
     FONTSIZE = 40
     TXTCOLOR = (255, 255, 255)
-    BGCOLOR  = (0, 0, 0)
+    BGCOLOR  = (53, 68, 81)
     LMARGIN  = 15
     HMARGIN  = 15
     IMGWIDTH = 1600
     CHARSPACING = 22
 
-    im = Image.new("RGBA", (IMGWIDTH, 2*HMARGIN + SIZEH * len(block.block_rows)), BGCOLOR)
+    im_height = 2*HMARGIN + SIZEH * len(block.block_rows)
+    im = Image.new("RGBA", (IMGWIDTH, im_height), BGCOLOR)
     draw = ImageDraw.Draw(im)
+
+    draw.rounded_rectangle([3, 3, IMGWIDTH-4 , im_height -3] , radius=3, fill=None, outline=TXTCOLOR, width=1)
 
     # there are many empty spaces chars on each line
     # ..let's find where we can start to remove them
