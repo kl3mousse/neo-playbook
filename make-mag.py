@@ -1,29 +1,25 @@
 ############################################################################
-#
-#
+# NEO GEO PLAYBOOK - PDF CREATOR
+# https://github.com/kl3mousse/neo-playbook
 ############################################################################
 
 from includes.get_image import download_image
 from includes.mame_command_dat_tools import get_command_blocks
-# from get_fragments import get_wikisummary
 from includes.img_tools import clean_JPG, footer_effect, getImgAspectRatio, crop_bottomright, add_scanlines, crop_upright, getImgSize
 from includes.hfsdb import get_game_from_hfsdb, hfsdb_scraper, game_data, game_mame_version
-import datetime;
-#from PIL import Image
 
-#import openpyxl            # to handle reading from XLS file
+import datetime;
+
 from fpdf import FPDF, HTMLMixin      # to create PDF file
 from openpyxl import load_workbook
-# import wikipedia
 
-#from igdb.wrapper import IGDBWrapper
 import json
 
 ############################################################################
 
 # constants / prog parameters
 NEOGEO_DATA_XLS                = "games.xlsx"
-NEOGEO_DATA_XLS_SHEET          = "Games-test" #switch from "Games" to "Games-test" for testing a smaller chunk of games
+NEOGEO_DATA_XLS_SHEET          = "Games" #switch from "Games" to "Games-test" for testing a smaller chunk of games
 NEOGEO_MAME_XLS_SHEET          = "MAME.xml (cleaned)"
 COMMAND_DAT_FILE               = "./command-dat/command.dat"
 NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGeo Era' or 'Post NeoGeo' to filter the right set of games 
@@ -58,7 +54,7 @@ def add_credits(pdf):
     pdf.set_font("ErbosDracoNova", size = 20)
     pdf.set_text_color(12, 23, 34)
     pdf.set_xy(0, 12)
-    pdf.cell(w = 210, h = 12, txt = 'CREDITS',  ln = 0, align = 'C')
+    pdf.cell(w = 210, h = 12, txt = 'INSERT COIN',  ln = 0, align = 'C')
     
     # load text from HTML file
     pdf.set_font("Osaka", size = 10)

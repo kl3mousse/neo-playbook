@@ -6,7 +6,7 @@ I wanted a little book showing all NeoGeo games, so that we can have a look in a
 
 # current status
 
-in development. Prototype looks good enough to be shared publicly. Contributions welcome (create an issue to raise the hand).
+in development. Prototype looks good enough to be shared publicly, have a look at the alpha version in the github releases. Contributions welcome (create an issue to raise the hand).
 Done
 - all games from NeoGeo era (~90's) are there
 - visuals & texts OK
@@ -18,7 +18,7 @@ To Do list
 - crediting opensource software properly
 - crediting MAME command.dat communities + finding the best files to use
 - games from NeoGeo resurrection era (2000-2020), in progress
-- additional metadata & graphical elements for each game (genre, type, sizes, platforms, ...)
+- additional metadata & better graphical elements for each game (genre, type, sizes, platforms, ...)
 - summary page / table of all games
 - versionning of PDF
 - ensuring translations are available in English & French for all games. More languages (then plz ask for it...) maybe?
