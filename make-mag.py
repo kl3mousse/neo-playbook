@@ -19,7 +19,7 @@ import json
 
 # constants / prog parameters
 NEOGEO_DATA_XLS                = "games.xlsx"
-NEOGEO_DATA_XLS_SHEET          = "Games" #switch from "Games" to "Games-test" for testing a smaller chunk of games
+NEOGEO_DATA_XLS_SHEET          = "Games-test" #switch from "Games" to "Games-test" for testing a smaller chunk of games
 NEOGEO_MAME_XLS_SHEET          = "MAME.xml (cleaned)"
 COMMAND_DAT_FILE               = "./command-dat/command.dat"
 NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGeo Era' or 'Post NeoGeo' to filter the right set of games 
@@ -126,7 +126,7 @@ def add_moveslist_page(pdf, command_files, game, page_num):
     
     TOP_MARGIN = 20
     BLOCKS_MARGIN = 3
-    BLOCK_WIDTH = 90
+    BLOCK_WIDTH = 60 # was 90
     PAGE_H = 292
     if ((page_num + added_pages) % 2) == 0:
         #even / right page
@@ -138,13 +138,14 @@ def add_moveslist_page(pdf, command_files, game, page_num):
     current_column = 0 # 0 or 1
     col0_y = TOP_MARGIN
     col1_y = TOP_MARGIN
+    col2_y = TOP_MARGIN
 
     # for each image to add
     for command_file in command_files:
         im_w, im_h = getImgSize(command_file)
 
         # check if too tall and add new page if required
-        if (im_h / im_w * BLOCK_WIDTH) + min(col0_y, col1_y) > PAGE_H:
+        if (im_h / im_w * BLOCK_WIDTH) + min(col0_y, col1_y, col2_y) > PAGE_H:
             pdf.add_page()
             added_pages+=1
             if ((page_num + added_pages) % 2) == 0:
@@ -158,20 +159,27 @@ def add_moveslist_page(pdf, command_files, game, page_num):
             current_column = 0 # 0 or 1
             col0_y = TOP_MARGIN
             col1_y = TOP_MARGIN
+            col2_y = TOP_MARGIN
 
         # add image in column and switch column
         filename = command_file
         im_x = LEFT_MARGIN + current_column * (BLOCK_WIDTH + BLOCKS_MARGIN)
         if current_column == 0: im_y = col0_y
         if current_column == 1: im_y = col1_y
+        if current_column == 2: im_y = col2_y
         im_y += BLOCKS_MARGIN
         pdf.image(filename, x = im_x, y = im_y, w = BLOCK_WIDTH, h = round(BLOCK_WIDTH * im_h / im_w), type = '', link = '')
         
         # increment colunms y index
         if current_column == 0: col0_y += round(BLOCK_WIDTH * im_h / im_w) + BLOCKS_MARGIN
-        if current_column == 1: col1_y += round(BLOCK_WIDTH * im_h / im_w) +BLOCKS_MARGIN
-        if col0_y > col1_y: current_column = 1
-        if col0_y < col1_y: current_column = 0
+        if current_column == 1: col1_y += round(BLOCK_WIDTH * im_h / im_w) + BLOCKS_MARGIN
+        if current_column == 2: col2_y += round(BLOCK_WIDTH * im_h / im_w) + BLOCKS_MARGIN
+        #if col0_y > col1_y: current_column = 1
+        #if col0_y < col1_y: current_column = 0
+        if col2_y <= min(col0_y, col1_y):  current_column = 2
+        if col1_y <= min(col0_y, col2_y):  current_column = 1
+        if col0_y <= min(col1_y, col2_y): current_column = 0
+
 
     return added_pages
 
