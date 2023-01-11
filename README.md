@@ -12,17 +12,7 @@ Done
 - visuals & texts OK
 - moves lists from MAME command.dat integrated (still lots to do to get it nicely loaded)
 
-To Do list
-- tune the command.dat integration UI.
-- crediting various indirect sources, platforms & contributors which made medias available on the net. This book is only scraping their work, these folks deserve thanks.
-- crediting opensource software properly
-- crediting MAME command.dat communities + finding the best files to use
-- games from NeoGeo resurrection era (2000-2020), in progress
-- additional metadata & better graphical elements for each game (genre, type, sizes, platforms, ...)
-- summary page / table of all games
-- versionning of PDF
-- ensuring translations are available in English & French for all games. More languages (then plz ask for it...) maybe?
-- footers for all games 
+To Do list: now moved to Github issues for better tracking!
 
 # how it works
 
