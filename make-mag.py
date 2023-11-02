@@ -5,10 +5,11 @@
 
 from includes.get_image import download_image
 from includes.mame_command_dat_tools import get_command_blocks
-from includes.img_tools import clean_JPG, footer_effect, getImgAspectRatio, crop_bottomright, add_scanlines, crop_upright, getImgSize
+from includes.img_tools import clean_JPG, footer_effect, getImgAspectRatio, crop_bottomright, add_scanlines, crop_upright, getImgSize, image_resize
 from includes.hfsdb import get_game_from_hfsdb, hfsdb_scraper, game_data, game_mame_version
+from includes.dips import SoftDipsSettings
 
-import datetime;
+import datetime, os;
 
 from fpdf import FPDF, HTMLMixin      # to create PDF file
 from openpyxl import load_workbook
@@ -19,7 +20,7 @@ import json
 
 # constants / prog parameters
 NEOGEO_DATA_XLS                = "games.xlsx"
-NEOGEO_DATA_XLS_SHEET          = "Games-test" #switch from "Games" to "Games-test" for testing a smaller chunk of games
+NEOGEO_DATA_XLS_SHEET          = "Games" #switch from "Games" to "Games-test" for testing a smaller chunk of games
 NEOGEO_MAME_XLS_SHEET          = "MAME.xml (cleaned)"
 COMMAND_DAT_FILE               = "./command-dat/command.dat"
 NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGeo Era' or 'Post NeoGeo' to filter the right set of games 
@@ -64,7 +65,7 @@ def add_credits(pdf):
     pdf.set_xy(40, 45)
     pdf.set_left_margin(35)
     pdf.set_right_margin(35)
-    pdf.write_html(html_text)
+    #pdf.write_html(html_text)
 
 def set_page_background(pdf, game, page_num):
     pdf.set_left_margin(5)
@@ -116,6 +117,14 @@ def set_page_background(pdf, game, page_num):
         pdf.cell(w = 25, h = 6, txt = str(page_num),  ln = 0, align = 'C')
 
 def add_moveslist_page(pdf, command_files, game, page_num):
+    def add_title():
+        pdf.set_y(11)
+        pdf.set_x(5)
+        pdf.set_text_color(12, 23, 34)
+        pdf.set_font("ErbosDracoNova", size = 10)
+        page_title = game.title
+        pdf.cell(w = 200, h = 9, txt = page_title,  ln = 1, align = 'C')
+    
     pdf.add_page()
     added_pages = 1
 
@@ -123,6 +132,7 @@ def add_moveslist_page(pdf, command_files, game, page_num):
 
     pdf.set_font("ErbosDracoNova", size = 8)
     pdf.set_text_color(12, 23, 34)
+    add_title()
     
     TOP_MARGIN = 20
     BLOCKS_MARGIN = 3
@@ -155,7 +165,7 @@ def add_moveslist_page(pdf, command_files, game, page_num):
                 #odd / left page
                 LEFT_MARGIN = 6
             set_page_background(pdf, game, page_num + added_pages)
-
+            add_title()
             current_column = 0 # 0 or 1
             col0_y = TOP_MARGIN
             col1_y = TOP_MARGIN
@@ -286,6 +296,8 @@ def add_game_page(pdf, game, page_num):
     if game.cover3d is not None:
         pic = download_image(game.cover3d)
         if(game.cover3d[-3:].upper() == "JPG"): clean_JPG(pic)
+        if(game.cover3d[-4:].upper() == "WEBP"): pic = clean_JPG(pic)
+        
         pdf.image(pic, x = None, y = None, w = 35, h = 0, type = '', link = '')
 
     #screenshots
@@ -348,9 +360,23 @@ def add_game_page(pdf, game, page_num):
         # draw image border
         pdf.rect(MINI_MARQUEE_X, MINI_MARQUEE_Y, w= MINI_MARQUEE_W, h = MINI_MARQUEE_H)
 
+    # game soft dips options
+    if game.softdipsimage is not None:
+        pic = clean_JPG(game.softdipsimage)
+        pic = image_resize(pic, 640)
+        add_scanlines(pic)
+        imw, imh = getImgSize(pic)
+        SOFTDIPS_X = SCREENSHOT1_X
+        SOFTDIPS_Y = MINI_MARQUEE_Y + MINI_MARQUEE_H + 2
+        SOFTDIPS_W = SCREENSHOT1_W
+        SOFTDIPS_H = SOFTDIPS_W / imw * imh
+        
+        pdf.image(pic, x = SOFTDIPS_X, y = SOFTDIPS_Y, w = SOFTDIPS_W, type = '', link = '')
+        pdf.rect(SOFTDIPS_X, SOFTDIPS_Y, w= SOFTDIPS_W, h = SOFTDIPS_H)
+
     # horizontal line
     pdf.set_fill_color(47, 61, 73)
-    pdf.rect(SCREENSHOT2_X, MINI_MARQUEE_Y, SCREENSHOT2_W, 1, 'F')
+    pdf.rect(SCREENSHOT2_X, MINI_MARQUEE_Y, SCREENSHOT1_W, 1, 'F')
     
     # game description
     if game.description is not None:
@@ -468,8 +494,9 @@ pdf = MyFPDF(unit = "mm", format="A4")
 #pdf = FPDF(unit = "mm", format="A4")
 
 pdf.compress = True
-pdf.oversized_images = "WARN"
-pdf.oversized_images = "DOWNSCALE"
+#pdf.oversized_images = "WARN"
+#pdf.oversized_images = "DOWNSCALE"
+#pdf.oversized_images_ratio = 2
 pdf.set_left_margin(5)
 pdf.set_top_margin(0)
 pdf.set_auto_page_break(auto=0)
@@ -545,13 +572,12 @@ while (not (page_type is None)) :
                 game.megs                     = ws.cell(column=17, row=rowNb).value
                 game.platforms                = ws.cell(column=18, row=rowNb).value
 
-                #get roms & boots/hacks data from MAME data
+                # get roms & boots/hacks data from MAME data
                 # loop in XLS file, for each game found
-                #mame_game_id = sheet_ranges['B1'].value
                 mame_rowNb = 2
                 mame_game_id = ws_mame.cell(column=1, row=mame_rowNb).value
-                #game.mame_versions = []
-                while (not (mame_game_id is None)) :
+                
+                while (mame_game_id is not None) :
                     if mame_game_id == game.id:
                         mame_game_rom           = ws_mame.cell(column=2, row=mame_rowNb).value
                         mame_game_description   = ws_mame.cell(column=3, row=mame_rowNb).value
@@ -561,7 +587,9 @@ while (not (page_type is None)) :
                         mame_game_release       = ws_mame.cell(column=7, row=mame_rowNb).value
                         mame_game_platform      = ws_mame.cell(column=9, row=mame_rowNb).value
                         mame_game_compatibility = ws_mame.cell(column=10, row=mame_rowNb).value
-                        newmameversion = game_mame_version(mame_game_id, mame_game_rom, mame_game_description, mame_game_year, mame_game_publisher, mame_game_serial,mame_game_release, mame_game_platform, mame_game_compatibility)
+                        mame_game_excludesoftdips = ws_mame.cell(column=12, row=mame_rowNb).value
+
+                        newmameversion = game_mame_version(mame_game_id, mame_game_rom, mame_game_description, mame_game_year, mame_game_publisher, mame_game_serial,mame_game_release, mame_game_platform, mame_game_compatibility, mame_game_excludesoftdips)
 
                         game.addrom(newmameversion)
                     # move to next row
@@ -569,6 +597,26 @@ while (not (page_type is None)) :
                     c = ws_mame.cell(column=1, row=mame_rowNb)
                     mame_game_id = c.value
                 print(str(game.nbroms()) + " roms found..", end = '')
+
+                for rom in game.mame_versions:
+                    rom_name = rom.mame_game_rom
+                    if rom.mame_game_excludesoftdips != "X":
+                        dips = SoftDipsSettings("dips.yaml", "debug_dips.yaml")
+                        if not dips.game_settings_found(game_code=rom_name, region='US'):
+                            dips.enrich_softdip_settings_from_rom(game_id=rom_name, path= f'./rom/{rom_name}.zip',  language='US')
+                            dips.enrich_softdip_settings_from_rom(game_id=rom_name, path= f'./rom/{rom_name}.zip',  language='EU')
+                        if dips.game_settings_found(game_code=rom_name, region='US'):        
+                            game.softdipsimage = dips.generate_settings_image(game_code=rom_name, region="US", path="./img-cache")
+                            game.softdipsimage = dips.generate_settings_image(game_code=rom_name, region="EU", path="./img-cache")
+                        else:
+                            game.softdipsimage = None
+
+                        # game_dips = SoftDipsSettings(rom_name = rom_name,country= "US", file_path = f'./rom/{rom_name}.zip')
+                        # if game_dips.loaded:
+                            # game_dips.print_settings()
+                        #    softdips_image_filename = game_dips.generate_image('./img-cache/soft-dips')
+                        #    print(f'softdips found, saved to {softdips_image_filename}', end = '')
+                        #    game.softdipsimage = softdips_image_filename
 
                 #add page in PDF
                 add_game_page(pdf, game, page_num )
@@ -578,6 +626,7 @@ while (not (page_type is None)) :
                 command_files = []
                 for rom in game.mame_versions:
                     rom_name = rom.mame_game_rom
+
                     command_files = get_command_blocks(rom_name, COMMAND_DAT_FILE)
                     if len(command_files)>0:
                         print(".. moves lists found ! in rom: " + rom_name + " (" + str(len(command_files)) + " blocks)" , end = '')

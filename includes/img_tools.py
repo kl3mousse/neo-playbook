@@ -1,3 +1,5 @@
+# ./includes/img_tools.py
+
 #import cv2
 from PIL import Image, ImageDraw, ImageEnhance
 
@@ -93,3 +95,24 @@ def footer_effect(filename, bg_color):
     out = Image.composite(im2, im1, im_mask)
     #out.show()
     out.save(filename)
+
+def image_resize(filename, target_width):
+    """
+    Resizes an image to the specified width while maintaining the aspect ratio.
+    
+    Args:
+    - filename (str): The path to the image file.
+    - target_width (int): The desired width for the resized image.
+    
+    Returns:
+    - str: The path to the resized image.
+    """
+
+    im = Image.open(filename)
+    aspect_ratio = im.width / im.height    
+    new_height = int(target_width / aspect_ratio)
+    resized_im = im.resize((target_width, new_height))
+    
+    resized_im.save(filename)
+    
+    return filename

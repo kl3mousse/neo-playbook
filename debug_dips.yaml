@@ -1,0 +1,973 @@
+3countb:
+  '1':
+    '1': Pal Mode/Job Meter
+    '2': Debug Text on screen
+    '3': Gives game link (assembly date) + extra text info
+    '4': Target boxes ingame
+    '5': Massive amount of textual info over game
+    '6': Sprite data on screen
+    '7': Font data on screen
+    '8': Possible sprite viewer...
+  '2':
+    '1': More debug text
+    '2': '"'
+    '3': '"'
+    '4': Disables P1 buttons?
+    '5': ?unknown
+    '6': "\"Dont Touch Me\" + Safety Mode appear on screen - needs further investigation\
+      \ - prob with P2 controls\_:)"
+    '8': Enables pause with select button
+alpham2:
+  '1':
+    '1': Debug display + in console mode press pause, level select menu display will
+      appear under the debug text - select level/stage with UP/DOWN and A to select
+      then unpause to skip to that stage.
+    '2': Nothing
+    '3': Nothing
+    '4': Nothing
+    '5': Nothing
+    '6': Nothing
+    '7': Nothing
+    '8': Nothing
+  '2':
+    '1': Nothing
+    '2': Nothing
+    '3': Nothing
+    '4': Nothing
+    '5': Nothing
+    '6': Nothing
+    '7': Nothing
+    '8': Nothing
+sonicwi3:
+  '1':
+    '1': to 2-7 unknown...
+  '2':
+    '8': Enable for Stage Select
+aof:
+  '1':
+    '1': Player 1 controls CPU.
+    '2': Same as above
+    '3': Stat boxes
+    '4': Play during "How to Play" screen
+    '5': Vs. mode collision detection boxes (press Start)
+    '6': Both players are invincible
+    '7': Unknown
+    '8': Press Start during fight to skip to next fight
+  '2':
+    '1': Slow mode
+    '2': Slower mode (combine with prior code for super slow)
+    '3': Clean paused game screen
+    '4': Press Select for RGB test palette
+    '5': Unknown
+    '6': Unknown
+    '7': Stop timer
+    '8': Pal Mode/Job Meter
+aof2:
+  '1':
+    '1': P1 is CPU (play Geese if you load Special Stage)
+    '2': P2 is CPU
+    '3': Press select for data display
+    '4': P2 No KO (also play behind how to play screen)
+    '5': Unknown
+    '6': Invincible CPU
+    '7': Numeric display for each player?
+    '8': Unknown
+  '2':
+    '1': Slower game
+    '2': Even Slower game
+    '3': Pause without Pause Display
+    '4': + 2-3 Press select for RGB test pallete
+    '5': Unknown
+    '6': Skip to ending
+    '7': Freeze timer
+    '8': Toggle Pal Mode/Job Meter
+aof3:
+  '1':
+    '1': Unknown
+    '2': P1 & P2 take no damage
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Practice mode? Must be on before match starts
+    '7': Unknown
+    '8': Unlock Sinclair and Wyler
+  '2':
+    '1': Player 1 is CPU controlled?
+    '2': Player 2 is CPU controlled? (if 2-8 is on, P1 is CPU instead. P2 doesn't
+      move)
+    '3': Displays "W!" at the top of the screen
+    '4': Players are invincible
+    '5': Unknown
+    '6': Unknown
+    '7': '"Random Mode" displayed'
+    '8': Total Round Display
+breakrev:
+  '1':
+    '1': Debug Menu Default (note 1)
+    '2': Screen Scroll Debug (not sure how it works)
+    '3': Kakuto Char No. Disp (not sure how it works)
+    '4': Kakuto Trigger Free (rapid fire)
+    '5': Kakuto Sound Test (not sure how it works)
+    '6': Obj. Status Debug (not sure how it works)
+    '7': Unknown
+    '8': Task Lsp. Weight Chk
+  '2':
+    '1': for CPU Algo Debug (character data displayed on screen)
+    '2': Char Select mode (hold ABCD, then hit down to scroll) (note 2)
+    '3': Center and Size Display (little ring appears to mark player position)
+    '4': Hit Area Display
+    '5': Ougi (pow) Max (unlimited pow)
+    '6': No Limit Battle (on time/health limits)
+    '7': Pal Sim (Europe only)
+    '8': Stop Motion (hit select to pause, start to unpause)
+breakers:
+  '1':
+    '1': Debug Menu Default (note 1)
+    '2': Screen Scroll Debug (not sure how it works)
+    '3': Kakuto Char No. Disp (not sure how it works)
+    '4': Kakuto Trigger Free (rapid fire)
+    '5': Kakuto Sound Test (not sure how it works)
+    '6': Obj. Status Debug (not sure how it works)
+    '7': Unknown
+    '8': Task Lsp. Weight Chk
+  '2':
+    '1': for CPU Algo Debug (character data displayed on screen)
+    '2': Char Select mode (hold ABCD, then hit down to scroll) (note 2)
+    '3': Center and Size Display (little ring appears to mark player position)
+    '4': Hit Area Display
+    '5': Ougi (pow) Max (unlimited pow)
+    '6': No Limit Battle (on time/health limits)
+    '7': Pal Sim (Europe only)
+    '8': Stop Motion (hit select to pause, start to unpause)
+doubledr:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': Slow motion
+    '2': No damage taken for either character
+    '3': Full charge for both players
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+fatfury2:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': CPU vs CPU
+    '4': 'unknown '
+    '5': "Krauser seems to not quite work correctly in this mode unfortunately - some\
+      \ of his moves are missing and it drops frames when you try and do certain commands\_\
+      :), still tis interesting!"
+    '6': View characters ending
+    '7': 'unknown '
+    '8': unknown
+  '2':
+    '1': 'Invincible mode '
+    '2': 'unknown '
+    '3': 'unknown '
+    '4': 'unknown '
+    '5': Press A+B+C+D to reduce opponents energy
+    '6': 'unknown '
+    '7': 'unknown '
+    '8': unknown
+fatfury3:
+  '1':
+    '1': Pal Mode/Job Meter
+    '2': Both players are invincible
+    '3': Unlimited time; secret character selectable
+    '4': Set before character selection screen; unlock Ryo; CPU opponent selectable
+    '5': View selected vs. character's ending
+    '6': Take selected character to dream match
+    '7': Message screen; use controller one
+    '8': Sprite viewer; press Select on controller one, use controller two to view
+  '2':
+    '1': Sprite character grids
+    '2': Sprite distance grids
+    '3': Show ending after selection of character
+    '4': Unknown
+    '5': Press A + B + C + D to set opponent's life to minimum + All characters available
+      on selection roll
+    '6': Sprite location information
+    '7': Debug Object display
+    '8': Stage selection screen
+fatfursp:
+  '1':
+    '1': Pal Mode/Job Meter
+    '2': Both players are invincible
+    '3': Unlimited time, Ryo Sakazaki Selectable
+    '4': Unlocks Ryo Sakazaki
+    '5': Allows you to view selected character's endings
+    '6': Allows you to goto Dream Match vs Ryo Sakazaki
+    '7': Message screen, Use controller one to adjust.
+    '8': Sprite viewer, Press 'Select' on P1, Use P2 to view
+  '2':
+    '1': Displays hit detection boxes
+    '2': Displays distance grid boxes
+    '3': Unknown
+    '4': Unknown
+    '5': Press A,B,C,& D at the same to to drop CPU's lifebar to near death
+    '6': Sprite location information
+    '7': Unknown
+    '8': Stage selection screen
+garou:
+  '1':
+    '1': Unknown
+    '2': Both players are Invicible
+    '3': Stage select
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': Easy special moves
+    '2': View characters ending
+    '3': Skip to next round
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+ironclad:
+  '1':
+    '1': Stage Select (must be enabled with 1-8)
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Stage Select + Additional Options!
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+kabukikl:
+  '1':
+    '1': Debug info / Both P1/P2 Sides
+    '2': Unknown
+    '3': Infinite Time
+    '4': Use with 1-6 for both players invicible
+    '5': Debug info P2 side (info on range etc + amusing move data)
+    '6': Use with 1-4 for Both players invicible
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': CPU Controls Player
+    '2': Halt CPU opponent (they will be frozen while this code is in use)
+    '3': Skip straight to battling MANTO (1st boss) after selection of character
+    '4': Show ending, right after selection of character
+    '5': 'Unknown '
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+kof94:
+  '1':
+    '1': Sprite debug menu
+    '2': Collision detection boxes can be seen
+    '3': Disable the timer
+    '4': Both Players Invincible, SDM's also always at max
+    '5': Display hex code on screen
+    '6': Unknown
+    '7': Stages now Selectable
+    '8': Pal Mode/Job Meter
+  '2':
+    '1': Able to adjust RGB levels of color palette
+    '2': Program Editing Data
+    '3': Unknown
+    '4': Human player is invincible
+    '5': Displays frame information
+    '6': Sound menu. Press 'Select' to access
+    '7': CPU controls both teams
+    '8': Display character statistics
+kof95:
+  '1':
+    '1': Sprite debug menu. Also puts a sprite a Hiedern on the top of screen
+    '2': Collision detection boxes can be seen
+    '3': Allows you to play as Saishu Kusanagi and Omega Rugal
+    '4': Both players are invincible
+    '5': Displays hex code on screen
+    '6': Unknown
+    '7': Unknown
+    '8': Pal Mode/Job Meter
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Human player is invincible
+    '5': Displays frame information
+    '6': Sound test menu. Press 'Select' to access
+    '7': CPU controls both teams
+    '8': Unknown
+kof96:
+  '1':
+    '1': Sprite debug menu
+    '2': Collision detection boxes can be seen
+    '3': Disable timer, Display coordinates and Goenitz and Chizuru now selectable
+    '4': Edit menu
+    '5': Display hex code on screen
+    '6': Both characters are invincible
+    '7': Unknown
+    '8': Annoying shadow covering screen
+  '2':
+    '1': Another edit menu inculding AI controls
+    '2': CPU controls both teams
+    '3': Human player is invincible
+    '4': Unknown
+    '5': Displays frame information
+    '6': Sound test menu. Press 'Select' to access
+    '7': Player 2 can control CPU characters
+    '8': Unknown
+kof97:
+  '1':
+    '1': Sprite debug menu
+    '2': Collision detection boxes can be seen
+    '3': Unlocks Orochi Chris, Shermie, Yashiro, Iori & Leona
+    '4': Displays player 1 data
+    '5': Displays hex code on screen
+    '6': Both players are invincible
+    '7': Unknown
+    '8': Pal Mode/Job Meter
+  '2':
+    '1': Sprite edit menu
+    '2': CPU controls both teams
+    '3': Human player is invincible
+    '4': Unknown
+    '5': Displays frame information
+    '6': Sound test menu. Press 'Select' to access
+    '7': Unknown
+    '8': Unknown
+kof98:
+  '1':
+    '1': Sprite debug menu
+    '2': Collision detection boxes can be seen
+    '3': Stops timer
+    '4': Data menu
+    '5': Displays hex code on screen
+    '6': Both players are invincible
+    '7': Unknown
+    '8': Annoying shadow covering screen
+  '2':
+    '1': Data menu 2
+    '2': CPU controls both teams
+    '3': Human player is invincible
+    '4': Unknown
+    '5': Displays frame information and column of hex code for CPU
+    '6': Sound test menu. Press 'Select' to access
+    '7': Player can control CPU player 2
+    '8': Unknown
+kof99:
+  '1':
+    '1': Sprite debug menu. Also puts a Sprite of K' on the screen.
+    '2': Collision detection boxes can be seen
+    '3': Stops timer, Play as Krizalid
+    '4': Data menu
+    '5': Displays hex code on screen
+    '6': Both players are invincible
+    '7': Unknown
+    '8': Annoying shadow covering screen
+  '2':
+    '1': Data menu 2
+    '2': CPU controls both teams
+    '3': Human player is invincible, Play as Krizalid
+    '4': Unknown
+    '5': Displays frame information and column of hex code for CPU
+    '6': Sound test menu. Press 'Select' to access
+    '7': Unknown
+    '8': Unknown
+kof2000:
+  '1':
+    '1': Sprite debug menu
+    '2': Collision detection boxes can be seen
+    '3': Play as Zero
+    '4': Data menu
+    '5': Unknown
+    '6': Both players are invincible
+    '7': Unknown
+    '8': Annoying shadow covering screen
+  '2':
+    '1': Data menu 2
+    '2': CPU controls both teams
+    '3': Human player is invincible
+    '4': Displays hit count numbers?
+    '5': Displays frame information and column of hex code for CPU
+    '6': Sound test menu. Press 'Select' to access
+    '7': Disables all SDM's.
+    '8': Unknown
+ct2k3sa:
+  '1':
+    '1': Debug Object (press select on 1UP side)
+    '2': Unknown
+    '3': Unknown
+    '4': Data Menu
+    '5': 'Enable boss selection '
+    '6': 'both characters invincible '
+    '7': Auto fire
+    '8': Screen Filter ON/OFF (also P1 can pause anywhere with Select)
+  '2':
+    '1': 'SEQ menu '
+    '2': 'CPUvsCPU (CPU controlls both chars) '
+    '3': Unknown
+    '4': 'Damage value display '
+    '5': Sound Info/Log mode
+    '6': Sound test (Select on 2UP side)
+    '7': CPU operation may crash
+    '8': RGB Palette table
+kf10thep:
+  '1':
+    '1': Debug objects (hold select to access)
+    '2': Collision boxes
+    '3': 'Inf Time '
+    '4': Performance changes? (1P press select)
+    '5': Unknown
+    '6': Both invincible
+    '7': Auto Fire
+    '8': 2P can pause via Select button at any time
+  '2':
+    '1': SEQ tool, 1P controls (CPU cannot move)
+    '2': CPU vs CPU
+    '4': Display extra score info
+    '5': Display extra Sound info
+    '6': Sound Test
+    '7': CPU cannot move
+    '8': Debug Colors
+kf2k3bl:
+  '1': {}
+  '2': {}
+kotm2:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': Enable with 2-2 for invincibility
+    '2': Enable with 2-1 for invincibility
+    '3': Debug text display
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Further text display
+    '8': Job Meter
+lastbld2:
+  '1':
+    '1': Unknown
+    '2': Attack info display
+    '3': Energy/Sword/Power MAX
+    '4': 2UP energy zero
+    '5': 1UP energy zero
+    '6': Pallete tool
+    '7': Unknown
+    '8': View software version
+  '2':
+    '1': View Level
+    '2': CPU stop
+    '3': Unknown
+    '4': Tool Menu (Soundtest/Pallete Editor etc)
+    '5': Data display
+    '6': Pause screen
+    '7': Unknown
+    '8': Show attack roll
+lastblad:
+  '1':
+    '1': Pal Mode/Job Meter / Raster mode
+    '2': 'Ingame debug info display '
+    '3': Both P1 + P2 energy sapped to nothing, power bar maxxed.
+    '4': P1 Immediate Win when set before start of round
+    '5': P2 Immediate Win when set before start of round
+    '8': View Software Version
+  '2':
+    '1': Ingame debug info display (more information)
+    '4': Ingame menu - soundtest / pallete editor
+    '5': More debug display (different info)
+    '7': 'Background viewer - scrolls bg with location co-ordinates '
+    '8': Target boxes around characters
+mslug2:
+  '1':
+    '1': '- view onscreen information'
+    '2': '- Unknown'
+    '3': '- Pal Mode/Job Meter?'
+    '4': '- 1st plane check (shows the walkable ground)'
+    '5': '- 2nd plane check'
+    '6': '- view attack rectangle'
+    '7': '- view body rectangle'
+    '8': '- invincibility'
+  '2':
+    '1': '- press D to destroy all onscreen enemies!'
+    '2': '- display weird creature on screen'
+    '3': '- unlimited grenades'
+    '4': '- unlimited ammo'
+    '5': '- unknown'
+    '6': '- unknown'
+    '7': '- unknown'
+    '8': '- unknown'
+mslug3:
+  '1':
+    '1': Displays program code on screen
+    '2': Unknown
+    '3': Unknown
+    '4': Removes information off screen expect Credits,Score & Time
+    '5': Displays a pathline on the screen
+    '6': Displays attack data on character and bullets fired.
+    '7': Collision detection boxes can be seen
+    '8': Player is invincible
+  '2':
+    '1': Unknown
+    '2': Displays a messed up sprite on screen
+    '3': Infinite Grenades & Tank Shells
+    '4': Infinite Ammo on ALL special weapons
+    '5': Pal Mode/Job Meter
+    '6': Unknown
+    '7': Unknown
+    '8': Displays attack data on enemy characters
+ms4plus:
+  '1':
+    '1': display data
+    '2': 'unknown '
+    '3': 'unknown '
+    '4': 'unknown '
+    '5': shows the levels progress "baseline/pathline"
+    '6': 'shows the pointer '
+    '7': 'shows the pointer 2 '
+    '8': die?
+  '2':
+    '1': 'unknown '
+    '2': 'shows junk on screen '
+    '3': 'unlimited ammunition, props '
+    '4': unlimited special weapons
+    '5': 'screen appears a shadow figure '
+    '6': 'unknown '
+    '7': 'unknown '
+    '8': unknown
+ms5pcb:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Inf Ammo
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Player Invincible
+    '4': Inf Bombs
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+mslugx:
+  '1':
+    '1': '- view onscreen information'
+    '2': '- pause mode'
+    '3': '- Pal Mode/Job Meter?'
+    '4': '- 1st plane check (shows the walkable ground)'
+    '5': '- 2nd plane check'
+    '6': '- view attack rectangle'
+    '7': '- view body rectangle'
+    '8': '- invincibility'
+  '2':
+    '1': '- press D to destroy all onscreen enemies!'
+    '2': '- display weird creature on screen'
+    '3': '- unlimited grenades'
+    '4': '- unlimited ammo'
+    '5': '- unknown'
+    '6': '- unknown'
+    '7': '- unknown'
+    '8': '- unknown'
+mslug:
+  '1':
+    '1': 'Unknown '
+    '2': 'Unknown '
+    '3': 'Unknown '
+    '4': 'Unknown '
+    '5': 'Unknown '
+    '6': 'Unknown '
+    '7': 'Unknown '
+    '8': Turns Blood On
+  '2':
+    '1': On screen stats...
+    '2': 'Unknown '
+    '3': 'Unknown '
+    '4': Marco is invincible
+    '5': 'Unknown '
+    '6': Unable to jump (seems to screw with button debounce)
+    '7': 'Unknown '
+    '8': Unknown
+miexchng:
+  '1':
+    '1': Job Meter (raster time)
+    '2': Unknown
+    '3': Unknown
+    '4': CPU Autopilot
+    '5': Select character and play against for ever (prob debug)
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': Show ending after selection of character
+    '2': '"'
+    '3': '" (Needs 2-1/2-2/2-3)'
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Debug Menu
+neodrift:
+  '1':
+    '1': Stop Race Timer Countdown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+turfmast:
+  '1':
+    '1': "Level/Round Select Enabled + Control Ball with Joystick after you hit it\_\
+      :)"
+    '2': Scanlines
+    '3': 'Unknown '
+    '4': 'Unknown '
+    '5': 'Unknown '
+    '6': Debug Co-ordinates
+    '7': 'Unknown '
+    '8': Scanlines
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+pgoal:
+  '1':
+    '1': to 2-3 Unknown
+  '2':
+    '4': "Enabling and allowing game to restart enters fairly extensive ingame debug\
+      \ menu\_:)"
+    '5': to 2-8 Unknown
+pbobblen:
+  '1':
+    '1': Set this and restart a game (die on purpose and press start) for a full debug
+      dipswitch list, press D to exit
+    '2': OBJ status display
+    '3': OBJ viewer (call by game entry)
+    '4': Nothing
+    '5': Nothing
+    '6': Nothing
+    '7': 'Job Meter (shadow) +note: raster cpu time?'
+    '8': Job Meter (color bar)
+  '2':
+    '1': Stage Select (just press start at title screen, but u must have it set prior
+      to the title screen)
+    '2': Memory card test (call it by starting game)
+    '3': "Arkanoid Type Game? +note: this seems to put the game in BAM mode if its\
+      \ a Puzzle Bobble cart - i get the BAM music+GFX!! its definately worth investigating\
+      \ further!\_:-) +see Notes"
+    '4': Europe (PAL) Debug
+    '5': Nothing
+    '6': Nothing
+    '7': Nothing
+    '8': Stop motion & Mode Flag Display
+rbff2:
+  '1':
+    '1': Instant 'Time Over' (Press Start during fight)
+    '2': Both players are invincible
+    '3': Stage select enable (switch on before character selection)
+    '4': Unknown
+    '5': Displays program code on bottom of screen
+    '6': Press ABCD on either player to decrease your opponent's Health bar.
+    '7': 'Displays oddly placed hit detection boxes '
+    '8': Play as Alfred. Displays character collision detection boxes
+  '2':
+    '1': Enable "Easy Super moves". For SDM Press D,D+'A' Hidden SDM's D,D+'C'
+    '2': Skip the next match.
+    '3': View ending. Enable at character select screen
+    '4': Unknown
+    '5': Unknown
+    '6': Displays more program code
+    '7': Unknown
+    '8': Play as Alfred
+rbffspec:
+  '1':
+    '1': Instant 'Time Up' (Press Start during fight).
+    '2': Both players are invincible.
+    '3': Stage select. Enable before you select your character.
+    '4': Disables Player 1 'Start'.
+    '5': Displays program code on sides of screen.
+    '6': Press ABCD on either player to decrease your opponent's Health bar.
+    '7': Memory Error.
+    '8': Displays character collision boxes.
+  '2':
+    '1': "Enable \"Easy Super moves\". S.Power\_: Down,Down+A\_; P.Power\_: Down,Down+C."
+    '2': 'Skip the next match. '
+    '3': View ending. Enable before you select your character.
+    '4': Unknown
+    '5': Unknown
+    '6': "Displays more program code. (Sprites Coordonnates\_?)"
+    '7': Sprite Viewer.
+    '8': Debug Bios On./ Geese available.
+rbff1:
+  '1':
+    '1': Instant 'Time Up' (Press Start during fight).
+    '2': Both players are invincible.
+    '3': Stage select. Enable before you select your character.
+    '4': Disables Player 1 'Start'.
+    '5': Displays program code on sides of screen.
+    '6': Press ABCD on either player to decrease your opponent's Health bar.
+    '7': Memory Error.
+    '8': Displays character collision boxes.
+  '2':
+    '1': "Enable \"Easy Super moves\". S.Power\_: Down,Down+A\_; P.Power\_: Down,Down+C."
+    '2': 'Skip the next match. '
+    '3': View ending. Enable before you select your character.
+    '4': Unknown
+    '5': Unknown
+    '6': "Displays more program code. (Sprites Coordonnates\_?)"
+    '7': Sprite Viewer.
+    '8': Debug Bios On./ Geese available.
+roboarmy:
+  '1':
+    '1': Job Meter / Raster time / flicker etc.
+    '2': Invincible (works for both players)
+    '3': Infinite Energy (works for both players)
+    '4': Debug Text
+    '5': "Press Select on P1 side for Sound Test\_:)"
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': More Debug Text
+    '7': Unknown
+    '8': Debug (enemy + level location data?)
+svc:
+  '1': {}
+  '2': {}
+samsho:
+  '1':
+    '1': Unknown
+    '2': Press Pause to display red Hex Stats menu
+    '3': Slow motion
+    '4': Glitched graphics with small bar of background image hovering over characters
+      until new match starts or game is reset.
+    '5': Both characters invincible, weapons appear and disappear randomly during
+      match.
+    '6': Sprite coordinates displayed as hex values
+    '7': Unknown
+    '8': Pal Mode/Job Meter
+  '2':
+    '1': Press Select to display "Special Key Edit" menu
+    '2': Color edit
+    '3': Unknown
+    '4': Set at character selection screen. Choose any character and win one round.
+      Player will then fight as Amakusa. Game will glitch at "confrontation" intermission.
+      Change error setting to "Run" and press C followed by A to skip ahead and avoid
+      freezing the game.
+    '5': Animation test; CPU player will freeze and "PACK=000" will be displayed below
+      player two's life bar. Change this value and press A to force the CPU character
+      to go through various motions. If the game is continued in this mode, the CPU
+      will be unable to attack, but will block frequently and may be thrown.
+    '6': Both characters invincible with disabled timer
+    '7': Display attack stats that lists character's attributes
+    '8': Timer counts down to 98 and stops
+samsho2:
+  '1':
+    '1': Displays task editor
+    '2': Unknown
+    '3': Unknown
+    '4': CPU controls 2nd player's character
+    '5': Allows human to control CPU. Load last stage to control Mizuki
+    '6': Unknown
+    '7': Unknown
+    '8': Pal Mode/Job Meter
+  '2':
+    '1': Unknown
+    '2': Player 1 is invincible. Sound test. Press select to use.
+    '3': Unknown
+    '4': CPU controls both characters.
+    '5': Unknown 2-6 Unknown
+    '7': Displays player data and Sprite viewer.
+    '8': Displays hit detection boxes and memory addresser.
+samsho4:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Disables the timers.
+    '6': Both players are now invincible
+    '7': Player 1 is invincible
+    '8': Unknown
+  '2':
+    '1': Unknown
+    '2': 'Unknown '
+    '3': Able to now Cancel normal moves into SDM's
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Play as Zankuro
+samsho5:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Stop Timer
+    '6': Inf Energy, also change selected character (hold D down and hit A)
+    '7': Inf Strength
+    '8': Unknown
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Infinite Weapon Flipping Techniques
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Use Zankuro (Hold D and hit A), hidden Dip menu (+), also Infinite Rage Explosion
+      use
+samsh5sp:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': 'Selection of Bosses Enabled - NOTE: disable after selection of character'
+    '7': Unknown
+    '8': Unknown
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown
+fswords:
+  '1':
+    '1': Press Select for sound test, creation date, & time
+    '2': Color Test
+    '3': Sprite Viewer
+    '4': Press select to advance frame by frame
+    '5': Disable timer, select next CPU opponent. +
+    '6': Both characeters are invinvible, Allows character cycling ++
+    '7': No text appears when game is paused.
+    '8': Displays Hex debug data.
+  '2':
+    '1': Unknown
+    '2': Press select to pause at any screen
+    '3': Single character can interrupt normal moves into special moves +++
+    '4': Disable Flashing background when super moves are connecting
+    '5': Unknown
+    '6': Disable charging POW meter with A+B+C
+    '7': Unknown
+    '8': Unknown
+savagere:
+  '1': {}
+  '2': {}
+shocktr2:
+  '1':
+    '1': Level Debug Info Text
+    '2': More Enemy Label Debug Info Text
+    '3': Enemy Buffer Status Text display
+    '4': More Status Text
+    '5': Output test text
+    '6': Unknown+
+    '7': Player 1 is invincible
+    '8': Puts snow on the screen (probably measuring cpu time etc)
+  '2':
+    '1': Unknown+
+    '2': Unknown+
+    '3': Unknown+
+    '4': More Debug Text
+    '5': Unknown+
+    '6': Unknown
+    '7': Unknown
+    '8': Enables fully featured ingame graphics viewer, simply enable -before- starting
+      a game -
+tophuntr:
+  '1':
+    '1': Unknown
+    '2': Menu/Play/Code text on screen...
+    '3': Debug text
+    '4': Unknown
+    '5': Unknown
+    '6': Stage Select after selecting world (up/down for area | left/right for level)
+    '7': Unknown
+    '8': Tank can perform extra actions (fireball/missile) (from forums, not verified)
+  '2':
+    '1': Job Meter/Raster/Flicker
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': "Easy uppercut via button A\_:)"
+    '6': Invincible
+    '7': Unknown
+    '8': Unknown
+ssideki4:
+  '1':
+    '1': to 1-8 = Unknown
+  '2':
+    '1': Unknown
+    '2': Ingame Debug / Distance Text
+    '3': to 2-8 = Unknown
+wjammers:
+  '1':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Displays unidentified value for each player after every shot
+    '6': No time limit to throw a disc (no autoshot)
+    '7': Debug Text on screen (item position etc)
+    '8': Sprites outlined with bounding box
+  '2':
+    '1': Unknown
+    '2': Unknown
+    '3': Unknown
+    '4': Unknown
+    '5': Unknown
+    '6': Unknown
+    '7': Unknown
+    '8': Unknown

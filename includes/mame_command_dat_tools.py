@@ -12,7 +12,8 @@
 #
 #########################################################################
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFont
+
 import textwrap
 
 class command_block:
@@ -82,7 +83,8 @@ def txt_commands_dat_convert(text):
         "^7" : chr(57363)+".", # joy: up+left
         "^8" : chr(57364)+".", # joy: up
         "^9" : chr(57365)+".", # joy: up+right  
-        "^!" : chr(57367),     # special arrow (down right)   
+        "^!" : chr(57367),     # special arrow (down right)  
+        "_!" : chr(57372),
 
         # icons from ./key2.bmp
         "_(": "§0"+chr(57392),
@@ -101,6 +103,7 @@ def txt_commands_dat_convert(text):
         "_X": "[tap]", # tap
         "_`": chr(183), # middle dot centered
         "_O": chr(57370),
+        "^*": chr(57373),
 
     }
 
@@ -159,7 +162,8 @@ def render_coloured_text(x, y, image_draw, text, default_color, font, charspacin
                 if text_part[i] == 'r':
                     txtcolor = default_color 
                 continue
-            width, height = image_draw.textsize(text_part[i], font)
+            # width, height = image_draw.textsize(text_part[i], font)
+            # width, height = font.getsize(text_part[i])
             x_pos += charspacing #width
 
             image_draw.text((x_pos, y + nb_rows * ROWS_SPACING), text_part[i], fill = txtcolor, font = font, align = align)

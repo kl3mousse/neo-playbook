@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import csv
 
 LANG = 'FR'
 
@@ -14,7 +15,7 @@ f.close()
 hfs_api_counter = 0
 
 class game_mame_version:
-    def __init__(self, mame_game_id, mame_game_rom, mame_game_description, mame_game_year, mame_game_publisher, mame_game_serial,mame_game_release, mame_game_platform, mame_game_compatibility):
+    def __init__(self, mame_game_id, mame_game_rom, mame_game_description, mame_game_year, mame_game_publisher, mame_game_serial,mame_game_release, mame_game_platform, mame_game_compatibility, mame_game_excludesoftdips ):
         self.mame_game_id            = mame_game_id
         self.mame_game_rom           = mame_game_rom
         self.mame_game_description   = mame_game_description
@@ -24,6 +25,8 @@ class game_mame_version:
         self.mame_game_release       = mame_game_release
         self.mame_game_platform      = mame_game_platform
         self.mame_game_compatibility = mame_game_compatibility
+        self.mame_game_excludesoftdips = mame_game_excludesoftdips
+
 
 class game_data:
     def __init__(self, id):
@@ -52,6 +55,7 @@ class game_data:
         self.ngm_id = None 
         self.megs = None 
         self.platforms = None
+        self.softdipsimage = None
 
     def addrom(self, rom):
         self.mame_versions.append(rom)
@@ -144,7 +148,7 @@ def hfsdb_scraper(game_hfsdb_id):
         #game.invert_ingamescreenshots = game_invert_ingamescreenshots
         for media in hfs_game["medias"]:
             if (media["type"] == "screenshot") and (media["file"][-3:].upper() != "GIF"):
-                if media['metadata'][0]['value'] == 'title':
+                if media['metadata'] and media['metadata'][0]['value'] == 'title':
                     game.screenshot1 = media["file"]
                 else:
                     if game.screenshot2 is None:
@@ -168,5 +172,29 @@ def hfsdb_scraper(game_hfsdb_id):
 
     return game
 
-    
+def save_games_to_csv(game_ids, filename='games.csv'):
+    with open(filename, 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(["game_id", "game_name", "game_description_fr"])
 
+        for game_id in game_ids:
+            game = hfsdb_scraper(game_id)
+            if game and game.description:
+                writer.writerow([game.id, game.title, game.description])
+
+    
+if __name__ == '__main__':
+    game_ids = [73881,
+    73887,
+    255400,
+    252643,
+    74020,
+    74021,
+    74043,
+    74141,
+    29801,
+    74315,
+    74316,
+    29804,
+    ]  
+    save_games_to_csv(game_ids, 'games_descrs_fr.csv')
