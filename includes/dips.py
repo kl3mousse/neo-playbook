@@ -68,6 +68,17 @@ class SoftDipsSettings:
                     if i == setting['default_value'] + 1: print(' (default)', end='')
                 print('.')
 
+        debug_settings = self.debug_settings.get(game_code)
+        if not debug_settings:
+            print(f"No debug settings found for game {game_code}.")
+        else:
+            print(f"Debug DIPs Settings for {game_code}:")
+            for dip_group_key, dip_group in debug_settings.items():
+                for dip_key, description in dip_group.items():
+                    if description.upper() not in ('UNKNOWN', 'UNKNOWN+'):
+                        print(f"- {dip_group_key}-{dip_key}: {description}")
+    
+
     def generate_settings_image(self, path, game_code, region):
         game_settings = self.softdip_settings.get(game_code, {}).get(region, {})
         if not game_settings:
@@ -95,10 +106,11 @@ class SoftDipsSettings:
 
         # image title
         ARCADE_FONT = './fonts/AnonymousPro-Regular-arcade-controls.ttf'
-        font = ImageFont.truetype(ARCADE_FONT, FONTSIZE)
-        title = f'{game_name} game settings ("soft DIP switches")'
+        font = ImageFont.truetype(ARCADE_FONT, FONTSIZE+20)
+        title = f'NEO GEO GAME OPTIONS'
         draw.text((LMARGIN, HMARGIN), title, fill=TITLECOLOR, font=font, align='left')
 
+        font = ImageFont.truetype(ARCADE_FONT, FONTSIZE)
         # Print each setting
         y = HMARGIN + SIZEH  # Initialize y-coordinate for text
         for setting in self.get_game_settings_line_by_line(game_code, region):
@@ -111,36 +123,60 @@ class SoftDipsSettings:
         return filename
 
     def get_game_settings_line_by_line(self, game_code, region):
-        MAX_CHARS_PER_LINE = 48
-        INDENT = '               '
+        MAX_CHARS_PER_LINE = 50
+        INDENT_SOFTDIPS = '              '
+        INDENT_DEBUGDIPS = '     '
         game_settings = self.softdip_settings.get(game_code, {}).get(region, {})
+        debug_settings = self.debug_settings.get(game_code, {})
 
         if not game_settings:
             print(f"No settings found for game {game_code} in {region} region.")
             return
+        else:
+            yield "################ Soft DIP settings #################"
 
         # If your new settings have a different structure, you will need to adjust the accessors accordingly
         if 'special_settings' in game_settings:
             for setting in game_settings['special_settings']:
                 description = setting['description']
                 value = setting['value']
-                line = f'{description}' + INDENT[0:14-len(description)] + f'{value}'
+                line = f'{description}' + INDENT_SOFTDIPS[0:14-len(description)] + f'{value}'
                 yield line
 
         if 'simple_settings' in game_settings:
             for setting in game_settings['simple_settings']:
                 description = setting['description']
-                value_text = f'{description}' + INDENT[0:14-len(description)]
+                value_text = f'{description}' + INDENT_SOFTDIPS[0:14-len(description)]
                 for i, value_description in enumerate(setting['value_descriptions'], start=1):
                     if i != 1: value_text += ', '
                     # Break line if it exceeds MAX_CHARS_PER_LINE
                     if len(value_text) + len(value_description) + (2 if i != 1 else 0) > MAX_CHARS_PER_LINE:
                         yield value_text
-                        value_text = INDENT
+                        value_text = INDENT_SOFTDIPS
                     value_text += f'{value_description}'
                     if i == setting['default_value'] + 1:
                         value_text += '*'
                 yield value_text
+
+        # Handle debug settings
+        if debug_settings:
+            debug_subtitle_printed = False
+            for dip_group_key, dip_group in debug_settings.items():
+                for dip_key, description in dip_group.items():
+                    if description.upper() not in ('UNKNOWN', 'UNKNOWN+'):
+                        if not debug_subtitle_printed:
+                            debug_subtitle_printed = True
+                            yield " "
+                            yield "################ Debug DIP settings ################"
+                        full_description = f"{dip_group_key}-{dip_key}: {description}"
+                        # Split the description into multiple lines if necessary
+                        while len(full_description) > MAX_CHARS_PER_LINE:
+                            space_index = full_description.rfind(' ', 0, MAX_CHARS_PER_LINE)
+                            if space_index == -1 or space_index < len(INDENT_DEBUGDIPS):  # No space found, or only found at the start
+                                space_index = MAX_CHARS_PER_LINE - 1
+                            yield full_description[:space_index]
+                            full_description = INDENT_DEBUGDIPS + full_description[space_index:].lstrip()
+                        yield full_description
 
 
     def neogeo_rom_byteswap_2(self, data):
@@ -221,7 +257,7 @@ class SoftDipsSettings:
                                     print("Pointer out of range while reading game settings.")
                                     return None
                             else:
-                                print("NEO GEO string not found in the file.")
+                                print(f'NEO GEO string not found in file {temp_file_path}.')
                                 return None
                         
                         os.remove(temp_file_path)
@@ -336,8 +372,10 @@ class SoftDipsSettings:
 #############################################################
 if __name__ == "__main__":
     dips = SoftDipsSettings("dips.yaml", "debug_dips.yaml")
-    game = 'bstars'
-    if dips.game_settings_found(game_code=game, region='EU') == False:
-        dips.enrich_softdip_settings_from_rom(game, f'./rom/{game}.zip', 'EU')
-        dips.print_settings(game, 'EU')
-        dips.generate_settings_image(game_code=game, region="EU", path="./")
+    game = 'samsho'
+    region = 'US'
+    if dips.game_settings_found(game_code=game, region=region) == False:
+        dips.enrich_softdip_settings_from_rom(game, f'./rom/{game}.zip', region)  
+    dips.generate_settings_image(game_code=game, region=region, path="./")
+    dips.print_settings(game, region)
+    # dips.print_debugdips(game)

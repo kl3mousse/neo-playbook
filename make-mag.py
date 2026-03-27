@@ -20,7 +20,7 @@ import json
 
 # constants / prog parameters
 NEOGEO_DATA_XLS                = "games.xlsx"
-NEOGEO_DATA_XLS_SHEET          = "Games" #switch from "Games" to "Games-test" for testing a smaller chunk of games
+NEOGEO_DATA_XLS_SHEET          = "Games-test" #switch from "Games" to "Games-test" for testing a smaller chunk of games
 NEOGEO_MAME_XLS_SHEET          = "MAME.xml (cleaned)"
 COMMAND_DAT_FILE               = "./command-dat/command.dat"
 NEOGEO_GAMESGEN                = ["NeoGeo Era", "NeoGeo Resurrection"]  # 'NeoGeo Era' or 'Post NeoGeo' to filter the right set of games 
@@ -87,13 +87,14 @@ def set_page_background(pdf, game, page_num):
     #game background in footer
     if game.game_background is not None:
         pic = download_image(game.game_background)
-        bg_h = 40
-        bg_w = 160
-        pic = clean_JPG(pic)
-        crop_upright(pic, bg_w / bg_h, vshift = game.vshift)
-        add_scanlines(pic)
-        footer_effect(pic, (123, 134, 145))
-        pdf.image(pic, x = FOOTER_POSX, y = 297 - bg_h, w = bg_w, h = bg_h, type = '', link = '')
+        if pic:
+            bg_h = 40
+            bg_w = 160
+            pic = clean_JPG(pic)
+            crop_upright(pic, bg_w / bg_h, vshift = game.vshift)
+            add_scanlines(pic)
+            footer_effect(pic, (123, 134, 145))
+            pdf.image(pic, x = FOOTER_POSX, y = 297 - bg_h, w = bg_w, h = bg_h, type = '', link = '')
 
     # page background
     if (page_num % 2) == 0:
@@ -217,13 +218,14 @@ def add_game_page(pdf, game, page_num):
     #game background in footer
     if game.game_background is not None:
         pic = download_image(game.game_background)
-        bg_h = 40
-        bg_w = 160
-        pic = clean_JPG(pic)
-        crop_upright(pic, bg_w / bg_h, vshift = game.vshift)
-        add_scanlines(pic)
-        footer_effect(pic, (123, 134, 145))
-        pdf.image(pic, x = FOOTER_POSX, y = 297 - bg_h, w = bg_w, h = bg_h, type = '', link = '')
+        if pic:
+            bg_h = 40
+            bg_w = 160
+            pic = clean_JPG(pic)
+            crop_upright(pic, bg_w / bg_h, vshift = game.vshift)
+            add_scanlines(pic)
+            footer_effect(pic, (123, 134, 145))
+            pdf.image(pic, x = FOOTER_POSX, y = 297 - bg_h, w = bg_w, h = bg_h, type = '', link = '')
 
     # page background
     if (page_num % 2) == 0:
@@ -286,19 +288,21 @@ def add_game_page(pdf, game, page_num):
     WALLPAPER_W = 127
     if game.wallpaper is not None:
         pic = download_image(game.wallpaper)
-        crop_bottomright(pic, WALLPAPER_W / WALLPAPER_H)
-        pdf.image(pic, x = WALLPAPER_X, y = WALLPAPER_Y, w = WALLPAPER_W, h = WALLPAPER_H, type = '', link = '')
-        # draw image border
-        pdf.rect(WALLPAPER_X, WALLPAPER_Y, w= WALLPAPER_W, h = WALLPAPER_H)
+        if pic:
+            crop_bottomright(pic, WALLPAPER_W / WALLPAPER_H)
+            pdf.image(pic, x = WALLPAPER_X, y = WALLPAPER_Y, w = WALLPAPER_W, h = WALLPAPER_H, type = '', link = '')
+            # draw image border
+            pdf.rect(WALLPAPER_X, WALLPAPER_Y, w= WALLPAPER_W, h = WALLPAPER_H)
 
     #3Dcover
     pdf.set_xy(MAIN_POSX, 40)
     if game.cover3d is not None:
         pic = download_image(game.cover3d)
-        if(game.cover3d[-3:].upper() == "JPG"): clean_JPG(pic)
-        if(game.cover3d[-4:].upper() == "WEBP"): pic = clean_JPG(pic)
-        
-        pdf.image(pic, x = None, y = None, w = 35, h = 0, type = '', link = '')
+        if pic:
+            if(game.cover3d[-3:].upper() == "JPG"): clean_JPG(pic)
+            if(game.cover3d[-4:].upper() == "WEBP"): pic = clean_JPG(pic)
+            
+            pdf.image(pic, x = None, y = None, w = 35, h = 0, type = '', link = '')
 
     #screenshots
     SCREENSHOT2_X = MAIN_POSX      #large
@@ -324,28 +328,31 @@ def add_game_page(pdf, game, page_num):
 
     if game.screenshot2 is not None:
         pic = download_image(game.screenshot2)
-        crop_bottomright(pic, SCREENSHOT2_W / SCREENSHOT2_H)
-        pic = clean_JPG(pic)
-        add_scanlines(pic)
-        pdf.image(pic, x = SCREENSHOT2_X, y = SCREENSHOT2_Y, w = SCREENSHOT2_W, h = SCREENSHOT2_H, type = '', link = '')
-        # draw image border
-        pdf.rect(SCREENSHOT2_X, SCREENSHOT2_Y, w= SCREENSHOT2_W, h = SCREENSHOT2_H)
+        if pic:
+            crop_bottomright(pic, SCREENSHOT2_W / SCREENSHOT2_H)
+            pic = clean_JPG(pic)
+            add_scanlines(pic)
+            pdf.image(pic, x = SCREENSHOT2_X, y = SCREENSHOT2_Y, w = SCREENSHOT2_W, h = SCREENSHOT2_H, type = '', link = '')
+            # draw image border
+            pdf.rect(SCREENSHOT2_X, SCREENSHOT2_Y, w= SCREENSHOT2_W, h = SCREENSHOT2_H)
     if game.screenshot1 is not None:
         pic = download_image(game.screenshot1)
-        crop_bottomright(pic, SCREENSHOT1_W / SCREENSHOT1_H)
-        pic = clean_JPG(pic)
-        add_scanlines(pic)
-        pdf.image(pic, x = SCREENSHOT1_X, y = SCREENSHOT1_Y, w = SCREENSHOT1_W, h = SCREENSHOT1_H, type = '', link = '')
-        # draw image border
-        pdf.rect(SCREENSHOT1_X, SCREENSHOT1_Y, w= SCREENSHOT1_W, h = SCREENSHOT1_H)
+        if pic:
+            crop_bottomright(pic, SCREENSHOT1_W / SCREENSHOT1_H)
+            pic = clean_JPG(pic)
+            add_scanlines(pic)
+            pdf.image(pic, x = SCREENSHOT1_X, y = SCREENSHOT1_Y, w = SCREENSHOT1_W, h = SCREENSHOT1_H, type = '', link = '')
+            # draw image border
+            pdf.rect(SCREENSHOT1_X, SCREENSHOT1_Y, w= SCREENSHOT1_W, h = SCREENSHOT1_H)
     if game.screenshot3 is not None:
         pic = download_image(game.screenshot3)
-        crop_bottomright(pic, SCREENSHOT3_W / SCREENSHOT3_H)
-        pic = clean_JPG(pic)
-        add_scanlines(pic)
-        pdf.image(pic, x = SCREENSHOT3_X, y = SCREENSHOT3_Y, w = SCREENSHOT3_W, h = SCREENSHOT3_H, type = '', link = '')
-        # draw image border
-        pdf.rect(SCREENSHOT3_X, SCREENSHOT3_Y, w= SCREENSHOT3_W, h = SCREENSHOT3_H)
+        if pic:
+            crop_bottomright(pic, SCREENSHOT3_W / SCREENSHOT3_H)
+            pic = clean_JPG(pic)
+            add_scanlines(pic)
+            pdf.image(pic, x = SCREENSHOT3_X, y = SCREENSHOT3_Y, w = SCREENSHOT3_W, h = SCREENSHOT3_H, type = '', link = '')
+            # draw image border
+            pdf.rect(SCREENSHOT3_X, SCREENSHOT3_Y, w= SCREENSHOT3_W, h = SCREENSHOT3_H)
 
     # mini marquee
     MINI_MARQUEE_X = SCREENSHOT1_X
@@ -355,10 +362,11 @@ def add_game_page(pdf, game, page_num):
 
     if game.mini_marquee is not None:
         pic = download_image(game.mini_marquee)
-        crop_bottomright(pic, MINI_MARQUEE_W / MINI_MARQUEE_H)
-        pdf.image(pic, x = MINI_MARQUEE_X, y = MINI_MARQUEE_Y, w = MINI_MARQUEE_W, h = MINI_MARQUEE_H, type = '', link = '')
-        # draw image border
-        pdf.rect(MINI_MARQUEE_X, MINI_MARQUEE_Y, w= MINI_MARQUEE_W, h = MINI_MARQUEE_H)
+        if pic:
+            crop_bottomright(pic, MINI_MARQUEE_W / MINI_MARQUEE_H)
+            pdf.image(pic, x = MINI_MARQUEE_X, y = MINI_MARQUEE_Y, w = MINI_MARQUEE_W, h = MINI_MARQUEE_H, type = '', link = '')
+            # draw image border
+            pdf.rect(MINI_MARQUEE_X, MINI_MARQUEE_Y, w= MINI_MARQUEE_W, h = MINI_MARQUEE_H)
 
     # game soft dips options
     if game.softdipsimage is not None:

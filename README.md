@@ -14,6 +14,32 @@ Done
 
 To Do list: now moved to Github issues for better tracking!
 
+# prerequisites
+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
+- a `secrets.json` file (copy `secrets_sample.json` and fill in your API keys)
+- a `games.xlsx` file (game index — not included in the repo)
+
+# setup
+
+```bash
+# install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# install dependencies
+uv sync
+
+# copy secrets template and fill in your API keys
+cp secrets_sample.json secrets.json
+```
+
+# run
+
+```bash
+uv run python make-mag.py
+```
+
 # how it works
 
 - an index of all inventoried games is managed in an excel file
