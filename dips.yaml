@@ -386,6 +386,39 @@ _dummy_game:
     special_settings:
     - description: LIVES
       value: '3'
+abyssalinfants:
+  EU:
+    game_name: 0123456789ABCDEF
+    simple_settings:
+    - default_value: 2
+      description: LIVES
+      value_descriptions:
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+    - default_value: 0
+      description: HOW TO PLAY
+      value_descriptions:
+      - WITH
+      - WITHOUT
+    special_settings: []
+  US:
+    game_name: 0123456789ABCDEF
+    simple_settings:
+    - default_value: 2
+      description: LIVES
+      value_descriptions:
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+    - default_value: 0
+      description: HOW TO PLAY
+      value_descriptions:
+      - WITH
+      - WITHOUT
+    special_settings: []
 alpham2:
   EU:
     game_name: ALPHA MISSION2

@@ -19,7 +19,6 @@ To Do list: now moved to Github issues for better tracking!
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
 - a `secrets.json` file (copy `secrets_sample.json` and fill in your API keys)
-- a `games.xlsx` file (game index — not included in the repo)
 
 # setup
 
@@ -37,14 +36,20 @@ cp secrets_sample.json secrets.json
 # run
 
 ```bash
-uv run python make-mag.py
+# Step 1: Fetch remote data (HFSdb API, images, soft DIPs, command blocks)
+uv run python fetch_data.py
+
+# Step 2: Generate the PDF from the enriched data
+uv run python render_pdf.py
 ```
 
 # how it works
 
-- an index of all inventoried games is managed in an excel file
-- some metadata is managed there (name, game type, ...), as well as related identifiers on various databases (wikimedia, hfsdb, fgbg.art, igdb...)
-- a python program has to be run manually from your computer, that scraps all game data and loads that into a PDF
+The project is split into a **data pipeline** and a **PDF renderer**, connected by a single JSON file (`data/games.json`):
+
+1. **`data/games.json`** — the source of truth. Contains all game entries (title, year, publisher, ROM versions, image URLs/paths, etc.). Edit this file to add or modify games.
+2. **`fetch_data.py`** — reads `data/games.json`, enriches it with data from the HFSdb API (descriptions, screenshots, covers), downloads images, extracts Neo Geo soft DIP settings from ROM files, and generates command block PNGs from MAME's command.dat. Writes the enriched data back to `data/games.json`. Idempotent — skips already-populated entries.
+3. **`render_pdf.py`** — reads the enriched `data/games.json` and local image files, produces an A4 PDF magazine. No network calls.
 
 # example of output
 

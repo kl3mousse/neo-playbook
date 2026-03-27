@@ -1,0 +1,963 @@
+[
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-sonicwi2",
+    "hfsdb_id": 74020,
+    "title": "Aero Fighters 2",
+    "alt_title": "ソニックウイングス2 Sonic Wings 2",
+    "year": "1994",
+    "publisher": "Video System Co.",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Shoot them up",
+    "nb_players": "2P",
+    "description": "Il y a quelque temps, une organisation corrompue tenta de détruire le monde, mais 8 pilotes ont contrecarré les plans de celle-ci. Deux ans plus tard, une nouvelle menace frappe le monde, une puissante armée d'origine inconnue apparait soudainement et occupe bientôt le monde. La United Nations Peace Keeping Force s'est précipitée pour les intercepter, mais a raté l'ennemi [sic]. Leurs derniers rapports disent que les super-armes utilisées lors de l'attaque il y a 2 ans existent toujours. Mais l'organisation derrière elles existe-t-elle encore?\n\nLes États-Unis ont demandé à l’équipe internationale de Secret Rescue de prendre des contre-mesures. Le commandant a ordonné à tous les membres d'anéantir l'armée inconnue. Il est maintenant temps de sortir, le monde compte sur nous!",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2021/03/09/Aero_Fighters_2-01_TPhB3nV.png",
+        "local": "img-cache/Aero_Fighters_2-01_TPhB3nV.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/sonicwi2_PkQvPha.png",
+        "local": "img-cache/sonicwi2_PkQvPha.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2022/02/04/6ece846c-0760-4fdb-8188-e6bffb29c9bd_hB06JFp.png",
+        "local": "img-cache/6ece846c-0760-4fdb-8188-e6bffb29c9bd_hB06JFp.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2021/01/13/sonicwi2_Pkztpj1.jpg",
+        "local": "img-cache/sonicwi2_Pkztpj1.jpg"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/19/sonicwi2-01-19-204348_NJqy0yn.png",
+        "local": "img-cache/sonicwi2-01-19-204348_NJqy0yn.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2018/10/06/b79907be-a8e7-4ed3-996a-ebb3dd21b49a.png",
+        "local": "img-cache/b79907be-a8e7-4ed3-996a-ebb3dd21b49a.png"
+      },
+      "background": {
+        "url": "https://db.hfsplay.fr/files/2022/02/04/cafccf19-7a68-4373-9284-61aaee5bd345_lDOAb8Z.jpg",
+        "local": "img-cache/cafccf19-7a68-4373-9284-61aaee5bd345_lDOAb8Z.jpg"
+      }
+    },
+    "background_vshift": 500,
+    "invert_screenshots": false,
+    "platforms": null,
+    "roms": [
+      {
+        "rom_name": "sonicwi2",
+        "description": "Aero Fighters 2 / Sonic Wings 2",
+        "year": "1994",
+        "publisher": "Video System Co.",
+        "serial": "NGM-075 (MVS), NGH-075 (AES)",
+        "release": "19940718 (MVS), 19940826 (AES)",
+        "platform_tag": "MVS,AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 75,
+      "megs": 102
+    },
+    "softdips_image": null,
+    "command_blocks": []
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-zintrckb",
+    "hfsdb_id": 82095,
+    "title": "Zintrick",
+    "alt_title": "Oshidashi Zentrix",
+    "year": "1996",
+    "publisher": "bootleg",
+    "type": "Bootleg",
+    "generation": "NeoGeo Era",
+    "genre": "Reflexion",
+    "nb_players": "2P",
+    "description": "En ce début d'année 1996, la réflexion est un genre assez peu représenté sur Neo·Geo, on ne trouve guère que Puzzled, Puzzle Bobble ou encore Panic Bomber. Le mois de mars arrive et un jour après Magical Drop II sur Neo·Geo, sort enfin le 22 mars un jeu qui avait été prévu en cartouche mais qui sera en définitive uniquement au format CD : Zintrick.\nZintrick est un très bon jeu de réflexion, peut-être le meilleur sur Neo·Geo CD aux côtés de Magical Drop II. Sa prise en main n'est pas immédiate mais par la suite le jeu se révèle très riche. Il s'agit d'un jeu fort méconnu qui mérite assurément d'être découvert.\nDonc zintrick existe uniquement en boot sur MVS,et a perdu les musiques au passage....",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2021/03/16/Zintrick-01_7hlRiUQ.png",
+        "local": "img-cache/Zintrick-01_7hlRiUQ.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2022/01/24/Picture6_yAUzBSU.png",
+        "local": "img-cache/Picture6_yAUzBSU.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2021/12/20/zintrckb_US0hHxr.png",
+        "local": "img-cache/zintrckb_US0hHxr.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2021/12/20/zintrckb_GdBLxP6.png",
+        "local": "img-cache/zintrckb_GdBLxP6.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/16/zintrckb-01-16-230902_029fbJR.png",
+        "local": "img-cache/zintrckb-01-16-230902_029fbJR.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2022/01/31/zintrick-mini-marquee_51fR1rC.png",
+        "local": "img-cache/zintrick-mini-marquee_51fR1rC.png"
+      },
+      "background": {
+        "url": null,
+        "local": null
+      }
+    },
+    "background_vshift": 0,
+    "invert_screenshots": false,
+    "platforms": null,
+    "roms": [
+      {
+        "rom_name": "zintrckb",
+        "description": "Zintrick / Oshidashi Zentrix (bootleg of CD version)",
+        "year": "1996",
+        "publisher": "bootleg",
+        "serial": "",
+        "release": "",
+        "platform_tag": "MVS",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 211,
+      "megs": 74
+    },
+    "softdips_image": "./img-cache/dips-EU-zintrckb.png",
+    "command_blocks": []
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-zupapa",
+    "hfsdb_id": 82117,
+    "title": "Zupapa!",
+    "alt_title": "ズパパ！",
+    "year": "2001",
+    "publisher": "SNK",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Plate-formes",
+    "nb_players": "2P",
+    "description": "Férus de jeux de plate-formes d'arcade aux système de scoring addicitfs, vous avez aimé Nightmare in the Dark et Bang Bang Busters? Alors ne passez surtout pas à côté de Zupapa!, le seul et unique titre du genre (c'est-à-dire à la Bubble Bobble).Zupapa décline le genre dans neuf mondes différents. Pour les six premiers, vous pourrez choisir par lequel commencer. Vous contrôlez un drôle d'énergumène, le Zupapa: il s'agit d'un ornithorynque à corne équipé de gants de boxe. Ce héros pour le moins original peut se débarrasser de ses ennemis de diverses manières.",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2021/03/16/Zupapa-01_dE023oy.png",
+        "local": "img-cache/Zupapa-01_dE023oy.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/zupapa_2u3e9mh.png",
+        "local": "img-cache/zupapa_2u3e9mh.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2021/12/20/zupapa_fULZ5w1.png",
+        "local": "img-cache/zupapa_fULZ5w1.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2021/12/20/zupapa_HcmQb32.png",
+        "local": "img-cache/zupapa_HcmQb32.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/16/zupapa-01-16-231052_uOgyc0V.png",
+        "local": "img-cache/zupapa-01-16-231052_uOgyc0V.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2018/10/06/df6fbd52-e050-4bfa-bd0f-632e687a8453.png",
+        "local": "img-cache/df6fbd52-e050-4bfa-bd0f-632e687a8453.png"
+      },
+      "background": {
+        "url": null,
+        "local": null
+      }
+    },
+    "background_vshift": 0,
+    "invert_screenshots": false,
+    "platforms": null,
+    "roms": [
+      {
+        "rom_name": "zupapa",
+        "description": "Zupapa!",
+        "year": "2001",
+        "publisher": "SNK",
+        "serial": "",
+        "release": "",
+        "platform_tag": "MVS",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 70,
+      "megs": 46
+    },
+    "softdips_image": "./img-cache/dips-EU-zupapa.png",
+    "command_blocks": []
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-krautbuster",
+    "hfsdb_id": 252972,
+    "title": "Kraut Buster",
+    "alt_title": null,
+    "year": "2019",
+    "publisher": "NG:DEV.TEAM",
+    "type": "Unlicenced",
+    "generation": "NeoGeo Resurrection",
+    "genre": "Run and gun",
+    "nb_players": "2P",
+    "description": "KRAUT BUSTER est un jeu indie de Run'n'Gun fortement inspiré de la série Metal Slug, sorti en 2018 sur MVS puis sur AES en 2019. Certainement le jeu indie le plus complet et abouti de l'ère 2000-2020, à tester absolument.\nLes fans de Metal Slug devront forcément faire un premier effort pour s'affranchir de la ressemblance évidente, avant de pouvoir ensuite apprécier la qualité des musiques, la longueur des niveaux et l'humour à la sauce NG:DEV.TEAM!",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2022/02/07/header_r8oIbxG.png",
+        "local": "img-cache/header_r8oIbxG.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2022/02/14/krautb-3d_YAaHAiR.png",
+        "local": "img-cache/krautb-3d_YAaHAiR.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2022/02/07/title-screen_Dsf9kn3.png",
+        "local": "img-cache/title-screen_Dsf9kn3.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2022/02/07/krautbuster_gBj4dje.jpg",
+        "local": "img-cache/krautbuster_gBj4dje.jpg"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/02/07/boss_210_rZQZ9VI.png",
+        "local": "img-cache/boss_210_rZQZ9VI.png"
+      },
+      "mini_marquee": {
+        "url": null,
+        "local": null
+      },
+      "background": {
+        "url": null,
+        "local": null
+      }
+    },
+    "background_vshift": 0,
+    "invert_screenshots": false,
+    "platforms": "MVSAESNGCD",
+    "roms": [],
+    "platform_specific": {
+      "megs": 808
+    },
+    "softdips_image": null,
+    "command_blocks": []
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-abyssalinfants",
+    "hfsdb_id": 255400,
+    "title": "Abyssal Infants",
+    "alt_title": null,
+    "year": "2021",
+    "publisher": "Kakoeimon",
+    "type": "Homebrew",
+    "generation": "Post NeoGeo",
+    "genre": "Shooter",
+    "nb_players": "1P",
+    "description": "un petit homebrew gratuit de shoot horizontal pour la NeoGeo, développé par Kakoeimon. A en lire certains, visiblement les graphismes et la difficulté ne déplaisent à tout le monde !",
+    "images": {
+      "wallpaper": {
+        "url": null,
+        "local": null
+      },
+      "cover3d": {
+        "url": null,
+        "local": null
+      },
+      "screenshot_title": {
+        "url": null,
+        "local": null
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2023/10/12/YbH19N_DCNcuf3.png",
+        "local": "img-cache/YbH19N_DCNcuf3.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2023/10/12/7Pqv8t_u6rRBZF.png",
+        "local": "img-cache/7Pqv8t_u6rRBZF.png"
+      },
+      "mini_marquee": {
+        "url": null,
+        "local": null
+      },
+      "background": {
+        "url": null,
+        "local": null
+      }
+    },
+    "background_vshift": 0,
+    "invert_screenshots": false,
+    "platforms": "MVSAESNGCD",
+    "roms": [
+      {
+        "rom_name": "abyssalinfants",
+        "description": null,
+        "year": null,
+        "publisher": null,
+        "serial": null,
+        "release": null,
+        "platform_tag": null,
+        "compatibility": null,
+        "exclude_softdips": false
+      }
+    ],
+    "platform_specific": {},
+    "softdips_image": "./img-cache/dips-EU-abyssalinfants.png",
+    "command_blocks": []
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-aof",
+    "hfsdb_id": 74315,
+    "title": "Art of Fighting",
+    "alt_title": "龍虎の拳 Ryuuko no Ken",
+    "year": "1992",
+    "publisher": "SNK",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Combat",
+    "nb_players": "2P",
+    "description": "Art of Fighting est un titre à la réalisation technique très valorisante : son ambiance, sa bande sonore et ses graphismes de haute volée en font un très bon jeu à la réalisation étonnante. Si l'excellent Street Fighter II' reste intouchable, Fatal Fury et World Heroes sont nettement distancés.\nTout un programme, si l'on en croit le titre ! Pour l'anecdote, il s'agit du premier jeu à franchir sur Neo·Geo le cap des 100 Mbits. Il aura bien besoin de cela, Street Fighter II en étant à sa deuxième mouture et la concurrence s'organisant de mieux en mieux.",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting___Ryuuko_no_Ken-01_3_iwzIsIX.jpg",
+        "local": "img-cache/Art_of_Fighting___Ryuuko_no_Ken-01_3_iwzIsIX.jpg"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/aof_MHoEcH0.png",
+        "local": "img-cache/aof_MHoEcH0.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting___Ryuuko_no_Ken-01_3_tv3i3Lm.png",
+        "local": "img-cache/Art_of_Fighting___Ryuuko_no_Ken-01_3_tv3i3Lm.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting___Ryuuko_no_Ken-01_1_TImD9xY.png",
+        "local": "img-cache/Art_of_Fighting___Ryuuko_no_Ken-01_1_TImD9xY.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting___Ryuuko_no_Ken-03_ajFwOCO.png",
+        "local": "img-cache/Art_of_Fighting___Ryuuko_no_Ken-03_ajFwOCO.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting-01_3_Y4Vd0tE.jpg",
+        "local": "img-cache/Art_of_Fighting-01_3_Y4Vd0tE.jpg"
+      },
+      "background": {
+        "url": "https://www.fgbg.art/static/aof_john_theGuardian-f82b5420bea65e52634e3dd360903bd1.gif",
+        "local": "img-cache/aof_john_theGuardian-f82b5420bea65e52634e3dd360903bd1.gif"
+      }
+    },
+    "background_vshift": 30,
+    "invert_screenshots": false,
+    "platforms": "ROM",
+    "roms": [
+      {
+        "rom_name": "aof",
+        "description": "Art of Fighting / Ryuuko no Ken (NGM-044 ~ NGH-044)",
+        "year": "1992",
+        "publisher": "SNK",
+        "serial": "NGM-044 (MVS), NGH-044 (AES)",
+        "release": "19920924 (MVS), 19921211 (AES)",
+        "platform_tag": "MVS,AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 44,
+      "megs": 102
+    },
+    "softdips_image": "./img-cache/dips-EU-aof.png",
+    "command_blocks": [
+      "./img-cache/cmd-block-aof-1.png",
+      "./img-cache/cmd-block-aof-2.png",
+      "./img-cache/cmd-block-aof-3.png",
+      "./img-cache/cmd-block-aof-4.png",
+      "./img-cache/cmd-block-aof-5.png",
+      "./img-cache/cmd-block-aof-6.png",
+      "./img-cache/cmd-block-aof-7.png",
+      "./img-cache/cmd-block-aof-8.png",
+      "./img-cache/cmd-block-aof-9.png",
+      "./img-cache/cmd-block-aof-10.png",
+      "./img-cache/cmd-block-aof-11.png",
+      "./img-cache/cmd-block-aof-12.png",
+      "./img-cache/cmd-block-aof-13.png"
+    ]
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-aof2",
+    "hfsdb_id": 74316,
+    "title": "Art of Fighting 2",
+    "alt_title": "龍虎の拳2 Ryuuko no Ken 2",
+    "year": "1994",
+    "publisher": "SNK",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Combat",
+    "nb_players": "2P",
+    "description": "Art of Fighting 2 frappe encore plus fort que son aîné. Sa difficulté élevée et sa jouabilité pas très accessible font qu'un joueur peu persévérant oubliera rapidement cette cartouche sur une étagère. Les courageux accèderont à un univers bien particulier et pourront profiter de l'ambiance excellente de ce titre atypique.\nCe qui change par rapport à Art of Fighting, c'est la violence des coups. Plus forts, plus puissants, plus rapides, nous sommes dans la démesure. Ce n'est pas de la violence sanguignolante à la Mortal Kombat, mais plutôt toute une gamme de coups ayant beaucoup d'impact et d'efficacité (merci les bruitages). L'adversaire décolle bien souvent du sol puis retombe lourdement. Que du bonheur que de laisser ressortir ses instincts les plus primaires.",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting_2___Ryuuko_no_Ken_2-01_1_c3j3Gex.jpg",
+        "local": "img-cache/Art_of_Fighting_2___Ryuuko_no_Ken_2-01_1_c3j3Gex.jpg"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/aof2_JCI7kKZ.png",
+        "local": "img-cache/aof2_JCI7kKZ.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting_2___Ryuuko_no_Ken_2-01_1_GAn05Vz.png",
+        "local": "img-cache/Art_of_Fighting_2___Ryuuko_no_Ken_2-01_1_GAn05Vz.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2019/07/31/Art_of_Fighting_2___Ryuuko_no_Ken_2-01_3_XbIbPGS.png",
+        "local": "img-cache/Art_of_Fighting_2___Ryuuko_no_Ken_2-01_3_XbIbPGS.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/19/aof2-01-19-205602_SlRKy9w.png",
+        "local": "img-cache/aof2-01-19-205602_SlRKy9w.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2018/10/06/aec7c4ea-fe80-426f-8357-640cea293f81.jpg",
+        "local": "img-cache/aec7c4ea-fe80-426f-8357-640cea293f81.jpg"
+      },
+      "background": {
+        "url": "https://www.fgbg.art/static/aof2_gym-cad3286a5269bbd140af738c47bb1a43.gif",
+        "local": "img-cache/aof2_gym-cad3286a5269bbd140af738c47bb1a43.gif"
+      }
+    },
+    "background_vshift": 30,
+    "invert_screenshots": false,
+    "platforms": "NGCD",
+    "roms": [
+      {
+        "rom_name": "aof2",
+        "description": "Art of Fighting 2 / Ryuuko no Ken 2 (NGM-056)",
+        "year": "1994",
+        "publisher": "SNK",
+        "serial": "NGM-056",
+        "release": "19940203",
+        "platform_tag": "MVS",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      },
+      {
+        "rom_name": "aof2a",
+        "description": "Art of Fighting 2 / Ryuuko no Ken 2 (NGH-056)",
+        "year": "1994",
+        "publisher": "SNK",
+        "serial": "NGH-056",
+        "release": "19940311",
+        "platform_tag": "AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": true
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 56,
+      "megs": 178
+    },
+    "softdips_image": "./img-cache/dips-EU-aof2.png",
+    "command_blocks": [
+      "./img-cache/cmd-block-aof2-1.png",
+      "./img-cache/cmd-block-aof2-2.png",
+      "./img-cache/cmd-block-aof2-3.png",
+      "./img-cache/cmd-block-aof2-4.png",
+      "./img-cache/cmd-block-aof2-5.png",
+      "./img-cache/cmd-block-aof2-6.png",
+      "./img-cache/cmd-block-aof2-7.png",
+      "./img-cache/cmd-block-aof2-8.png",
+      "./img-cache/cmd-block-aof2-9.png",
+      "./img-cache/cmd-block-aof2-10.png",
+      "./img-cache/cmd-block-aof2-11.png",
+      "./img-cache/cmd-block-aof2-12.png",
+      "./img-cache/cmd-block-aof2-13.png",
+      "./img-cache/cmd-block-aof2-14.png",
+      "./img-cache/cmd-block-aof2-15.png",
+      "./img-cache/cmd-block-aof2-16.png",
+      "./img-cache/cmd-block-aof2-17.png"
+    ]
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-samsho",
+    "hfsdb_id": 79932,
+    "title": "Samurai Shodown",
+    "alt_title": "サムライスピリッツ / Samurai Spirits",
+    "year": "1993",
+    "publisher": "SNK",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Combat",
+    "nb_players": "2P",
+    "description": "Vous en avez assez de vous contenter de vos poings et pieds lors de combats ? SNK a pensé à vous avec ce nouveau titre. Samurai Shodown va bien au-delà des Street Fighter, Fatal Fury, Mortal Kombat et consorts. En effet, malgré un Art of Fighting impressionnant, malgré un Fatal Fury 2 de grande qualité, malgré un World Heroes 2 étonnant et même malgré un Mortal Kombat hyper violent, aucun éditeur n'arrive franchement à surpasser le succès de Capcom et de son Street Fighter II. \nIci il va falloir combattre katana à la main et malheur au vaincu ! Les combats prennent alors une dimension à la fois épique et dramatique où il n'y a que deux issues : la victoire ou la mort. Nous sommes loin de Street Fighter ou de Fatal Fury et de leurs KO politiquement corrects. \nSamurai Shodown innove réellement par rapport à ses contemporains. Très réussi, il offre une alternative intéressante aux séries plus classiques. Son ambiance spéciale (musiques inhabituelles et combats d'une grande gravité) peut toutefois rebuter certains joueurs qui lui préfèreront des jeux plus hauts en couleurs comme Fatal Fury 2 ou World Heroes 2... des jeux tellement plus classiques ! Cela vaut pourtant réellement le coup de se plonger dans ce très bon jeu.",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2021/03/16/Samurai_Shodown-01_rf5I2XF.png",
+        "local": "img-cache/Samurai_Shodown-01_rf5I2XF.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/samsho_IBvrU4y.png",
+        "local": "img-cache/samsho_IBvrU4y.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2021/12/19/samsho_T27kjsF.png",
+        "local": "img-cache/samsho_T27kjsF.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2021/12/19/samsho_DVPQ0js.png",
+        "local": "img-cache/samsho_DVPQ0js.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/18/samsho-01-18-230521_jRJ0Kx3.png",
+        "local": "img-cache/samsho-01-18-230521_jRJ0Kx3.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2018/10/06/da59e68b-9543-4c3b-b714-87ca727c7faf.png",
+        "local": "img-cache/da59e68b-9543-4c3b-b714-87ca727c7faf.png"
+      },
+      "background": {
+        "url": "https://www.fgbg.art/static/ss_galford-d7098f1d65e40356c720e16e493d4caf.gif",
+        "local": "img-cache/ss_galford-d7098f1d65e40356c720e16e493d4caf.gif"
+      }
+    },
+    "background_vshift": 50,
+    "invert_screenshots": true,
+    "platforms": "MVSAESNGCD",
+    "roms": [
+      {
+        "rom_name": "samsho",
+        "description": "Samurai Shodown / Samurai Spirits (NGM-045)",
+        "year": "1993",
+        "publisher": "SNK",
+        "serial": "NGM-045",
+        "release": "19930707",
+        "platform_tag": "MVS",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      },
+      {
+        "rom_name": "samshoh",
+        "description": "Samurai Shodown / Samurai Spirits (NGH-045)",
+        "year": "1993",
+        "publisher": "SNK",
+        "serial": "NGH-045",
+        "release": "19930811",
+        "platform_tag": "AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 45,
+      "megs": 118
+    },
+    "softdips_image": null,
+    "command_blocks": [
+      "./img-cache/cmd-block-samsho-1.png",
+      "./img-cache/cmd-block-samsho-2.png",
+      "./img-cache/cmd-block-samsho-3.png",
+      "./img-cache/cmd-block-samsho-4.png",
+      "./img-cache/cmd-block-samsho-5.png",
+      "./img-cache/cmd-block-samsho-6.png",
+      "./img-cache/cmd-block-samsho-7.png",
+      "./img-cache/cmd-block-samsho-8.png",
+      "./img-cache/cmd-block-samsho-9.png",
+      "./img-cache/cmd-block-samsho-10.png",
+      "./img-cache/cmd-block-samsho-11.png",
+      "./img-cache/cmd-block-samsho-12.png",
+      "./img-cache/cmd-block-samsho-13.png",
+      "./img-cache/cmd-block-samsho-14.png",
+      "./img-cache/cmd-block-samsho-15.png",
+      "./img-cache/cmd-block-samsho-16.png"
+    ]
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-samsho4",
+    "hfsdb_id": 79936,
+    "title": "Samurai Shodown IV - Amakusa's Revenge",
+    "alt_title": "サムライスピリッツ 天草降臨 / Samurai Spirits - Amakusa Kourin",
+    "year": "1996",
+    "publisher": "SNK",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Combat",
+    "nb_players": "2P",
+    "description": "Samurai Shodown IV corrige pas mal de points qui laissaient à désirer dans l'épisode III. Plus abouti, plus réussi, c'est encore une fois une démonstration du savoir-faire acquis par SNK. Dans son genre, il est tout simplement somptueux, sachant allier réalisation de très bon niveau à une jouabilité devenue assez technique, ce qui est la marque d'un grand jeu. La série atteint un nouveau point de maturité après le II.\nLa saga Samurai Shodown n'est pas des plus faciles à suivre du point de vue chronologique. L'épisode III avait la particularité de s'intercaler entre le premier et le deuxième, introduisant un nouvel ennemi, Zankurô Minazuki. Cette histoire est prolongée ici, ce qui fait que ce Samurai Shodown IV se situe après le III mais toujours avant le II. Ce nouvel opus forme avec son prédécesseur un mini-chapitre dans la série.",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2021/03/16/Samurai_Shodown_IV__Amakusa_s_Revenge-01_aglaGX6.png",
+        "local": "img-cache/Samurai_Shodown_IV__Amakusa_s_Revenge-01_aglaGX6.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/samsho4_jdPGKsF.png",
+        "local": "img-cache/samsho4_jdPGKsF.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2021/12/20/samsho4_q0gOfAl.png",
+        "local": "img-cache/samsho4_q0gOfAl.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2021/12/20/samsho4_nvngW3n.png",
+        "local": "img-cache/samsho4_nvngW3n.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/18/samsho4-01-18-231220_LQssMaL.png",
+        "local": "img-cache/samsho4-01-18-231220_LQssMaL.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2021/12/20/samsho4_mini_jap_jSi4BOO.jpg",
+        "local": "img-cache/samsho4_mini_jap_jSi4BOO.jpg"
+      },
+      "background": {
+        "url": "https://www.fgbg.art/static/ss4_beach-70ea9fbd5940f609c529f5c0d9fd512b.gif",
+        "local": "img-cache/ss4_beach-70ea9fbd5940f609c529f5c0d9fd512b.gif"
+      }
+    },
+    "background_vshift": 30,
+    "invert_screenshots": true,
+    "platforms": "MVSAESNGCD",
+    "roms": [
+      {
+        "rom_name": "samsho4",
+        "description": "Samurai Shodown IV - Amakusa's Revenge / Samurai Spirits - Amakusa Kourin (NGM-222 ~ NGH-222)",
+        "year": "1996",
+        "publisher": "SNK",
+        "serial": "NGM-222 (MVS), NGH-222 (AES)",
+        "release": "19961025 (MVS), 19961129 (AES)",
+        "platform_tag": "MVS,AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      },
+      {
+        "rom_name": "samsho4k",
+        "description": "Pae Wang Jeon Seol / Legend of a Warrior (Korean censored Samurai Shodown IV)",
+        "year": "1996",
+        "publisher": "SNK",
+        "serial": "",
+        "release": "",
+        "platform_tag": "MVS",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": true
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 222,
+      "megs": 378
+    },
+    "softdips_image": "./img-cache/dips-EU-samsho4.png",
+    "command_blocks": [
+      "./img-cache/cmd-block-samsho4-1.png",
+      "./img-cache/cmd-block-samsho4-2.png",
+      "./img-cache/cmd-block-samsho4-3.png",
+      "./img-cache/cmd-block-samsho4-4.png",
+      "./img-cache/cmd-block-samsho4-5.png",
+      "./img-cache/cmd-block-samsho4-6.png",
+      "./img-cache/cmd-block-samsho4-7.png",
+      "./img-cache/cmd-block-samsho4-8.png",
+      "./img-cache/cmd-block-samsho4-9.png",
+      "./img-cache/cmd-block-samsho4-10.png",
+      "./img-cache/cmd-block-samsho4-11.png",
+      "./img-cache/cmd-block-samsho4-12.png",
+      "./img-cache/cmd-block-samsho4-13.png",
+      "./img-cache/cmd-block-samsho4-14.png",
+      "./img-cache/cmd-block-samsho4-15.png",
+      "./img-cache/cmd-block-samsho4-16.png",
+      "./img-cache/cmd-block-samsho4-17.png",
+      "./img-cache/cmd-block-samsho4-18.png",
+      "./img-cache/cmd-block-samsho4-19.png",
+      "./img-cache/cmd-block-samsho4-20.png",
+      "./img-cache/cmd-block-samsho4-21.png",
+      "./img-cache/cmd-block-samsho4-22.png",
+      "./img-cache/cmd-block-samsho4-23.png",
+      "./img-cache/cmd-block-samsho4-24.png",
+      "./img-cache/cmd-block-samsho4-25.png",
+      "./img-cache/cmd-block-samsho4-26.png",
+      "./img-cache/cmd-block-samsho4-27.png",
+      "./img-cache/cmd-block-samsho4-28.png",
+      "./img-cache/cmd-block-samsho4-29.png",
+      "./img-cache/cmd-block-samsho4-30.png",
+      "./img-cache/cmd-block-samsho4-31.png",
+      "./img-cache/cmd-block-samsho4-32.png",
+      "./img-cache/cmd-block-samsho4-33.png",
+      "./img-cache/cmd-block-samsho4-34.png",
+      "./img-cache/cmd-block-samsho4-35.png",
+      "./img-cache/cmd-block-samsho4-36.png",
+      "./img-cache/cmd-block-samsho4-37.png",
+      "./img-cache/cmd-block-samsho4-38.png",
+      "./img-cache/cmd-block-samsho4-39.png"
+    ]
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-samsho5",
+    "hfsdb_id": 79937,
+    "title": "Samurai Shodown V",
+    "alt_title": "サムライスピリッツ 零 / Samurai Spirits Zero",
+    "year": "2003",
+    "publisher": "Yuki Enterprise / SNK Playmore",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Combat",
+    "nb_players": "2P",
+    "description": "7 ans entre les épisodes IV et V, c'est énorme. 378 Mbits d'un côté et 708 Mbits de l'autre, ça aussi c'est énorme. Et pourtant, à l'écran la différence n'est pas flagrante et on se demande ce qui justifie un tel écart théorique. Samurai Shodown V apporte cependant un bonne ration de nouveautés et se montre un digne représentant de sa lignée. Sans être éblouissante car très imparfaite, sa réalisation technique est correcte et assez propre. Les combattants sont nombreux, la jouabilité est très bonne, que demander de plus ? Un mode Versus, en effet ! On aurait pu s'attendre à un jeu bien plus paufiné mais les amateurs de la série sauront apprécier ce bon titre.\nEn 1996 la série Samurai Shodown avait quatre épisodes à son actif. Série emblématique et de grande qualité, elle fut choisie pour inaugurer le passage à la 3D. \nPas moins de sept ans après l'excellent Samurai Shodown IV, SNK Playmore fait revenir la série sur Neo·Geo avec un épisode V. Les katanas à la lame bien aiguisée sont de retour, préparez-vous !\nLe développement de cet épisode a été confié à une société nommée Yuki Enterprise et le jeu tient sur 708 Mbits, à l'instar de Metal Slug 3 et de SVC Chaos.",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2021/03/16/Samurai_Shodown_V-01_RPrWHcX.png",
+        "local": "img-cache/Samurai_Shodown_V-01_RPrWHcX.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/samsho5_L371DOm.png",
+        "local": "img-cache/samsho5_L371DOm.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2021/12/22/samsho5_tz03YY3.png",
+        "local": "img-cache/samsho5_tz03YY3.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2021/12/22/samsho5_hWDZdD9.png",
+        "local": "img-cache/samsho5_hWDZdD9.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/18/samsho5-01-18-231432_1ZdRXCx.png",
+        "local": "img-cache/samsho5-01-18-231432_1ZdRXCx.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2018/10/06/e99f894d-09e1-41bc-9176-56117a271a82.png",
+        "local": "img-cache/e99f894d-09e1-41bc-9176-56117a271a82.png"
+      },
+      "background": {
+        "url": "https://www.fgbg.art/static/ss5_boat-14615902fcf0edb69b5a117b5b7ad09f.gif",
+        "local": "img-cache/ss5_boat-14615902fcf0edb69b5a117b5b7ad09f.gif"
+      }
+    },
+    "background_vshift": 40,
+    "invert_screenshots": false,
+    "platforms": "MVSAESNGCD",
+    "roms": [
+      {
+        "rom_name": "samsho5",
+        "description": "Samurai Shodown V / Samurai Spirits Zero (NGM-2700, set 1)",
+        "year": "2003",
+        "publisher": "Yuki Enterprise / SNK Playmore",
+        "serial": "NGM-2700",
+        "release": "20031010",
+        "platform_tag": "MVS",
+        "compatibility": "MVS",
+        "exclude_softdips": false
+      },
+      {
+        "rom_name": "samsho5a",
+        "description": "Samurai Shodown V / Samurai Spirits Zero (NGM-2700, set 2)",
+        "year": "2003",
+        "publisher": "Yuki Enterprise / SNK Playmore",
+        "serial": "NGM-2700",
+        "release": "20031010",
+        "platform_tag": "MVS",
+        "compatibility": "MVS",
+        "exclude_softdips": true
+      },
+      {
+        "rom_name": "samsho5b",
+        "description": "Samurai Shodown V / Samurai Spirits Zero (bootleg)",
+        "year": "2003",
+        "publisher": "bootleg",
+        "serial": "",
+        "release": "",
+        "platform_tag": "MVS",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": true
+      },
+      {
+        "rom_name": "samsho5h",
+        "description": "Samurai Shodown V / Samurai Spirits Zero (NGH-2700)",
+        "year": "2003",
+        "publisher": "Yuki Enterprise / SNK Playmore",
+        "serial": "NGH-2700",
+        "release": "20031211",
+        "platform_tag": "AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 270,
+      "megs": 708
+    },
+    "softdips_image": null,
+    "command_blocks": [
+      "./img-cache/cmd-block-samsho5-1.png",
+      "./img-cache/cmd-block-samsho5-2.png",
+      "./img-cache/cmd-block-samsho5-3.png",
+      "./img-cache/cmd-block-samsho5-4.png",
+      "./img-cache/cmd-block-samsho5-5.png",
+      "./img-cache/cmd-block-samsho5-6.png",
+      "./img-cache/cmd-block-samsho5-7.png",
+      "./img-cache/cmd-block-samsho5-8.png",
+      "./img-cache/cmd-block-samsho5-9.png",
+      "./img-cache/cmd-block-samsho5-10.png",
+      "./img-cache/cmd-block-samsho5-11.png",
+      "./img-cache/cmd-block-samsho5-12.png",
+      "./img-cache/cmd-block-samsho5-13.png",
+      "./img-cache/cmd-block-samsho5-14.png",
+      "./img-cache/cmd-block-samsho5-15.png",
+      "./img-cache/cmd-block-samsho5-16.png",
+      "./img-cache/cmd-block-samsho5-17.png",
+      "./img-cache/cmd-block-samsho5-18.png",
+      "./img-cache/cmd-block-samsho5-19.png",
+      "./img-cache/cmd-block-samsho5-20.png",
+      "./img-cache/cmd-block-samsho5-21.png",
+      "./img-cache/cmd-block-samsho5-22.png",
+      "./img-cache/cmd-block-samsho5-23.png",
+      "./img-cache/cmd-block-samsho5-24.png",
+      "./img-cache/cmd-block-samsho5-25.png",
+      "./img-cache/cmd-block-samsho5-26.png",
+      "./img-cache/cmd-block-samsho5-27.png",
+      "./img-cache/cmd-block-samsho5-28.png",
+      "./img-cache/cmd-block-samsho5-29.png",
+      "./img-cache/cmd-block-samsho5-30.png",
+      "./img-cache/cmd-block-samsho5-31.png"
+    ]
+  },
+  {
+    "page_type": "game",
+    "platform": "neogeo",
+    "id": "ngmag-samsh5sp",
+    "hfsdb_id": 79939,
+    "title": "Samurai Shodown V Special",
+    "alt_title": "サムライスピリッツ零 SPECIAL / Samurai Spirits Zero Special",
+    "year": "2004",
+    "publisher": "Yuki Enterprise / SNK Playmore",
+    "type": "Licenced",
+    "generation": "NeoGeo Era",
+    "genre": "Combat",
+    "nb_players": "2P",
+    "description": "Samurai Shodown V Special est un très bon jeu qui se montre violent à souhait dans sa version allégée de toute censure et avec une jouabilité plus qu'aboutie. Il manque quelques personnages incontournables comme Cham Cham ou Wan-Fu et cela manque un peu de stages et de musiques comparé à Samurai Shodown V, mais sinon il n'y a pas grand chose à reprocher.\nVoilà donc ce à quoi ressemble le chant du cygne de la Neo·Geo. On peut comprendre que cette version qui suit de peu Samurai Shodown V ait de quoi énerver. Eh bien, cela ne devrait pas être le cas tant que ça. En effet, Yuki Enterprise a fait en sorte que cette mise à jour ne soit pas trop redondante avec Samurai Shodown V (même si la ressemblance est là, et pour cause) et en a profité pour travailler les détails qui le nécessitaient.\nPresque aussi bon que Samurai Shodown IV, conçu par SNK : pas mal !",
+    "images": {
+      "wallpaper": {
+        "url": "https://db.hfsplay.fr/files/2021/03/16/Samurai_Shodown_V_Special-01_KySCU6r.png",
+        "local": "img-cache/Samurai_Shodown_V_Special-01_KySCU6r.png"
+      },
+      "cover3d": {
+        "url": "https://db.hfsplay.fr/files/2019/07/24/samsh5sp_4ubmXx0.png",
+        "local": "img-cache/samsh5sp_4ubmXx0.png"
+      },
+      "screenshot_title": {
+        "url": "https://db.hfsplay.fr/files/2021/12/22/ef11d6ee-39af-4a9e-903b-26bdf0a78764_vlGmiah.png",
+        "local": "img-cache/ef11d6ee-39af-4a9e-903b-26bdf0a78764_vlGmiah.png"
+      },
+      "screenshot_main": {
+        "url": "https://db.hfsplay.fr/files/2021/12/22/5d9aacf0-9bea-4350-a507-1a5846a36b69_LzgL129.png",
+        "local": "img-cache/5d9aacf0-9bea-4350-a507-1a5846a36b69_LzgL129.png"
+      },
+      "screenshot_alt": {
+        "url": "https://db.hfsplay.fr/files/2022/01/18/samsh5sp-01-18-231737_AjQgz5k.png",
+        "local": "img-cache/samsh5sp-01-18-231737_AjQgz5k.png"
+      },
+      "mini_marquee": {
+        "url": "https://db.hfsplay.fr/files/2018/10/06/c8b48855-6953-4114-b8c0-3c532551a211.png",
+        "local": "img-cache/c8b48855-6953-4114-b8c0-3c532551a211.png"
+      },
+      "background": {
+        "url": "https://www.fgbg.art/static/ss5s_mtFujiDay-7adb20b2807fb2e2caa3cdec50491984.gif",
+        "local": "img-cache/ss5s_mtFujiDay-7adb20b2807fb2e2caa3cdec50491984.gif"
+      }
+    },
+    "background_vshift": 35,
+    "invert_screenshots": false,
+    "platforms": "MVSAESNGCD",
+    "roms": [
+      {
+        "rom_name": "samsh5sp",
+        "description": "Samurai Shodown V Special / Samurai Spirits Zero Special (NGM-2720)",
+        "year": "2004",
+        "publisher": "Yuki Enterprise / SNK Playmore",
+        "serial": "NGM-2720",
+        "release": "20040422",
+        "platform_tag": "MVS",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": false
+      },
+      {
+        "rom_name": "samsh5sph",
+        "description": "Samurai Shodown V Special / Samurai Spirits Zero Special (NGH-2720, 2nd release, less censored)",
+        "year": "2004",
+        "publisher": "Yuki Enterprise / SNK Playmore",
+        "serial": "NGH-2720",
+        "release": "20040715",
+        "platform_tag": "AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": true
+      },
+      {
+        "rom_name": "samsh5spho",
+        "description": "Samurai Shodown V Special / Samurai Spirits Zero Special (NGH-2720, 1st release, censored)",
+        "year": "2004",
+        "publisher": "Yuki Enterprise / SNK Playmore",
+        "serial": "NGH-2720",
+        "release": "20040715",
+        "platform_tag": "AES",
+        "compatibility": "MVS,AES",
+        "exclude_softdips": true
+      }
+    ],
+    "platform_specific": {
+      "ngm_id": 272,
+      "megs": 708
+    },
+    "softdips_image": "./img-cache/dips-EU-samsh5sp.png",
+    "command_blocks": [
+      "./img-cache/cmd-block-samsh5sp-1.png",
+      "./img-cache/cmd-block-samsh5sp-2.png",
+      "./img-cache/cmd-block-samsh5sp-3.png",
+      "./img-cache/cmd-block-samsh5sp-4.png",
+      "./img-cache/cmd-block-samsh5sp-5.png",
+      "./img-cache/cmd-block-samsh5sp-6.png",
+      "./img-cache/cmd-block-samsh5sp-7.png",
+      "./img-cache/cmd-block-samsh5sp-8.png",
+      "./img-cache/cmd-block-samsh5sp-9.png",
+      "./img-cache/cmd-block-samsh5sp-10.png",
+      "./img-cache/cmd-block-samsh5sp-11.png",
+      "./img-cache/cmd-block-samsh5sp-12.png",
+      "./img-cache/cmd-block-samsh5sp-13.png",
+      "./img-cache/cmd-block-samsh5sp-14.png",
+      "./img-cache/cmd-block-samsh5sp-15.png",
+      "./img-cache/cmd-block-samsh5sp-16.png",
+      "./img-cache/cmd-block-samsh5sp-17.png",
+      "./img-cache/cmd-block-samsh5sp-18.png",
+      "./img-cache/cmd-block-samsh5sp-19.png",
+      "./img-cache/cmd-block-samsh5sp-20.png",
+      "./img-cache/cmd-block-samsh5sp-21.png",
+      "./img-cache/cmd-block-samsh5sp-22.png",
+      "./img-cache/cmd-block-samsh5sp-23.png",
+      "./img-cache/cmd-block-samsh5sp-24.png",
+      "./img-cache/cmd-block-samsh5sp-25.png",
+      "./img-cache/cmd-block-samsh5sp-26.png",
+      "./img-cache/cmd-block-samsh5sp-27.png",
+      "./img-cache/cmd-block-samsh5sp-28.png",
+      "./img-cache/cmd-block-samsh5sp-29.png",
+      "./img-cache/cmd-block-samsh5sp-30.png"
+    ]
+  }
+]
