@@ -35,21 +35,91 @@ cp secrets_sample.json secrets.json
 
 # run
 
+Both commands are run via `python -m neo_playbook`:
+
 ```bash
 # Step 1: Fetch remote data (HFSdb API, images, soft DIPs, command blocks)
-uv run python fetch_data.py
+uv run python -m neo_playbook fetch
 
 # Step 2: Generate the PDF from the enriched data
-uv run python render_pdf.py
+uv run python -m neo_playbook render
 ```
 
-# how it works
+**fetch** connects to the [HFSdb API](https://db.hfsplay.fr) (requires a token in `secrets.json`), downloads images, extracts Neo Geo soft DIP settings from ROM files, and generates command-list PNGs from MAME's `command.dat`. It is idempotent — already-populated entries are skipped unless you pass `--force`.
 
-The project is split into a **data pipeline** and a **PDF renderer**, connected by a single JSON file (`data/games.json`):
+**render** reads the enriched data and local images and produces an A4 PDF in `output/pdf/`. No network calls.
 
-1. **`data/games.json`** — the source of truth. Contains all game entries (title, year, publisher, ROM versions, image URLs/paths, etc.). Edit this file to add or modify games.
-2. **`fetch_data.py`** — reads `data/games.json`, enriches it with data from the HFSdb API (descriptions, screenshots, covers), downloads images, extracts Neo Geo soft DIP settings from ROM files, and generates command block PNGs from MAME's command.dat. Writes the enriched data back to `data/games.json`. Idempotent — skips already-populated entries.
-3. **`render_pdf.py`** — reads the enriched `data/games.json` and local image files, produces an A4 PDF magazine. No network calls.
+# project structure
+
+```
+neo-geo-game-mag/
+├── src/neo_playbook/        # Python package
+│   ├── __main__.py          # entry point (fetch / render)
+│   ├── paths.py             # all path constants in one place
+│   ├── fetch.py             # data enrichment pipeline
+│   ├── render.py            # PDF generation
+│   ├── dips.py              # Neo Geo soft-DIP ROM parser
+│   ├── get_image.py         # image downloader with cache
+│   ├── hfsdb.py             # HFSdb API client
+│   ├── img_tools.py         # PIL image transforms
+│   └── mame_commands.py     # MAME command.dat → PNG
+├── data/                    # all local data sources
+│   ├── games.json           # ★ source of truth — edit this to add/modify games
+│   ├── dips.yaml            # cached soft-DIP settings (auto-generated)
+│   ├── debug_dips.yaml      # cached debug-DIP settings (auto-generated)
+│   ├── command-dat/         # MAME command.dat file
+│   └── rom/                 # Neo Geo ROM zips (for soft-DIP extraction)
+├── assets/                  # static assets for the PDF
+│   ├── fonts/
+│   ├── images/              # cover, margins, icons, etc.
+│   │   └── icons/           # type / genre / platform icons
+│   └── templates/           # HTML templates (credits page)
+├── output/                  # generated files (git-ignored)
+│   ├── cache/               # downloaded images & generated PNGs
+│   └── pdf/                 # final PDF output
+├── pyproject.toml
+├── secrets.json             # API keys (git-ignored, see secrets_sample.json)
+└── README.md
+```
+
+# where to edit data
+
+### Adding or modifying games
+
+Edit **`data/games.json`**. Each game entry looks like this:
+
+| Field | What it does | Filled by |
+|---|---|---|
+| `page_type` | `"game"`, `"cover_1"`, `"credits"`, or `"blank"` | you |
+| `hfsdb_id` | HFSdb game ID — used by `fetch` to pull description & images | you |
+| `title` / `alt_title` | Game name (English / Japanese) | you |
+| `year` / `publisher` | Year of release and publisher | you |
+| `type` | `Licenced`, `Homebrew`, `Unreleased`, `Bootleg`, `Hack`, `Port`, etc. | you |
+| `genre` | `Combat`, `Shoot them up`, `Sport`, `Puzzle-Game`, etc. | you |
+| `description` | Game description text | auto (fetch) or manual override |
+| `images` | URLs + local paths for wallpaper, cover3d, screenshots, etc. | auto (fetch) |
+| `roms` | ROM versions (name, description, serial). Used for soft-DIP extraction | you |
+| `platform_specific.megs` | Cart size in MEGs | you |
+| `platform_specific.ngm_id` | NGM catalogue number | you |
+| `background_vshift` | Vertical offset for the background image crop (tweak visually) | you |
+| `invert_screenshots` | Swap main and alt screenshots | you |
+| `softdips_image` | Path to generated soft-DIP settings PNG | auto (fetch) |
+| `command_blocks` | List of generated command-block PNG paths | auto (fetch) |
+
+Fields marked **auto (fetch)** are populated by `uv run python -m neo_playbook fetch`. You only need to set the initial fields (title, hfsdb_id, roms, etc.) and run fetch to fill in the rest.
+
+### Other data sources
+
+- **`data/command-dat/command.dat`** — MAME's command.dat file. Replace it with a newer version to get updated move lists.
+- **`data/rom/`** — place Neo Geo ROM zips here (e.g. `samsho.zip`). Used to extract soft-DIP settings. Only the `.p1` program ROM inside the zip is read.
+- **`data/dips.yaml`** / **`data/debug_dips.yaml`** — auto-generated caches of extracted DIP settings. Delete them to force re-extraction on the next `fetch` run.
+
+### Visual assets
+
+- **`assets/images/`** — margin borders, cover title, MEGs icon, credits background, etc.
+- **`assets/images/icons/`** — game type, genre, and platform icons shown in the sidebar.
+- **`assets/fonts/`** — TTF fonts used in the PDF and in generated PNGs.
+- **`assets/templates/credits.html`** — HTML template for the credits page.
 
 # example of output
 

@@ -3,7 +3,7 @@ PDF renderer: reads enriched data/games.json + local images and produces
 the Neo-Playbook PDF. No network calls.
 
 Usage:
-    uv run python render_pdf.py
+    uv run python -m neo_playbook render
 """
 
 import datetime
@@ -11,7 +11,7 @@ import json
 import os
 
 from fpdf import FPDF, HTMLMixin
-from includes.img_tools import (
+from neo_playbook.img_tools import (
     clean_JPG,
     footer_effect,
     getImgAspectRatio,
@@ -21,12 +21,16 @@ from includes.img_tools import (
     getImgSize,
     image_resize,
 )
+from neo_playbook.paths import (
+    GAMES_JSON, IMAGES_DIR, ICONS_DIR, CACHE_DIR, PDF_DIR,
+    FONT_OSAKA, FONT_ERBOS, TEMPLATES_DIR,
+)
 
-DATA_FILE = "data/games.json"
+DATA_FILE = str(GAMES_JSON)
 NEOGEO_MAG_OUTPUT_PDF_PAGESMAX = 90
 
 ct = datetime.datetime.now()
-NEOGEO_MAG_OUTPUT_PDF = "./pdf-output/neo-playbook-alpha-" + str(ct.timestamp())[0:9]
+NEOGEO_MAG_OUTPUT_PDF = str(PDF_DIR / ("neo-playbook-alpha-" + str(ct.timestamp())[0:9]))
 
 
 ############################################################################
@@ -41,20 +45,20 @@ class MyFPDF(FPDF, HTMLMixin):
 def add_cover_page(pdf):
     pdf.add_page()
     pdf.set_xy(0, 70)
-    pdf.image("./img-cache/temp-page1.png", x=None, y=None, w=210, h=0, type="", link="")
+    pdf.image(str(CACHE_DIR / "temp-page1.png"), x=None, y=None, w=210, h=0, type="", link="")
     pdf.set_xy(0, 15)
-    pdf.image("./img/cover-title-1.png", x=None, y=None, w=210, h=0, type="", link="")
+    pdf.image(str(IMAGES_DIR / "cover-title-1.png"), x=None, y=None, w=210, h=0, type="", link="")
 
 
 def add_credits(pdf):
     pdf.add_page()
-    pdf.image("./img/neo-playbook-credits.png", x=0, y=0, w=210, h=297, type="", link="")
+    pdf.image(str(IMAGES_DIR / "neo-playbook-credits.png"), x=0, y=0, w=210, h=297, type="", link="")
     pdf.set_font("ErbosDracoNova", size=20)
     pdf.set_text_color(12, 23, 34)
     pdf.set_xy(0, 12)
     pdf.cell(w=210, h=12, txt="INSERT COIN", ln=0, align="C")
     pdf.set_font("Osaka", size=10)
-    f = open("./html/credits.html", "r")
+    f = open(str(TEMPLATES_DIR / "credits.html"), "r")
     html_text = f.read()
     f.close()
     pdf.set_xy(40, 45)
@@ -100,14 +104,14 @@ def set_page_background(pdf, game, page_num):
     # Page background margins
     if (page_num % 2) == 0:
         pdf.set_xy(0, 0)
-        pdf.image("./img/margin-left-2-darkbluesc19.png", x=None, y=None, w=0, h=297, type="", link="")
+        pdf.image(str(IMAGES_DIR / "margin-left-2-darkbluesc19.png"), x=None, y=None, w=0, h=297, type="", link="")
         pdf.set_xy(133, 0)
-        pdf.image("./img/margin-right-2-redsc19.png", x=None, y=None, w=0, h=297, type="", link="")
+        pdf.image(str(IMAGES_DIR / "margin-right-2-redsc19.png"), x=None, y=None, w=0, h=297, type="", link="")
     else:
         pdf.set_xy(0, 0)
-        pdf.image("./img/margin-left-2-redsc19.png", x=None, y=None, w=0, h=297, type="", link="")
+        pdf.image(str(IMAGES_DIR / "margin-left-2-redsc19.png"), x=None, y=None, w=0, h=297, type="", link="")
         pdf.set_xy(161, 0)
-        pdf.image("./img/margin-right-2-darkbluesc19.png", x=None, y=None, w=0, h=297, type="", link="")
+        pdf.image(str(IMAGES_DIR / "margin-right-2-darkbluesc19.png"), x=None, y=None, w=0, h=297, type="", link="")
 
     # Page number in footer
     if page_num is not None:
@@ -233,20 +237,20 @@ def add_game_page(pdf, game, page_num):
     if (page_num % 2) == 0:
         pdf.set_xy(0, 0)
         pdf.image(
-            "./img/margin-left-2-darkbluesc19.png", x=None, y=None, w=0, h=297, type="", link=""
+            str(IMAGES_DIR / "margin-left-2-darkbluesc19.png"), x=None, y=None, w=0, h=297, type="", link=""
         )
         pdf.set_xy(133, 0)
         pdf.image(
-            "./img/margin-right-2-redsc19.png", x=None, y=None, w=0, h=297, type="", link=""
+            str(IMAGES_DIR / "margin-right-2-redsc19.png"), x=None, y=None, w=0, h=297, type="", link=""
         )
     else:
         pdf.set_xy(0, 0)
         pdf.image(
-            "./img/margin-left-2-redsc19.png", x=None, y=None, w=0, h=297, type="", link=""
+            str(IMAGES_DIR / "margin-left-2-redsc19.png"), x=None, y=None, w=0, h=297, type="", link=""
         )
         pdf.set_xy(161, 0)
         pdf.image(
-            "./img/margin-right-2-darkbluesc19.png",
+            str(IMAGES_DIR / "margin-right-2-darkbluesc19.png"),
             x=None,
             y=None,
             w=0,
@@ -265,7 +269,7 @@ def add_game_page(pdf, game, page_num):
     # Label for title
     pdf.set_xy(5, 8)
     pdf.set_text_color(20, 20, 20)
-    pdf.image("./img/mvs-empty-label-03.png", x=None, y=None, w=200, h=0, type="", link="")
+    pdf.image(str(IMAGES_DIR / "mvs-empty-label-03.png"), x=None, y=None, w=200, h=0, type="", link="")
 
     # Game title
     pdf.set_y(13)
@@ -428,7 +432,7 @@ def add_game_page(pdf, game, page_num):
     # MEGs (size of NeoGeo cart — Neo Geo specific)
     megs = game.get("platform_specific", {}).get("megs")
     if megs is not None:
-        pdf.image("img/MEGs.png", x=BAR_POSX + 5, y=70, w=25, h=0, type="", link="")
+        pdf.image(str(IMAGES_DIR / "MEGs.png"), x=BAR_POSX + 5, y=70, w=25, h=0, type="", link="")
         pdf.set_font("ErbosDracoNova", size=20)
         pdf.set_xy(BAR_POSX + 6, 71)
         pdf.cell(w=25, h=20, txt=str(megs), ln=0, align="C")
@@ -439,21 +443,21 @@ def add_game_page(pdf, game, page_num):
         icon_ok = True
         match game_type:
             case "Licenced":
-                gametype_icon = "img/icons/type-licenced.png"
+                gametype_icon = str(ICONS_DIR / "type-licenced.png")
             case "Homebrew":
-                gametype_icon = "img/icons/type-homebrew.png"
+                gametype_icon = str(ICONS_DIR / "type-homebrew.png")
             case "Unreleased":
-                gametype_icon = "img/icons/type-unreleased.png"
+                gametype_icon = str(ICONS_DIR / "type-unreleased.png")
             case "Unlicenced":
-                gametype_icon = "img/icons/type-unlicenced.png"
+                gametype_icon = str(ICONS_DIR / "type-unlicenced.png")
             case "Hack":
-                gametype_icon = "img/icons/type-hack.png"
+                gametype_icon = str(ICONS_DIR / "type-hack.png")
             case "intro demo":
-                gametype_icon = "img/icons/type-intro-demo.png"
+                gametype_icon = str(ICONS_DIR / "type-intro-demo.png")
             case "Bootleg":
-                gametype_icon = "img/icons/type-bootleg.png"
+                gametype_icon = str(ICONS_DIR / "type-bootleg.png")
             case "Port":
-                gametype_icon = "img/icons/type-port.png"
+                gametype_icon = str(ICONS_DIR / "type-port.png")
             case _:
                 icon_ok = False
         if icon_ok:
@@ -462,7 +466,7 @@ def add_game_page(pdf, game, page_num):
     # Game platforms
     platforms = game.get("platforms")
     if platforms is not None:
-        filename = "img/icons/platform-" + platforms + ".png"
+        filename = str(ICONS_DIR / ("platform-" + platforms + ".png"))
         if os.path.exists(filename):
             pdf.image(filename, x=BAR_POSX + 5, y=140, w=25, h=0, type="", link="")
 
@@ -472,33 +476,33 @@ def add_game_page(pdf, game, page_num):
         icon_ok = True
         match genre:
             case "Sport":
-                gamegenre_icon = "img/icons/genre-sport.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-sport.png")
             case "Divers":
-                gamegenre_icon = "img/icons/genre-misc.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-misc.png")
             case "Shoot them up":
-                gamegenre_icon = "img/icons/genre-shootthemup.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-shootthemup.png")
             case "Shooter":
-                gamegenre_icon = "img/icons/genre-shootthemup.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-shootthemup.png")
             case "Combat":
-                gamegenre_icon = "img/icons/genre-combat.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-combat.png")
             case "Reflexion":
-                gamegenre_icon = "img/icons/genre-reflexion.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-reflexion.png")
             case "Plate-formes":
-                gamegenre_icon = "img/icons/genre-platformer.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-platformer.png")
             case "Quiz":
-                gamegenre_icon = "img/icons/genre-quizz.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-quizz.png")
             case "Puzzle-Game":
-                gamegenre_icon = "img/icons/genre-puzzle.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-puzzle.png")
             case "Run and gun":
-                gamegenre_icon = "img/icons/genre-runngun.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-runngun.png")
             case "Beat them all":
-                gamegenre_icon = "img/icons/genre-beatthemall.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-beatthemall.png")
             case "Action":
-                gamegenre_icon = "img/icons/genre-action.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-action.png")
             case "Course":
-                gamegenre_icon = "img/icons/genre-racing.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-racing.png")
             case "RPG":
-                gamegenre_icon = "img/icons/genre-rpg.png"
+                gamegenre_icon = str(ICONS_DIR / "genre-rpg.png")
             case _:
                 icon_ok = False
         if icon_ok:
@@ -507,7 +511,7 @@ def add_game_page(pdf, game, page_num):
     # Number of players
     nb_players = game.get("nb_players")
     if nb_players is not None:
-        pdf.image("img/icons/placeholder-blue.png", x=BAR_POSX + 5, y=200, w=25, h=0, type="", link="")
+        pdf.image(str(ICONS_DIR / "placeholder-blue.png"), x=BAR_POSX + 5, y=200, w=25, h=0, type="", link="")
         pdf.set_text_color(255, 240, 240)
         pdf.set_font("ErbosDracoNova", size=8)
         pdf.set_xy(BAR_POSX + 3, 210)
@@ -536,8 +540,8 @@ def main():
     pdf.set_left_margin(5)
     pdf.set_top_margin(0)
     pdf.set_auto_page_break(auto=0)
-    pdf.add_font("Osaka", "", "fonts/osaka.unicode.ttf", uni=True)
-    pdf.add_font("ErbosDracoNova", "", "fonts/ErbosdracoNovaOpenNbpRegular-yGa5.ttf", uni=True)
+    pdf.add_font("Osaka", "", str(FONT_OSAKA), uni=True)
+    pdf.add_font("ErbosDracoNova", "", str(FONT_ERBOS), uni=True)
 
     page_num = -1  # starts at -1 because of cover
 

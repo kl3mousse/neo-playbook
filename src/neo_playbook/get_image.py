@@ -3,7 +3,9 @@ import requests # to get image from the web
 import shutil # to save it locally
 import os
 
-IMG_CACHE_FOLDER = 'img-cache/'
+from neo_playbook.paths import CACHE_DIR
+
+IMG_CACHE_FOLDER = str(CACHE_DIR) + '/'
 
 def download_image(url):
     image_url = url

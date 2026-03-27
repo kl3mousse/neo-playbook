@@ -4,8 +4,8 @@ HFSdb API data, downloads images, extracts soft DIPs, generates
 command block PNGs, and writes the enriched JSON back.
 
 Usage:
-    uv run python fetch_data.py              # enrich all games (skip already populated)
-    uv run python fetch_data.py --force      # re-fetch everything from HFSdb
+    uv run python -m neo_playbook fetch              # enrich all games (skip already populated)
+    uv run python -m neo_playbook fetch --force       # re-fetch everything from HFSdb
 """
 
 import json
@@ -13,13 +13,14 @@ import os
 import sys
 import time
 
-from includes.get_image import download_image
-from includes.hfsdb import get_game_from_hfsdb
-from includes.dips import SoftDipsSettings
-from includes.mame_command_dat_tools import get_command_blocks
+from neo_playbook.get_image import download_image
+from neo_playbook.hfsdb import get_game_from_hfsdb
+from neo_playbook.dips import SoftDipsSettings
+from neo_playbook.mame_commands import get_command_blocks
+from neo_playbook.paths import GAMES_JSON, COMMAND_DAT, DIPS_YAML, DEBUG_DIPS_YAML, ROM_DIR, CACHE_DIR
 
-DATA_FILE = "data/games.json"
-COMMAND_DAT_FILE = "./command-dat/command.dat"
+DATA_FILE = str(GAMES_JSON)
+COMMAND_DAT_FILE = str(COMMAND_DAT)
 HFSDB_LANG = "FR"
 
 
@@ -129,7 +130,7 @@ def extract_softdips(game):
     if not game.get("roms"):
         return
 
-    dips = SoftDipsSettings("dips.yaml", "debug_dips.yaml")
+    dips = SoftDipsSettings(str(DIPS_YAML), str(DEBUG_DIPS_YAML))
     softdips_image = None
 
     for rom in game["roms"]:
@@ -142,19 +143,19 @@ def extract_softdips(game):
         if not dips.game_settings_found(game_code=rom_name, region="US"):
             dips.enrich_softdip_settings_from_rom(
                 game_id=rom_name,
-                path=f"./rom/{rom_name}.zip",
+                path=str(ROM_DIR / f"{rom_name}.zip"),
                 language="US",
             )
             dips.enrich_softdip_settings_from_rom(
                 game_id=rom_name,
-                path=f"./rom/{rom_name}.zip",
+                path=str(ROM_DIR / f"{rom_name}.zip"),
                 language="EU",
             )
 
         if dips.game_settings_found(game_code=rom_name, region="US"):
-            dips.generate_settings_image(game_code=rom_name, region="US", path="./img-cache")
+            dips.generate_settings_image(game_code=rom_name, region="US", path=str(CACHE_DIR))
             softdips_image = dips.generate_settings_image(
-                game_code=rom_name, region="EU", path="./img-cache"
+                game_code=rom_name, region="EU", path=str(CACHE_DIR)
             )
         else:
             softdips_image = None

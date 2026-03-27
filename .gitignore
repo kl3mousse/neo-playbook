@@ -1,13 +1,10 @@
 # Custom ignores
 
-*img-cache*
-*test*.py
-*.pdf
-games.xlsx
+output/
 secrets.json
 *.pkl
 *.pptx
-migrate_excel.py
+old/
 
 #########################
 # PYTHON STANDARD IGNORES

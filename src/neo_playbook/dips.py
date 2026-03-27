@@ -4,6 +4,8 @@ from typing import Union, List
 from PIL import Image, ImageDraw, ImageFont
 from slugify import slugify
 
+from neo_playbook.paths import FONT_ARCADE, DIPS_YAML, DEBUG_DIPS_YAML, ROM_DIR
+
 class SpecialSetting:
     def __init__(self, description: str, value: Union[str, int]):
         self.description = description
@@ -105,7 +107,7 @@ class SoftDipsSettings:
         draw.rounded_rectangle([3, 3, IMGWIDTH - 4, im_height - 3], radius=3, fill=None, outline=TXTCOLOR, width=1)
 
         # image title
-        ARCADE_FONT = './fonts/AnonymousPro-Regular-arcade-controls.ttf'
+        ARCADE_FONT = str(FONT_ARCADE)
         font = ImageFont.truetype(ARCADE_FONT, FONTSIZE+20)
         title = f'NEO GEO GAME OPTIONS'
         draw.text((LMARGIN, HMARGIN), title, fill=TITLECOLOR, font=font, align='left')
@@ -371,11 +373,11 @@ class SoftDipsSettings:
 
 #############################################################
 if __name__ == "__main__":
-    dips = SoftDipsSettings("dips.yaml", "debug_dips.yaml")
+    dips = SoftDipsSettings(str(DIPS_YAML), str(DEBUG_DIPS_YAML))
     game = 'samsho'
     region = 'US'
     if dips.game_settings_found(game_code=game, region=region) == False:
-        dips.enrich_softdip_settings_from_rom(game, f'./rom/{game}.zip', region)  
+        dips.enrich_softdip_settings_from_rom(game, str(ROM_DIR / f'{game}.zip'), region)  
     dips.generate_settings_image(game_code=game, region=region, path="./")
     dips.print_settings(game, region)
     # dips.print_debugdips(game)

@@ -2,8 +2,10 @@ import requests
 import json
 import time
 
+from neo_playbook.paths import SECRETS_FILE
+
 # loading secrets from local file
-with open('secrets.json') as f:
+with open(SECRETS_FILE) as f:
     _secrets = json.load(f)
 HFSDB_APP_ACCESS_TOKEN = _secrets["HFSDB_APP_ACCESS_TOKEN"]
 

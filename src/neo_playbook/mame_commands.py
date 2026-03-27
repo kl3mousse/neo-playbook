@@ -16,6 +16,8 @@ from PIL import Image, ImageDraw, ImageFont, ImageFont
 
 import textwrap
 
+from neo_playbook.paths import FONT_ARCADE, CACHE_DIR
+
 class command_block:
     def __init__(self, rom, title, num):
         self.rom              = rom
@@ -23,7 +25,7 @@ class command_block:
         self.num              = num
         self.block_rows       = []
 
-ARCADE_FONT = './fonts/AnonymousPro-Regular-arcade-controls.ttf'
+ARCADE_FONT = str(FONT_ARCADE)
 
 TEXT_WRAP_AT = 40
 ROWS_SPACING = 45
@@ -211,7 +213,7 @@ def command_block_img_gen(block: command_block):
         render_coloured_text(x = LMARGIN, y = HMARGIN + SIZEH * i, image_draw = draw, text = text, default_color = TXTCOLOR, font = font, charspacing = CHARSPACING, align = 'left')
 
     #im.show()
-    filename = './img-cache/cmd-block-'+ block.rom + '-' + str(block.num) +'.png'
+    filename = str(CACHE_DIR / ('cmd-block-'+ block.rom + '-' + str(block.num) +'.png'))
     #print(filename)
     im.save(filename)
 
@@ -309,7 +311,7 @@ def command_block_img_gen_v2(block: command_block):
     # border
     draw.rounded_rectangle([1, 1, IMGWIDTH-1 , (im_height -1)] , radius=18, outline=TXTCOLOR, width=5)
 
-    filename = './img-cache/cmd-block-'+ block.rom + '-' + str(block.num) +'.png'
+    filename = str(CACHE_DIR / ('cmd-block-'+ block.rom + '-' + str(block.num) +'.png'))
     im.save(filename)
 
     return(filename)
