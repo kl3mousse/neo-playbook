@@ -57,7 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Text(
                     'Otaku Playbook',
-                    style: Theme.of(context).textTheme.headlineLarge,
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontFamily: 'Doto',
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(

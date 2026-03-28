@@ -12,7 +12,15 @@ class GameDetailScreen extends StatelessWidget {
     final cover = game.images['cover3d']?.displayUrl;
 
     return Scaffold(
-      appBar: AppBar(title: Text(game.title)),
+      appBar: AppBar(
+        title: Text(
+          game.title,
+          style: const TextStyle(
+            fontFamily: 'Doto',
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

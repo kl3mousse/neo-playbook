@@ -20,7 +20,13 @@ class _GamesListScreenState extends State<GamesListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Otaku Playbook'),
+        title: const Text(
+          'Otaku Playbook',
+          style: TextStyle(
+            fontFamily: 'Doto',
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
