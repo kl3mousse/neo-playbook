@@ -33,3 +33,4 @@ PDF_DIR = OUTPUT_DIR / "pdf"
 
 # ── secrets ───────────────────────────────────────────────────
 SECRETS_FILE = PROJECT_ROOT / "secrets.json"
+FIREBASE_SERVICE_ACCOUNT = PROJECT_ROOT / "firebase-service-account.json"

@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default: deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Games collection: authenticated users can read, admin can write
+    match /games/{gameId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.token.admin == true;
+    }
+  }
+}

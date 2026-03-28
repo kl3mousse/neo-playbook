@@ -2,9 +2,33 @@
 
 output/
 secrets.json
+firebase-service-account.json
 *.pkl
 *.pptx
 old/
+
+# Data files (strategic — use sample_games.json for schema reference)
+data/games.json
+data/dips.yaml
+data/debug_dips.yaml
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Flutter app
+app/.dart_tool/
+app/.packages
+app/build/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/android/app/google-services.json
+app/ios/Runner/GoogleService-Info.plist
+app/lib/firebase_options.dart
+app/pubspec.lock
+app/**/*.g.dart
 
 #########################
 # PYTHON STANDARD IGNORES

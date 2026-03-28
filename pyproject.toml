@@ -23,6 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 migration = ["openpyxl>=3.1.2"]
+firebase = ["firebase-admin>=6.0"]
 
 [build-system]
 requires = ["hatchling"]

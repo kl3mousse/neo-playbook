@@ -19,6 +19,8 @@ To Do list: now moved to Github issues for better tracking!
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
 - a `secrets.json` file (copy `secrets_sample.json` and fill in your API keys)
+- (optional) Firebase CLI — for deploying security rules
+- (optional) Flutter SDK — for the admin app
 
 # setup
 
@@ -33,6 +35,30 @@ uv sync
 cp secrets_sample.json secrets.json
 ```
 
+### Firebase setup (optional — for sync command)
+
+```bash
+# install firebase-admin extra
+uv sync --extra firebase
+
+# copy the service account key template
+cp firebase-service-account-sample.json firebase-service-account.json
+# then fill it with your real key from:
+#   Firebase console → Project settings → Service accounts → Generate new private key
+```
+
+### Flutter setup (optional — for admin app)
+
+```bash
+cd app
+
+# generate Firebase config (requires flutterfire CLI)
+flutterfire configure
+
+# install dependencies
+flutter pub get
+```
+
 # run
 
 Both commands are run via `python -m neo_playbook`:
@@ -43,11 +69,17 @@ uv run python -m neo_playbook fetch
 
 # Step 2: Generate the PDF from the enriched data
 uv run python -m neo_playbook render
+
+# Step 3 (optional): Sync games & images to Firebase
+uv run python -m neo_playbook sync          # skip already-synced games
+uv run python -m neo_playbook sync --force  # re-upload everything
 ```
 
 **fetch** connects to the [HFSdb API](https://db.hfsplay.fr) (requires a token in `secrets.json`), downloads images, extracts Neo Geo soft DIP settings from ROM files, and generates command-list PNGs from MAME's `command.dat`. It is idempotent — already-populated entries are skipped unless you pass `--force`.
 
 **render** reads the enriched data and local images and produces an A4 PDF in `output/pdf/`. No network calls.
+
+**sync** pushes game data to Firestore and uploads cached images to Firebase Storage. Requires `firebase-service-account.json` (see setup above). Skips games already in Firestore unless `--force` is passed.
 
 # project structure
 
@@ -79,6 +111,17 @@ neo-geo-game-mag/
 │   └── pdf/                 # final PDF output
 ├── pyproject.toml
 ├── secrets.json             # API keys (git-ignored, see secrets_sample.json)
+├── firebase-service-account.json  # Firebase key (git-ignored, see *-sample.json)
+├── firebase.json            # Firebase project config
+├── firestore.rules          # Firestore security rules
+├── storage.rules            # Storage security rules
+├── app/                     # Flutter admin app (see app/README.md)
+│   └── lib/
+│       ├── main.dart
+│       ├── models/game.dart
+│       ├── services/        # auth, firestore, storage
+│       ├── screens/         # login, games list, game detail
+│       └── widgets/         # game card
 └── README.md
 ```
 
@@ -86,7 +129,7 @@ neo-geo-game-mag/
 
 ### Adding or modifying games
 
-Edit **`data/games.json`**. Each game entry looks like this:
+Edit **`data/games.json`** (git-ignored — see `data/sample_games.json` for the schema). Each game entry looks like this:
 
 | Field | What it does | Filled by |
 |---|---|---|

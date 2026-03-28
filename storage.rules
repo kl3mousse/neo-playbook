@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Default: deny all
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Game images: authenticated users can read, admin can write
+    match /images/{gameId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.token.admin == true;
+    }
+  }
+}
