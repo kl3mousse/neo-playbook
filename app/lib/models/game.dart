@@ -96,8 +96,8 @@ class Game {
   final int backgroundVshift;
   final bool invertScreenshots;
   final List<GameRom> roms;
-  final int? ngmId;
-  final int? megs;
+  final String? ngmId;
+  final String? megs;
   final Timestamp? syncedAt;
 
   const Game({
@@ -167,8 +167,8 @@ class Game {
       backgroundVshift: data['background_vshift'] as int? ?? 0,
       invertScreenshots: data['invert_screenshots'] as bool? ?? false,
       roms: romsList,
-      ngmId: ps?['ngm_id'] as int?,
-      megs: ps?['megs'] as int?,
+      ngmId: ps?['ngm_id']?.toString(),
+      megs: ps?['megs']?.toString(),
       syncedAt: data['synced_at'] as Timestamp?,
     );
   }
