@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/game.dart';
 import '../models/move_list.dart';
+import '../models/dip_settings.dart';
 
 class FirestoreService {
   static final _db = FirebaseFirestore.instance;
@@ -14,6 +15,9 @@ class FirestoreService {
 
   static CollectionReference<Map<String, dynamic>> get _commandDatRef =>
       _namedDb.collection('command_dat');
+
+  static CollectionReference<Map<String, dynamic>> get _dipSettingsRef =>
+      _namedDb.collection('dip_settings');
 
   /// Stream all games ordered by title.
   static Stream<List<Game>> gamesStream() {
@@ -57,6 +61,18 @@ class FirestoreService {
           .get();
       if (query.docs.isNotEmpty) {
         return CommandData.fromFirestore(query.docs.first);
+      }
+    }
+    return null;
+  }
+
+  /// Look up DIP settings for a list of rom names.
+  /// Tries each rom name as a document ID and returns the first match.
+  static Future<DipSettingsData?> getDipSettings(List<String> romNames) async {
+    for (final romName in romNames) {
+      final doc = await _dipSettingsRef.doc(romName).get();
+      if (doc.exists) {
+        return DipSettingsData.fromFirestore(doc);
       }
     }
     return null;

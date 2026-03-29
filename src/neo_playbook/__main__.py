@@ -16,7 +16,7 @@ def _parse_roms_arg() -> list[str] | None:
 
 
 def main():
-    usage = "Usage: uv run python -m neo_playbook {fetch|render|sync|sync-moves}"
+    usage = "Usage: uv run python -m neo_playbook {fetch|render|sync|sync-moves|sync-dips}"
 
     if len(sys.argv) < 2:
         print(usage)
@@ -43,6 +43,15 @@ def main():
             print("       uv run python -m neo_playbook sync-moves --all [--force]")
             sys.exit(1)
         sync_moves_main(rom_names=roms, all_roms=use_all, force=force)
+    elif command == "sync-dips":
+        from neo_playbook.dip_sync import main as sync_dips_main
+        roms = _parse_roms_arg()
+        use_all = "--all" in sys.argv
+        if not roms and not use_all:
+            print("Usage: uv run python -m neo_playbook sync-dips --roms 2020bb,kof94 [--force]")
+            print("       uv run python -m neo_playbook sync-dips --all [--force]")
+            sys.exit(1)
+        sync_dips_main(rom_names=roms, all_roms=use_all, force=force)
     else:
         print(f"Unknown command: {command}")
         print(usage)

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../models/move_list.dart';
+import '../models/dip_settings.dart';
 import '../services/firestore_service.dart';
 import '../widgets/move_list_widget.dart';
+import '../widgets/dip_settings_widget.dart';
 
 class GameDetailScreen extends StatelessWidget {
   final Game game;
@@ -111,6 +113,17 @@ class GameDetailScreen extends StatelessWidget {
                   // Move List
                   if (game.roms.isNotEmpty)
                     _MoveListLoader(romNames: game.roms.map((r) => r.romName).toList()),
+
+                  const SizedBox(height: 24),
+
+                  // DIP Settings
+                  if (game.roms.isNotEmpty)
+                    _DipSettingsLoader(
+                      romNames: game.roms
+                          .where((r) => !r.excludeSoftdips)
+                          .map((r) => r.romName)
+                          .toList(),
+                    ),
 
                   const SizedBox(height: 24),
 
@@ -226,6 +239,35 @@ class _MoveListLoader extends StatelessWidget {
         }
 
         return MoveListView(commandData: commandData);
+      },
+    );
+  }
+}
+
+/// Async loader that fetches DIP settings from Firestore for a game's rom names.
+class _DipSettingsLoader extends StatelessWidget {
+  final List<String> romNames;
+
+  const _DipSettingsLoader({required this.romNames});
+
+  @override
+  Widget build(BuildContext context) {
+    if (romNames.isEmpty) return const SizedBox.shrink();
+
+    return FutureBuilder<DipSettingsData?>(
+      future: FirestoreService.getDipSettings(romNames),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox.shrink();
+        }
+
+        final dipData = snapshot.data;
+        if (dipData == null ||
+            (dipData.regions.isEmpty && !dipData.hasDebugDips)) {
+          return const SizedBox.shrink();
+        }
+
+        return DipSettingsView(dipData: dipData);
       },
     );
   }
