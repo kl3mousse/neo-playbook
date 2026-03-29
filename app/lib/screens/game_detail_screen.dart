@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/game.dart';
+import '../models/move_list.dart';
+import '../services/firestore_service.dart';
+import '../widgets/move_list_widget.dart';
 
 class GameDetailScreen extends StatelessWidget {
   final Game game;
@@ -105,6 +108,12 @@ class GameDetailScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
+                  // Move List
+                  if (game.roms.isNotEmpty)
+                    _MoveListLoader(romNames: game.roms.map((r) => r.romName).toList()),
+
+                  const SizedBox(height: 24),
+
                   // ROMs table
                   if (game.roms.isNotEmpty) ...[
                     Text('ROM Versions',
@@ -189,6 +198,35 @@ class _ScreenshotRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Async loader that fetches command data from Firestore for a game's rom names.
+class _MoveListLoader extends StatelessWidget {
+  final List<String> romNames;
+
+  const _MoveListLoader({required this.romNames});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<CommandData?>(
+      future: FirestoreService.getCommandData(romNames),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final commandData = snapshot.data;
+        if (commandData == null || commandData.sections.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return MoveListView(commandData: commandData);
+      },
     );
   }
 }
