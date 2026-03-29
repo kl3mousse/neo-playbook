@@ -7,17 +7,17 @@ class FirestoreService {
   static final _db = FirebaseFirestore.instance;
   static const _dbName = 'otakudb';
 
-  static FirebaseFirestore get _namedDb =>
+  static FirebaseFirestore get namedDb =>
       FirebaseFirestore.instanceFor(app: _db.app, databaseId: _dbName);
 
   static CollectionReference<Map<String, dynamic>> get _gamesRef =>
-      _namedDb.collection('games');
+      namedDb.collection('games');
 
   static CollectionReference<Map<String, dynamic>> get _commandDatRef =>
-      _namedDb.collection('command_dat');
+      namedDb.collection('command_dat');
 
   static CollectionReference<Map<String, dynamic>> get _dipSettingsRef =>
-      _namedDb.collection('dip_settings');
+      namedDb.collection('dip_settings');
 
   /// Stream all games ordered by title.
   static Stream<List<Game>> gamesStream() {

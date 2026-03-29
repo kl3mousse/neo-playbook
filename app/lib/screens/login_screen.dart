@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/user_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback? onSkip;
+  const LoginScreen({super.key, this.onSkip});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -11,11 +13,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _displayNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
+  bool _isSignUp = false;
   String? _error;
 
-  Future<void> _signIn() async {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -24,12 +28,22 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await AuthService.signIn(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+      if (_isSignUp) {
+        await AuthService.signUp(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          displayName: _displayNameController.text.trim(),
+        );
+      } else {
+        await AuthService.signIn(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+      }
+      // Create/fetch user profile after auth
+      await UserService.getOrCreateProfile();
     } on Exception catch (e) {
-      setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -39,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _displayNameController.dispose();
     super.dispose();
   }
 
@@ -64,10 +79,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Admin Login',
+                    _isSignUp ? 'Create Account' : 'Sign In',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 32),
+                  if (_isSignUp) ...[
+                    TextFormField(
+                      controller: _displayNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Display Name',
+                        border: OutlineInputBorder(),
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(
@@ -86,9 +114,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: OutlineInputBorder(),
                     ),
                     obscureText: true,
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Required' : null,
-                    onFieldSubmitted: (_) => _signIn(),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Required';
+                      if (_isSignUp && v.length < 6) return 'Min 6 characters';
+                      return null;
+                    },
+                    onFieldSubmitted: (_) => _submit(),
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 16),
@@ -98,16 +129,33 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: _loading ? null : _signIn,
+                      onPressed: _loading ? null : _submit,
                       child: _loading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Sign In'),
+                          : Text(_isSignUp ? 'Create Account' : 'Sign In'),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _isSignUp = !_isSignUp;
+                      _error = null;
+                    }),
+                    child: Text(_isSignUp
+                        ? 'Already have an account? Sign In'
+                        : 'Don\'t have an account? Sign Up'),
+                  ),
+                  if (widget.onSkip != null) ...[
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: widget.onSkip,
+                      child: const Text('Browse without account'),
+                    ),
+                  ],
                 ],
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/game.dart';
 
 class GameCard extends StatelessWidget {
@@ -23,10 +24,11 @@ class GameCard extends StatelessWidget {
             // Cover image
             Expanded(
               child: imageUrl != null
-                  ? Image.network(
-                      imageUrl,
+                  ? CachedNetworkImage(
+                      imageUrl: imageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => _placeholder(context),
+                      placeholder: (_, _) => _placeholder(context),
+                      errorWidget: (_, _, _) => _placeholder(context),
                     )
                   : _placeholder(context),
             ),

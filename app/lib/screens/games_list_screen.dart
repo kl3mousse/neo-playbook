@@ -3,6 +3,7 @@ import '../models/game.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../widgets/game_card.dart';
+import '../widgets/filter_panel.dart';
 import 'game_detail_screen.dart';
 
 class GamesListScreen extends StatefulWidget {
@@ -16,7 +17,27 @@ class GamesListScreen extends StatefulWidget {
 
 class _GamesListScreenState extends State<GamesListScreen> {
   String _searchQuery = '';
-  String? _selectedGenre;
+  GameFilters _filters = GameFilters.empty();
+  SortOption _sortOption = SortOption.title;
+  bool _sortAscending = true;
+  bool _showFilters = false;
+
+  List<Game> _sortGames(List<Game> games) {
+    final sorted = List<Game>.from(games);
+    sorted.sort((a, b) {
+      int cmp;
+      switch (_sortOption) {
+        case SortOption.title:
+          cmp = a.title.compareTo(b.title);
+        case SortOption.year:
+          cmp = a.year.compareTo(b.year);
+        case SortOption.publisher:
+          cmp = a.publisher.compareTo(b.publisher);
+      }
+      return _sortAscending ? cmp : -cmp;
+    });
+    return sorted;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +58,11 @@ class _GamesListScreenState extends State<GamesListScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => AuthService.signOut(),
+            icon: Icon(
+              _showFilters ? Icons.filter_list_off : Icons.filter_list,
+            ),
+            onPressed: () => setState(() => _showFilters = !_showFilters),
+            tooltip: 'Filters',
           ),
         ],
       ),
@@ -70,96 +94,95 @@ class _GamesListScreenState extends State<GamesListScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 // Filter games by selected platform
-                List<Game> filteredGames = (snapshot.data ?? [])
+                List<Game> platformGames = (snapshot.data ?? [])
                     .where((game) => game.platforms.contains(widget.selectedPlatform))
                     .toList();
 
-                // Optional genre filter
-                if (_selectedGenre != null) {
-                  filteredGames = filteredGames
-                      .where((g) => g.genre == _selectedGenre)
-                      .toList();
-                }
+                // Apply advanced filters
+                List<Game> filteredGames = _filters.apply(platformGames);
 
-                if (filteredGames.isEmpty) {
-                  return const Center(child: Text('No games found for this platform.'));
-                }
-
-                // Genre chips
-                final genres = filteredGames
-                    .map((g) => g.genre)
-                    .where((g) => g.isNotEmpty)
-                    .toSet()
-                    .toList()
-                  ..sort();
+                // Apply sort
+                filteredGames = _sortGames(filteredGames);
 
                 return Column(
                   children: [
-                    // Genre filter chips
-                    if (genres.isNotEmpty)
-                      SizedBox(
-                        height: 48,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: FilterChip(
-                                label: const Text('All'),
-                                selected: _selectedGenre == null,
-                                onSelected: (_) => setState(() => _selectedGenre = null),
-                              ),
-                            ),
-                            ...genres.map(
-                              (genre) => Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: FilterChip(
-                                  label: Text(genre),
-                                  selected: _selectedGenre == genre,
-                                  onSelected: (_) => setState(() => _selectedGenre = _selectedGenre == genre ? null : genre),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                    // Advanced filter panel
+                    if (_showFilters)
+                      FilterPanel(
+                        allGames: platformGames,
+                        filters: _filters,
+                        onFiltersChanged: (f) =>
+                            setState(() => _filters = f),
+                        sortOption: _sortOption,
+                        sortAscending: _sortAscending,
+                        onSortChanged: (s) =>
+                            setState(() => _sortOption = s),
+                        onSortDirectionToggled: () =>
+                            setState(() => _sortAscending = !_sortAscending),
                       ),
-                    // Games grid
-                    Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final crossAxisCount =
-                              constraints.maxWidth > 900
-                                  ? 4
-                                  : constraints.maxWidth > 600
-                                      ? 3
-                                      : 2;
-                          return GridView.builder(
-                            padding: const EdgeInsets.all(12),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              childAspectRatio: 0.75,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
+
+                    // Result count
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${filteredGames.length} game${filteredGames.length == 1 ? '' : 's'}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          if (_filters.hasActiveFilters)
+                            TextButton(
+                              onPressed: () => setState(
+                                  () => _filters = GameFilters.empty()),
+                              child: const Text('Clear filters',
+                                  style: TextStyle(fontSize: 12)),
                             ),
-                            itemCount: filteredGames.length,
-                            itemBuilder: (context, index) {
-                              final game = filteredGames[index];
-                              return GameCard(
-                                game: game,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => GameDetailScreen(game: game),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
+                        ],
                       ),
                     ),
+
+                    if (filteredGames.isEmpty)
+                      const Expanded(
+                        child: Center(
+                            child: Text('No games match your filters.')),
+                      )
+                    else
+                      // Games grid
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final crossAxisCount =
+                                constraints.maxWidth > 900
+                                    ? 4
+                                    : constraints.maxWidth > 600
+                                        ? 3
+                                        : 2;
+                            return GridView.builder(
+                              padding: const EdgeInsets.all(12),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                childAspectRatio: 0.75,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
+                              itemCount: filteredGames.length,
+                              itemBuilder: (context, index) {
+                                final game = filteredGames[index];
+                                return GameCard(
+                                  game: game,
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => GameDetailScreen(game: game),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
                   ],
                 );
               },
@@ -170,4 +193,3 @@ class _GamesListScreenState extends State<GamesListScreen> {
     );
   }
 }
-// ...existing code above...
