@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/games_list_screen.dart';
+import 'screens/platform_select_screen.dart';
 import 'services/auth_service.dart';
 
 void main() async {
@@ -32,8 +33,18 @@ class OtakuPlaybookApp extends StatelessWidget {
 }
 
 /// Routes to login or games list based on auth state.
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  String? _selectedPlatform;
+
+  // List of supported platforms (could be dynamic or from config)
+  final List<String> _platforms = const ['neogeo', 'cps1', 'cps2'];
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +57,21 @@ class AuthGate extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
-          return const GamesListScreen();
+          if (_selectedPlatform == null) {
+            return PlatformSelectScreen(
+              platforms: _platforms,
+              onPlatformSelected: (platform) {
+                setState(() {
+                  _selectedPlatform = platform;
+                });
+              },
+            );
+          } else {
+            return GamesListScreen(
+              selectedPlatform: _selectedPlatform!,
+              onBack: () => setState(() => _selectedPlatform = null),
+            );
+          }
         }
         return const LoginScreen();
       },

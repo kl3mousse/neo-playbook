@@ -81,7 +81,7 @@ class GameRom {
 class Game {
   final String id;
   final String pageType;
-  final String platform;
+  final List<String> platforms;
   final int? hfsdbId;
   final String title;
   final String? altTitle;
@@ -103,7 +103,7 @@ class Game {
   const Game({
     required this.id,
     required this.pageType,
-    required this.platform,
+    required this.platforms,
     this.hfsdbId,
     required this.title,
     this.altTitle,
@@ -149,10 +149,18 @@ class Game {
     // Platform-specific fields
     final ps = data['platform_specific'] as Map<String, dynamic>?;
 
+    // Parse platforms (support both legacy 'platform' and new 'platforms')
+    List<String> platforms = [];
+    if (data['platforms'] is List) {
+      platforms = List<String>.from(data['platforms']);
+    } else if (data['platform'] is String) {
+      platforms = [data['platform'] as String];
+    }
+
     return Game(
       id: doc.id,
       pageType: data['page_type'] as String? ?? 'game',
-      platform: data['platform'] as String? ?? 'neogeo',
+      platforms: platforms,
       hfsdbId: data['hfsdb_id'] as int?,
       title: data['title'] as String? ?? '',
       altTitle: data['alt_title'] as String?,
@@ -175,7 +183,7 @@ class Game {
 
   Map<String, dynamic> toFirestore() => {
         'page_type': pageType,
-        'platform': platform,
+        'platforms': platforms,
         'id': id,
         'hfsdb_id': hfsdbId,
         'title': title,

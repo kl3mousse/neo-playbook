@@ -6,7 +6,9 @@ import '../widgets/game_card.dart';
 import 'game_detail_screen.dart';
 
 class GamesListScreen extends StatefulWidget {
-  const GamesListScreen({super.key});
+  final String selectedPlatform;
+  final VoidCallback? onBack;
+  const GamesListScreen({super.key, required this.selectedPlatform, this.onBack});
 
   @override
   State<GamesListScreen> createState() => _GamesListScreenState();
@@ -20,9 +22,15 @@ class _GamesListScreenState extends State<GamesListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Otaku Playbook',
-          style: TextStyle(
+        leading: widget.onBack != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              )
+            : null,
+        title: Text(
+          widget.selectedPlatform.toUpperCase(),
+          style: const TextStyle(
             fontFamily: 'Doto',
             fontWeight: FontWeight.w800,
           ),
@@ -61,22 +69,24 @@ class _GamesListScreenState extends State<GamesListScreen> {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
-                var games = snapshot.data!;
+                // Filter games by selected platform
+                List<Game> filteredGames = (snapshot.data ?? [])
+                    .where((game) => game.platforms.contains(widget.selectedPlatform))
+                    .toList();
 
                 // Optional genre filter
                 if (_selectedGenre != null) {
-                  games = games
+                  filteredGames = filteredGames
                       .where((g) => g.genre == _selectedGenre)
                       .toList();
                 }
 
-                if (games.isEmpty) {
-                  return const Center(child: Text('No games found'));
+                if (filteredGames.isEmpty) {
+                  return const Center(child: Text('No games found for this platform.'));
                 }
 
                 // Genre chips
-                final genres = snapshot.data!
+                final genres = filteredGames
                     .map((g) => g.genre)
                     .where((g) => g.isNotEmpty)
                     .toSet()
@@ -98,8 +108,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
                               child: FilterChip(
                                 label: const Text('All'),
                                 selected: _selectedGenre == null,
-                                onSelected: (_) =>
-                                    setState(() => _selectedGenre = null),
+                                onSelected: (_) => setState(() => _selectedGenre = null),
                               ),
                             ),
                             ...genres.map(
@@ -108,10 +117,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
                                 child: FilterChip(
                                   label: Text(genre),
                                   selected: _selectedGenre == genre,
-                                  onSelected: (_) => setState(
-                                    () => _selectedGenre =
-                                        _selectedGenre == genre ? null : genre,
-                                  ),
+                                  onSelected: (_) => setState(() => _selectedGenre = _selectedGenre == genre ? null : genre),
                                 ),
                               ),
                             ),
@@ -137,16 +143,15 @@ class _GamesListScreenState extends State<GamesListScreen> {
                               crossAxisSpacing: 12,
                               mainAxisSpacing: 12,
                             ),
-                            itemCount: games.length,
+                            itemCount: filteredGames.length,
                             itemBuilder: (context, index) {
-                              final game = games[index];
+                              final game = filteredGames[index];
                               return GameCard(
                                 game: game,
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        GameDetailScreen(game: game),
+                                    builder: (_) => GameDetailScreen(game: game),
                                   ),
                                 ),
                               );
@@ -165,3 +170,4 @@ class _GamesListScreenState extends State<GamesListScreen> {
     );
   }
 }
+// ...existing code above...
