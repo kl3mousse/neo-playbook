@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 /// Game image data with source URL and Firebase Storage path.
 class GameImage {
@@ -177,7 +178,7 @@ class Game {
       roms: romsList,
       ngmId: ps?['ngm_id']?.toString(),
       megs: ps?['megs']?.toString(),
-      syncedAt: data['synced_at'] as Timestamp?,
+      syncedAt: parseTimestamp(data['synced_at']),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 class UserProfile {
   final String uid;
@@ -24,8 +25,8 @@ class UserProfile {
       displayName: data['display_name'] as String? ?? '',
       email: data['email'] as String? ?? '',
       photoUrl: data['photo_url'] as String?,
-      createdAt: data['created_at'] as Timestamp?,
-      updatedAt: data['updated_at'] as Timestamp?,
+      createdAt: parseTimestamp(data['created_at']),
+      updatedAt: parseTimestamp(data['updated_at']),
     );
   }
 

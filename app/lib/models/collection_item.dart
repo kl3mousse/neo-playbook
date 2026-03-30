@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 enum ItemFormat {
   cartridge('cartridge', 'Cartridge'),
@@ -78,9 +79,9 @@ class CollectionItem {
       region: data['region'] as String? ?? '',
       purchasePrice: (data['purchase_price'] as num?)?.toDouble(),
       purchaseCurrency: data['purchase_currency'] as String?,
-      purchaseDate: data['purchase_date'] as Timestamp?,
+      purchaseDate: parseTimestamp(data['purchase_date']),
       notes: data['notes'] as String?,
-      addedAt: data['added_at'] as Timestamp?,
+      addedAt: parseTimestamp(data['added_at']),
     );
   }
 

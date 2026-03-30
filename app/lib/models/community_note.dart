@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 enum NoteCategory {
   tip('tip', 'Tip'),
@@ -52,8 +53,8 @@ class CommunityNote {
       category: NoteCategory.fromValue(data['category'] as String? ?? ''),
       text: data['text'] as String? ?? '',
       upvotes: data['upvotes'] as int? ?? 0,
-      createdAt: data['created_at'] as Timestamp?,
-      updatedAt: data['updated_at'] as Timestamp?,
+      createdAt: parseTimestamp(data['created_at']),
+      updatedAt: parseTimestamp(data['updated_at']),
     );
   }
 

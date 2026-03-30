@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 enum FavoriteStatus {
   wantToPlay('want_to_play', 'Want to Play', '🎯'),
@@ -37,8 +38,8 @@ class UserFavorite {
     return UserFavorite(
       gameId: doc.id,
       status: FavoriteStatus.fromValue(data['status'] as String? ?? ''),
-      addedAt: data['added_at'] as Timestamp?,
-      updatedAt: data['updated_at'] as Timestamp?,
+      addedAt: parseTimestamp(data['added_at']),
+      updatedAt: parseTimestamp(data['updated_at']),
     );
   }
 

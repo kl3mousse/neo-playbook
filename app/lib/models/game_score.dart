@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 class GameScore {
   final String id;
@@ -38,8 +39,8 @@ class GameScore {
       proofUrl: data['proof_url'] as String? ?? '',
       proofStoragePath: data['proof_storage_path'] as String? ?? '',
       platform: data['platform'] as String? ?? '',
-      verifiedAt: data['verified_at'] as Timestamp?,
-      createdAt: data['created_at'] as Timestamp?,
+      verifiedAt: parseTimestamp(data['verified_at']),
+      createdAt: parseTimestamp(data['created_at']),
     );
   }
 

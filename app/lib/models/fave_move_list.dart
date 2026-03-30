@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 /// A bookmarked character/player move list section.
 ///
@@ -33,7 +34,7 @@ class FaveMoveList {
       romName: data['rom_name'] as String? ?? '',
       sectionTitle: data['section_title'] as String? ?? '',
       sectionSubtitle: data['section_subtitle'] as String?,
-      addedAt: data['added_at'] as Timestamp?,
+      addedAt: parseTimestamp(data['added_at']),
     );
   }
 

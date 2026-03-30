@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_helpers.dart';
 
 /// A special DIP setting (time/count value, not selectable).
 class DipSpecialSetting {
@@ -110,7 +111,7 @@ class DipSettingsData {
       romName: data['rom_name'] as String? ?? doc.id,
       regions: regions,
       debugDips: debugDips,
-      syncedAt: data['synced_at'] as Timestamp?,
+      syncedAt: parseTimestamp(data['synced_at']),
     );
   }
 
