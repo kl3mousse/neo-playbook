@@ -1,6 +1,6 @@
 {
-    "name": "otaku_playbook",
-    "short_name": "otaku_playbook",
+    "name": "Otaku PB",
+    "short_name": "Otaku PB",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
