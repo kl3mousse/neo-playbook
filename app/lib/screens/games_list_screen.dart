@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import '../models/game.dart';
-import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../widgets/game_card.dart';
 import '../widgets/filter_panel.dart';
 import 'game_detail_screen.dart';
 
+const _platformLabels = {
+  'neogeo': 'Neo Geo',
+  'cps1': 'CPS-1',
+  'cps2': 'CPS-2',
+};
+
 class GamesListScreen extends StatefulWidget {
-  final String selectedPlatform;
-  final VoidCallback? onBack;
-  const GamesListScreen({super.key, required this.selectedPlatform, this.onBack});
+  const GamesListScreen({super.key});
 
   @override
   State<GamesListScreen> createState() => _GamesListScreenState();
 }
 
 class _GamesListScreenState extends State<GamesListScreen> {
+  String _selectedPlatform = 'neogeo';
   String _searchQuery = '';
   GameFilters _filters = GameFilters.empty();
   SortOption _sortOption = SortOption.title;
@@ -43,15 +47,9 @@ class _GamesListScreenState extends State<GamesListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: widget.onBack != null
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: widget.onBack,
-              )
-            : null,
-        title: Text(
-          widget.selectedPlatform.toUpperCase(),
-          style: const TextStyle(
+        title: const Text(
+          'Games',
+          style: TextStyle(
             fontFamily: 'Doto',
             fontWeight: FontWeight.w800,
           ),
@@ -68,9 +66,32 @@ class _GamesListScreenState extends State<GamesListScreen> {
       ),
       body: Column(
         children: [
+          // Platform selector
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: SegmentedButton<String>(
+              segments: _platformLabels.entries
+                  .map((e) => ButtonSegment(
+                        value: e.key,
+                        label: Text(e.value),
+                      ))
+                  .toList(),
+              selected: {_selectedPlatform},
+              onSelectionChanged: (selection) {
+                setState(() {
+                  _selectedPlatform = selection.first;
+                  _filters = GameFilters.empty();
+                });
+              },
+              showSelectedIcon: false,
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+          ),
           // Search bar
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: TextField(
               decoration: const InputDecoration(
                 hintText: 'Search games...',
@@ -95,7 +116,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
                 }
                 // Filter games by selected platform
                 List<Game> platformGames = (snapshot.data ?? [])
-                    .where((game) => game.platforms.contains(widget.selectedPlatform))
+                    .where((game) => game.platforms.contains(_selectedPlatform))
                     .toList();
 
                 // Apply advanced filters

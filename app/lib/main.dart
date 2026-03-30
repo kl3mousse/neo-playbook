@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/games_list_screen.dart';
-import 'screens/platform_select_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/collection_screen.dart';
 import 'screens/profile_screen.dart';
@@ -41,46 +40,19 @@ class OtakuPlaybookApp extends StatelessWidget {
   }
 }
 
-/// Top-level shell: platform selection → main app with bottom nav.
-class AppShell extends StatefulWidget {
+/// Top-level shell: main app with bottom nav.
+class AppShell extends StatelessWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends State<AppShell> {
-  String? _selectedPlatform;
-  final List<String> _platforms = const ['neogeo', 'cps1', 'cps2'];
-
-  @override
   Widget build(BuildContext context) {
-    if (_selectedPlatform == null) {
-      return PlatformSelectScreen(
-        platforms: _platforms,
-        onPlatformSelected: (platform) {
-          setState(() => _selectedPlatform = platform);
-        },
-      );
-    }
-
-    return MainNavigation(
-      selectedPlatform: _selectedPlatform!,
-      onBackToPlatforms: () => setState(() => _selectedPlatform = null),
-    );
+    return const MainNavigation();
   }
 }
 
 /// Bottom navigation with 4 tabs: Games, Favorites, Collection, Profile.
 class MainNavigation extends StatefulWidget {
-  final String selectedPlatform;
-  final VoidCallback onBackToPlatforms;
-
-  const MainNavigation({
-    super.key,
-    required this.selectedPlatform,
-    required this.onBackToPlatforms,
-  });
+  const MainNavigation({super.key});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -97,10 +69,7 @@ class _MainNavigationState extends State<MainNavigation> {
         final isLoggedIn = snapshot.hasData;
 
         final screens = [
-          GamesListScreen(
-            selectedPlatform: widget.selectedPlatform,
-            onBack: widget.onBackToPlatforms,
-          ),
+          const GamesListScreen(),
           const FavoritesScreen(),
           const CollectionScreen(),
           isLoggedIn
