@@ -143,7 +143,11 @@ class GameDetailScreen extends StatelessWidget {
 
                   // Move List
                   if (game.roms.isNotEmpty)
-                    _MoveListLoader(romNames: game.roms.map((r) => r.romName).toList()),
+                    _MoveListLoader(
+                      romNames: game.roms.map((r) => r.romName).toList(),
+                      gameId: game.id,
+                      gameTitle: game.title,
+                    ),
 
                   const SizedBox(height: 24),
 
@@ -623,8 +627,14 @@ class _ScreenshotRow extends StatelessWidget {
 /// Async loader that fetches command data from Firestore for a game's rom names.
 class _MoveListLoader extends StatelessWidget {
   final List<String> romNames;
+  final String gameId;
+  final String gameTitle;
 
-  const _MoveListLoader({required this.romNames});
+  const _MoveListLoader({
+    required this.romNames,
+    required this.gameId,
+    required this.gameTitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -643,7 +653,12 @@ class _MoveListLoader extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return MoveListView(commandData: commandData);
+        return MoveListView(
+          commandData: commandData,
+          gameId: gameId,
+          gameTitle: gameTitle,
+          romName: commandData.id,
+        );
       },
     );
   }

@@ -48,6 +48,12 @@ service cloud.firestore {
         allow read, write: if request.auth != null
                            && request.auth.uid == userId;
       }
+
+      // Favorite move lists subcollection: owner only
+      match /fave_moves/{docId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+      }
     }
 
     // Community notes: anyone can read, auth can create, owner can update/delete

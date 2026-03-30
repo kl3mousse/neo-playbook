@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_profile.dart';
 import '../models/user_favorite.dart';
+import '../models/fave_move_list.dart';
 import '../models/collection_item.dart';
 import 'auth_service.dart';
 
@@ -19,6 +20,9 @@ class UserService {
 
   static CollectionReference<Map<String, dynamic>> _collectionRef(String uid) =>
       _usersRef.doc(uid).collection('collection');
+
+  static CollectionReference<Map<String, dynamic>> _faveMovesRef(String uid) =>
+      _usersRef.doc(uid).collection('fave_moves');
 
   // ── User Profile ──────────────────────────────────────────────────────
 
@@ -156,6 +160,65 @@ class UserService {
         .where('game_id', isEqualTo: gameId)
         .get();
     return snap.docs.map((d) => CollectionItem.fromFirestore(d)).toList();
+  }
+
+  // ── Favorite Move Lists ────────────────────────────────────────────
+
+  /// Toggle a character move list section as bookmarked.
+  static Future<void> toggleFaveMove({
+    required String gameId,
+    required String gameTitle,
+    required String romName,
+    required String sectionTitle,
+    String? sectionSubtitle,
+  }) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+
+    final docId = FaveMoveList.docId(romName, sectionTitle);
+    final ref = _faveMovesRef(user.uid).doc(docId);
+    final doc = await ref.get();
+    if (doc.exists) {
+      await ref.delete();
+    } else {
+      await ref.set(FaveMoveList(
+        id: docId,
+        gameId: gameId,
+        gameTitle: gameTitle,
+        romName: romName,
+        sectionTitle: sectionTitle,
+        sectionSubtitle: sectionSubtitle,
+      ).toFirestoreCreate());
+    }
+  }
+
+  /// Stream all bookmarked move list sections (most recent first).
+  static Stream<List<FaveMoveList>> faveMovesStream() {
+    final user = AuthService.currentUser;
+    if (user == null) return Stream.value([]);
+    return _faveMovesRef(user.uid)
+        .orderBy('added_at', descending: true)
+        .snapshots()
+        .map((snap) =>
+            snap.docs.map((d) => FaveMoveList.fromFirestore(d)).toList());
+  }
+
+  /// Stream whether a specific section is bookmarked.
+  static Stream<bool> isFaveMoveStream(String romName, String sectionTitle) {
+    final user = AuthService.currentUser;
+    if (user == null) return Stream.value(false);
+    final docId = FaveMoveList.docId(romName, sectionTitle);
+    return _faveMovesRef(user.uid)
+        .doc(docId)
+        .snapshots()
+        .map((doc) => doc.exists);
+  }
+
+  /// Remove a bookmarked move list by doc ID.
+  static Future<void> removeFaveMove(String docId) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    await _faveMovesRef(user.uid).doc(docId).delete();
   }
 
   /// Stream collection items for a specific game.
