@@ -21,7 +21,7 @@ class GamesListScreen extends StatefulWidget {
 class _GamesListScreenState extends State<GamesListScreen> {
   String _selectedPlatform = 'neogeo';
   String _searchQuery = '';
-  GameFilters _filters = GameFilters.empty();
+  GameFilters _filters = const GameFilters(type: 'Licenced');
   SortOption _sortOption = SortOption.title;
   bool _sortAscending = true;
   bool _showFilters = false;
@@ -54,15 +54,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
             fontWeight: FontWeight.w800,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _showFilters ? Icons.filter_list_off : Icons.filter_list,
-            ),
-            onPressed: () => setState(() => _showFilters = !_showFilters),
-            tooltip: 'Filters',
-          ),
-        ],
+
       ),
       body: Column(
         children: [
@@ -80,7 +72,9 @@ class _GamesListScreenState extends State<GamesListScreen> {
               onSelectionChanged: (selection) {
                 setState(() {
                   _selectedPlatform = selection.first;
-                  _filters = GameFilters.empty();
+                  _filters = selection.first == 'neogeo'
+                      ? const GameFilters(type: 'Licenced')
+                      : GameFilters.empty();
                 });
               },
               showSelectedIcon: false,
@@ -93,10 +87,17 @@ class _GamesListScreenState extends State<GamesListScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: TextField(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Search games...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.search),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _showFilters ? Icons.filter_list_off : Icons.filter_list,
+                  ),
+                  onPressed: () => setState(() => _showFilters = !_showFilters),
+                  tooltip: 'Filters',
+                ),
               ),
               onChanged: (v) => setState(() => _searchQuery = v),
             ),
