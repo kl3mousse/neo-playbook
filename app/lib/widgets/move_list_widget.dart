@@ -1,395 +1,48 @@
 import 'package:flutter/material.dart';
 import '../models/move_list.dart';
+import '../theme/app_theme.dart';
+import '../screens/execution_mode_screen.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
+import 'input_token.dart';
 
 // ═══════════════════════════════════════════════════════════════
 // MAME-faithful command.dat renderer
 //
-// Follows button_char.lua token→glyph mapping and datmenu.cpp
-// document-viewer paradigm: tab strip for sections, scrollable
-// rich-text body with inline directional/button chips.
+// Uses InputToken system for directional/button chips.
+// Tab strip for character sections, scrollable rich-text body.
 // ═══════════════════════════════════════════════════════════════
 
-// ── Token → InlineSpan conversion (button_char.lua equivalent) ──
-
-/// Tokenise a raw command.dat input string into a list of [InlineSpan]
-/// widgets. Directions become [_DirectionChip], buttons become
-/// [_ButtonChip], operators render as styled text.
-List<InlineSpan> _tokenise(String raw, BuildContext context) {
-  if (raw.isEmpty) return [];
-
-  final spans = <InlineSpan>[];
-  var i = 0;
-  final buf = StringBuffer();
-
-  void flushText() {
-    if (buf.isNotEmpty) {
-      spans.add(TextSpan(
-        text: buf.toString(),
-        style: TextStyle(
-          fontSize: 13,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ));
-      buf.clear();
-    }
-  }
-
-  // Shorthand motion sequences
-  const motionTokens = <String, List<String>>{
-    '_t': ['↓', '↘', '→'],       // QCF
-    '_p': ['↓', '↙', '←'],       // QCB
-    '_m': ['←', '↙', '↓', '↘', '→'], // HCF
-    '_k': ['→', '↘', '↓', '↙', '←'], // HCB
-    '_Q': ['→', '↓', '↘'],       // DP
-    '_R': ['←', '↓', '↙'],       // Reverse DP
-  };
-
-  // Single direction tokens (numpad)
-  const dirTokens = <String, String>{
-    '_7': '↖', '_8': '↑', '_9': '↗',
-    '_4': '←', '_5': '●', '_6': '→',
-    '_1': '↙', '_2': '↓', '_3': '↘',
-  };
-
-  // Button tokens → (label, color)
-  const buttonTokens = <String, (String, Color)>{
-    '_A': ('A', Color(0xFF4A90D9)),  // blue
-    '_B': ('B', Color(0xFF4CAF50)),  // green
-    '_C': ('C', Color(0xFFE53935)),  // red
-    '_D': ('D', Color(0xFFF57C00)), // orange
-    '_P': ('P', Color(0xFF9E9E9E)),  // generic punch – grey
-    '_K': ('K', Color(0xFF9E9E9E)),  // generic kick – grey
-    '_S': ('ST', Color(0xFF78909C)), // start
-  };
-
-  // Button-like modifier tokens (^x family, rendered as chips)
-  const modButtonTokens = <String, (String, Color)>{
-    '^S': ('SEL', Color(0xFF78909C)),  // select
-    '^M': ('M', Color(0xFF9575CD)),    // meditation / mu no kyouchi
-  };
-
-  // Modifier prefixes (^x family, rendered as text or direction chips)
-  const modTokens = <String, String>{
-    '^*': '×',   // rapid tap
-    '^!': '→',   // arrow glyph
-    '^s': '⚔',   // slash
-    '^3': '↘',   // crawl (down-forward)
-    '^1': '↙',   // charge back-down
-    '^2': '↓',   // charge down
-    '^4': '←',   // charge back
-  };
-
-  while (i < raw.length) {
-    // Try two-char tokens starting at i
-    if (i + 1 < raw.length) {
-      final two = raw.substring(i, i + 2);
-
-      // Shorthand motions (_t, _p, _m, _k, _Q, _R)
-      if (motionTokens.containsKey(two)) {
-        flushText();
-        for (final arrow in motionTokens[two]!) {
-          spans.add(WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: _DirectionChip(arrow),
-          ));
-        }
-        i += 2;
-        continue;
-      }
-
-      // Direction tokens (_1 .. _9)
-      if (dirTokens.containsKey(two)) {
-        flushText();
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _DirectionChip(dirTokens[two]!),
-        ));
-        i += 2;
-        continue;
-      }
-
-      // Button tokens (_A, _B, _C, _D, _P, _K, _S)
-      if (buttonTokens.containsKey(two)) {
-        flushText();
-        final (label, color) = buttonTokens[two]!;
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _ButtonChip(label, color),
-        ));
-        i += 2;
-        continue;
-      }
-
-      // Operators
-      if (two == '_+') {
-        flushText();
-        spans.add(TextSpan(
-          text: '+',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_^') {
-        flushText();
-        spans.add(TextSpan(
-          text: ' air ',
-          style: TextStyle(
-            fontSize: 11,
-            fontStyle: FontStyle.italic,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_?') {
-        flushText();
-        spans.add(TextSpan(
-          text: '?',
-          style: TextStyle(
-            fontSize: 13,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_O') {
-        // hold / charge circle
-        flushText();
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _DirectionChip('○'),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_X') {
-        flushText();
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _DirectionChip('✕'),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_L') {
-        // double-tap forward (dash)
-        flushText();
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _DirectionChip('→→'),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_M') {
-        // double-tap back (backstep)
-        flushText();
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _DirectionChip('←←'),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_x') {
-        // tap repeatedly
-        flushText();
-        spans.add(TextSpan(
-          text: '×',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ));
-        i += 2;
-        continue;
-      }
-      if (two == '_`') {
-        // ignored token
-        i += 2;
-        continue;
-      }
-
-      // Modifier button chips (^S, ^M)
-      if (modButtonTokens.containsKey(two)) {
-        flushText();
-        final (label, color) = modButtonTokens[two]!;
-        spans.add(WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
-          child: _ButtonChip(label, color),
-        ));
-        i += 2;
-        continue;
-      }
-
-      // Modifier prefixes (^x)
-      if (modTokens.containsKey(two)) {
-        flushText();
-        final glyph = modTokens[two]!;
-        if (glyph.length == 1 && '↖↑↗←●→↙↓↘'.contains(glyph)) {
-          // charge direction – render as direction chip with a border
-          spans.add(WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: _ChargeChip(glyph),
-          ));
-        } else {
-          spans.add(TextSpan(
-            text: glyph,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ));
-        }
-        i += 2;
-        continue;
-      }
-    }
-
-    // Handle plain space / slashes as light separators
-    if (raw[i] == '/') {
-      flushText();
-      spans.add(TextSpan(
-        text: ' / ',
-        style: TextStyle(
-          fontSize: 12,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-      ));
-      i++;
-      continue;
-    }
-
-    // Regular character
-    if (raw[i] != ' ') {
-      buf.write(raw[i]);
-    } else {
-      // Collapse spaces – add a thin separator
-      if (buf.isNotEmpty) flushText();
-      buf.write(' ');
-    }
-    i++;
-  }
-  flushText();
-  return spans;
-}
-
-// ── Inline glyph widgets ────────────────────────────────────
-
-/// Directional input chip (arrows rendered in a dark circle).
-class _DirectionChip extends StatelessWidget {
-  final String glyph;
-  const _DirectionChip(this.glyph);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 1),
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade800,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.grey.shade600, width: 0.5),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        glyph,
-        style: const TextStyle(
-          fontSize: 13,
-          height: 1,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-}
-
-/// Charge direction chip – similar to direction but with a coloured border.
-class _ChargeChip extends StatelessWidget {
-  final String glyph;
-  const _ChargeChip(this.glyph);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 1),
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade800,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.amber.shade700, width: 1.5),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        glyph,
-        style: const TextStyle(fontSize: 13, height: 1, color: Colors.white),
-      ),
-    );
-  }
-}
-
-/// Button chip (coloured rectangle with label). Uses vertical padding
-/// instead of alignment so the Container shrink-wraps its child.
-class _ButtonChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _ButtonChip(this.label, this.color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 1),
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color, width: 1),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          height: 1,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
-      ),
-    );
-  }
+void _openExecution(BuildContext context, MoveEntry move) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ExecutionModeScreen(move: move),
+    ),
+  );
 }
 
 // ── Category dot (compact indicator) ────────────────────────
 
-Color _categoryColor(String category) {
+Color categoryColor(String category) {
   return switch (category) {
-    'throw'   => Colors.orange,
-    'command' => Colors.teal,
-    'special' => Colors.blue,
-    'super'   => Colors.red,
-    'ultra'   => Colors.purple,
+    'throw'   => AppColors.catThrow,
+    'command' => AppColors.catCommand,
+    'special' => AppColors.catSpecial,
+    'super'   => AppColors.catDM,
+    'ultra'   => AppColors.catSDM,
     'other'   => Colors.amber,
     _         => Colors.transparent,
   };
 }
 
-// ── Move line (document-style: name row, indented input row) ─
+// ── Move Row ────────────────────────────────────────────────
 
-class _MoveRichLine extends StatelessWidget {
+class MoveRow extends StatelessWidget {
   final MoveEntry move;
-  const _MoveRichLine({required this.move});
+  final VoidCallback? onTap;
+
+  const MoveRow({super.key, required this.move, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -397,8 +50,7 @@ class _MoveRichLine extends StatelessWidget {
         move.note == 'info' || (move.category.isEmpty && move.input.isEmpty);
 
     if (isInfo) {
-      // Tokenise the name so embedded tokens (_A, _P, ^S, ^M, etc.) render as glyphs
-      final nameSpans = _tokenise(move.name, context);
+      final nameSpans = tokeniseInput(move.name, context);
       final hasTokens = nameSpans.any((s) => s is WidgetSpan) ||
           RegExp(r'_[A-Z]|\^[SMsm*!]').hasMatch(move.name);
 
@@ -416,7 +68,7 @@ class _MoveRichLine extends StatelessWidget {
                 text,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: AppColors.textSecondary,
                 ),
               );
             }).toList(),
@@ -431,59 +83,75 @@ class _MoveRichLine extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontStyle: FontStyle.italic,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            color: AppColors.textSecondary,
           ),
         ),
       );
     }
 
-    final catColor = _categoryColor(move.category);
-    final inputSpans = _tokenise(move.input, context);
+    final catColor = categoryColor(move.category);
+    final inputSpans = tokeniseInput(move.input, context);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Category dot
-          if (catColor != Colors.transparent)
-            Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.only(right: 6),
-              decoration: BoxDecoration(
-                color: catColor,
-                shape: BoxShape.circle,
-              ),
-            )
-          else
-            const SizedBox(width: 14),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Category dot
+            if (catColor != Colors.transparent)
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: catColor,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: catColor.withValues(alpha: 0.4),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+              )
+            else
+              const SizedBox(width: 16),
 
-          // Move name
-          Expanded(
-            child: Text(
-              move.name,
-              style: const TextStyle(fontSize: 13, height: 1.3),
-            ),
-          ),
-
-          // Input notation (inline chips, right-aligned)
-          if (inputSpans.isNotEmpty)
-            Flexible(
-              child: Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 0,
-                runSpacing: 2,
-                children: inputSpans.map((span) {
-                  if (span is WidgetSpan) return span.child;
-                  final text = (span as TextSpan).text ?? '';
-                  final style = span.style;
-                  return Text(text, style: style);
-                }).toList(),
+            // Move name
+            Expanded(
+              child: Text(
+                move.name,
+                style: const TextStyle(
+                  fontSize: 13,
+                  height: 1.3,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
-        ],
+
+            const SizedBox(width: 8),
+
+            // Input notation (inline chips, right-aligned)
+            if (inputSpans.isNotEmpty)
+              Flexible(
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 0,
+                  runSpacing: 2,
+                  children: inputSpans.map((span) {
+                    if (span is WidgetSpan) return span.child;
+                    final text = (span as TextSpan).text ?? '';
+                    final style = span.style;
+                    return Text(text, style: style);
+                  }).toList(),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -493,14 +161,12 @@ class _MoveRichLine extends StatelessWidget {
 
 class _SectionBlock extends StatelessWidget {
   final MoveListSection section;
-  final bool initiallyExpanded;
   final String? gameId;
   final String? gameTitle;
   final String? romName;
 
   const _SectionBlock({
     required this.section,
-    this.initiallyExpanded = false,
     this.gameId,
     this.gameTitle,
     this.romName,
@@ -514,7 +180,7 @@ class _SectionBlock extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 2),
       child: ExpansionTile(
-        initiallyExpanded: initiallyExpanded,
+        initiallyExpanded: false,
         tilePadding: const EdgeInsets.symmetric(horizontal: 12),
         title: Text(
           section.title,
@@ -560,7 +226,12 @@ class _SectionBlock extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: Column(
                 children: section.moves
-                    .map((m) => _MoveRichLine(move: m))
+                    .map((m) => MoveRow(
+                          move: m,
+                          onTap: m.input.isNotEmpty
+                              ? () => _openExecution(context, m)
+                              : null,
+                        ))
                     .toList(),
               ),
             ),
@@ -714,8 +385,15 @@ class _MoveListViewState extends State<MoveListView>
                           padding:
                               const EdgeInsets.symmetric(vertical: 4),
                           itemCount: section.moves.length,
-                          itemBuilder: (_, i) =>
-                              _MoveRichLine(move: section.moves[i]),
+                          itemBuilder: (_, i) {
+                            final m = section.moves[i];
+                            return MoveRow(
+                              move: m,
+                              onTap: m.input.isNotEmpty
+                                  ? () => _openExecution(context, m)
+                                  : null,
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -800,11 +478,11 @@ class _Legend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      ('throw', Colors.orange),
-      ('cmd', Colors.teal),
-      ('special', Colors.blue),
-      ('DM', Colors.red),
-      ('SDM', Colors.purple),
+      ('throw', AppColors.catThrow),
+      ('cmd', AppColors.catCommand),
+      ('special', AppColors.catSpecial),
+      ('DM', AppColors.catDM),
+      ('SDM', AppColors.catSDM),
     ];
     return Wrap(
       spacing: 12,

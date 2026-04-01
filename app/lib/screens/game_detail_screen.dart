@@ -6,6 +6,7 @@ import '../models/community_note.dart';
 import '../models/game_score.dart';
 import '../models/user_favorite.dart';
 import '../models/collection_item.dart';
+import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
@@ -63,49 +64,54 @@ class GameDetailScreen extends StatelessWidget {
           children: [
             // Genre-colored header
             Container(
-              height: 120,
               width: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [baseColor, baseColor.withValues(alpha: 0.6)],
+                  colors: [
+                    baseColor.withValues(alpha: 0.8),
+                    AppColors.surface,
+                  ],
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     game.title,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                      color: AppColors.textPrimary,
+                      fontSize: 28,
                       fontFamily: 'Doto',
                       fontWeight: FontWeight.w800,
+                      height: 1.1,
                       shadows: [
-                        Shadow(blurRadius: 4, color: Colors.black54),
+                        Shadow(blurRadius: 8, color: Colors.black87),
                       ],
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (game.altTitle != null)
+                  if (game.altTitle != null) ...[
+                    const SizedBox(height: 4),
                     Text(
                       game.altTitle!,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
-                  const SizedBox(height: 4),
+                  ],
+                  const SizedBox(height: 8),
                   Text(
-                    '${game.year} · ${game.publisher}',
+                    '${game.year} • ${game.publisher}',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: AppColors.textPrimary.withValues(alpha: 0.8),
                       fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -113,16 +119,16 @@ class GameDetailScreen extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Metadata chips
+                  // Metadata pills
                   Wrap(
                     spacing: 8,
-                    runSpacing: 4,
+                    runSpacing: 6,
                     children: [
-                      _InfoChip(label: game.genre),
+                      _InfoChip(label: game.genre, filled: true),
                       _InfoChip(label: game.type),
                       _InfoChip(label: game.nbPlayers),
                       if (game.megs != null)
@@ -130,11 +136,21 @@ class GameDetailScreen extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
                   // Description
                   if (game.description != null && game.description!.isNotEmpty)
-                    Text(game.description!),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Text(
+                        game.description!,
+                        style: const TextStyle(
+                          height: 1.6,
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
 
                   const SizedBox(height: 24),
 
@@ -565,16 +581,33 @@ class _CollectionStatusSection extends StatelessWidget {
 
 class _InfoChip extends StatelessWidget {
   final String label;
-  const _InfoChip({required this.label});
+  final bool filled;
+  const _InfoChip({required this.label, this.filled = false});
 
   @override
   Widget build(BuildContext context) {
     if (label.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Chip(
-        label: Text(label, style: const TextStyle(fontSize: 12)),
-        visualDensity: VisualDensity.compact,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: filled
+            ? AppColors.primary.withValues(alpha: 0.2)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: filled
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : AppColors.textSecondary.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: filled ? FontWeight.w600 : FontWeight.normal,
+          color: filled ? AppColors.primary : AppColors.textSecondary,
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/game.dart';
+import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
 import '../widgets/game_card.dart';
 import '../widgets/filter_panel.dart';
@@ -25,6 +26,22 @@ class _GamesListScreenState extends State<GamesListScreen> {
   SortOption _sortOption = SortOption.title;
   bool _sortAscending = true;
   bool _showFilters = false;
+  final _searchFocus = FocusNode();
+  bool _searchFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocus.addListener(() {
+      setState(() => _searchFocused = _searchFocus.hasFocus);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    super.dispose();
+  }
 
   List<Game> _sortGames(List<Game> games) {
     final sorted = List<Game>.from(games);
@@ -86,20 +103,44 @@ class _GamesListScreenState extends State<GamesListScreen> {
           // Search bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search games...',
-                prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _showFilters ? Icons.filter_list_off : Icons.filter_list,
-                  ),
-                  onPressed: () => setState(() => _showFilters = !_showFilters),
-                  tooltip: 'Filters',
-                ),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: _searchFocused
+                    ? [
+                        BoxShadow(
+                          color: AppColors.secondary.withValues(alpha: 0.15),
+                          blurRadius: 16,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : null,
               ),
-              onChanged: (v) => setState(() => _searchQuery = v),
+              child: TextField(
+                focusNode: _searchFocus,
+                decoration: InputDecoration(
+                  hintText: 'Search games...',
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: _searchFocused
+                        ? AppColors.secondary
+                        : AppColors.textSecondary,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _showFilters
+                          ? Icons.filter_list_off
+                          : Icons.filter_list,
+                    ),
+                    onPressed: () =>
+                        setState(() => _showFilters = !_showFilters),
+                    tooltip: 'Filters',
+                  ),
+                ),
+                onChanged: (v) => setState(() => _searchQuery = v),
+              ),
             ),
           ),
           // Games list

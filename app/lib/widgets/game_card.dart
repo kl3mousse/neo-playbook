@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/game.dart';
+import '../theme/app_theme.dart';
 
 Color genreColor(String genre) {
   final g = genre.toLowerCase();
@@ -18,131 +20,180 @@ Color genreColor(String genre) {
   return Colors.blueGrey.shade600;
 }
 
-IconData _genreIcon(String genre) {
-  final g = genre.toLowerCase();
-  if (g.contains('combat') || g.contains('fighting') || g.contains('versus')) {
-    return Icons.sports_mma;
+// ── Diagonal line pattern painter ───────────────────────────
+
+class _DiagonalLinesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.04)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    const spacing = 12.0;
+    final diagonal = size.width + size.height;
+    for (double d = 0; d < diagonal; d += spacing) {
+      canvas.drawLine(
+        Offset(d, 0),
+        Offset(d - size.height, size.height),
+        paint,
+      );
+    }
   }
-  if (g.contains('shoot')) return Icons.rocket_launch;
-  if (g.contains('beat')) return Icons.front_hand;
-  if (g.contains('action')) return Icons.bolt;
-  if (g.contains('puzzle')) return Icons.extension;
-  if (g.contains('sport')) return Icons.sports;
-  if (g.contains('racing')) return Icons.speed;
-  if (g.contains('platform')) return Icons.terrain;
-  if (g.contains('rpg') || g.contains('role')) return Icons.shield;
-  if (g.contains('quiz')) return Icons.quiz;
-  return Icons.videogame_asset;
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class GameCard extends StatelessWidget {
+// ── GameCard ────────────────────────────────────────────────
+
+class GameCard extends StatefulWidget {
   final Game game;
   final VoidCallback? onTap;
 
   const GameCard({super.key, required this.game, this.onTap});
 
   @override
+  State<GameCard> createState() => _GameCardState();
+}
+
+class _GameCardState extends State<GameCard>
+    with SingleTickerProviderStateMixin {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final baseColor = genreColor(game.genre);
+    final baseColor = genreColor(widget.game.genre);
     final darkColor = HSLColor.fromColor(baseColor)
-        .withLightness(0.15)
+        .withLightness(0.12)
         .toColor();
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onTap?.call();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      onLongPress: () {
+        HapticFeedback.lightImpact();
+      },
+      child: AnimatedScale(
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [baseColor, darkColor],
-            ),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: _isPressed
+                ? [
+                    BoxShadow(
+                      color: baseColor.withValues(alpha: 0.4),
+                      blurRadius: 16,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
           ),
-          child: Stack(
-            children: [
-              // Background genre icon
-              Positioned(
-                right: -20,
-                bottom: -10,
-                child: Icon(
-                  _genreIcon(game.genre),
-                  size: 100,
-                  color: Colors.white.withValues(alpha: 0.07),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [baseColor, darkColor],
                 ),
               ),
-              // Year badge
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.black38,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    game.year,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+              child: Stack(
+                children: [
+                  // Diagonal line pattern overlay
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _DiagonalLinesPainter(),
                     ),
                   ),
-                ),
-              ),
-              // Content
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Title
-                    Text(
-                      game.title,
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontFamily: 'Doto',
-                        fontWeight: FontWeight.w800,
-                        height: 1.2,
-                        shadows: [
-                          Shadow(blurRadius: 6, color: Colors.black87),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    // Genre pill
-                    Container(
+                  // Year badge
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppColors.background.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        game.genre,
+                        widget.game.year,
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: AppColors.textPrimary,
                           fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Title
+                        Text(
+                          widget.game.title,
+                          textAlign: TextAlign.center,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 16,
+                            fontFamily: 'Doto',
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                            shadows: [
+                              Shadow(blurRadius: 8, color: Colors.black87),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Genre pill
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              width: 0.5,
+                            ),
+                          ),
+                          child: Text(
+                            widget.game.genre,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
+import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
 import 'screens/games_list_screen.dart';
 import 'screens/favorites_screen.dart';
@@ -28,13 +29,7 @@ class OtakuPlaybookApp extends StatelessWidget {
     return MaterialApp(
       title: 'Otaku Playbook',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1A1A2E),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: buildAppTheme(),
       home: const AppShell(),
     );
   }
