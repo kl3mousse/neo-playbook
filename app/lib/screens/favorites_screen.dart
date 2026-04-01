@@ -100,7 +100,7 @@ class FavoritesScreen extends StatelessWidget {
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: crossAxisCount,
-                            childAspectRatio: 0.75,
+                            childAspectRatio: 1.1,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
                           ),
