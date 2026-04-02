@@ -342,8 +342,8 @@ class _AnimatedToken extends StatelessWidget {
 
   Widget _buildToken() {
     return switch (token) {
-      DirectionParsed(:final glyph) => DirectionToken(glyph, size: size),
-      ChargeParsed(:final glyph) => ChargeToken(glyph, size: size),
+      DirectionParsed(:final glyph, :final icon) => DirectionToken(glyph, icon: icon, size: size),
+      ChargeParsed(:final glyph, :final icon) => ChargeToken(glyph, icon: icon, size: size),
       ButtonParsed(:final label, :final color) =>
         ButtonToken(label, color, size: size),
       OperatorParsed(:final op) => OperatorToken(op, size: size),

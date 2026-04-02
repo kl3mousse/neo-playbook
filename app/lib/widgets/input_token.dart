@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../theme/app_theme.dart';
 
 // ═══════════════════════════════════════════════════════════════
@@ -15,13 +16,15 @@ enum InputTokenSize { normal, large }
 
 class DirectionToken extends StatelessWidget {
   final String glyph;
+  final IconData? icon;
   final InputTokenSize size;
 
-  const DirectionToken(this.glyph, {super.key, this.size = InputTokenSize.normal});
+  const DirectionToken(this.glyph, {super.key, this.icon, this.size = InputTokenSize.normal});
 
   @override
   Widget build(BuildContext context) {
     final dim = size == InputTokenSize.large ? 48.0 : 26.0;
+    final iconSize = size == InputTokenSize.large ? 28.0 : 16.0;
     final fontSize = size == InputTokenSize.large ? 24.0 : 14.0;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1.5),
@@ -36,15 +39,17 @@ class DirectionToken extends StatelessWidget {
         ),
       ),
       alignment: Alignment.center,
-      child: Text(
-        glyph,
-        style: TextStyle(
-          fontSize: fontSize,
-          height: 1,
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      child: icon != null
+          ? Icon(icon, size: iconSize, color: AppColors.textPrimary)
+          : Text(
+              glyph,
+              style: TextStyle(
+                fontSize: fontSize,
+                height: 1,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
     );
   }
 }
@@ -53,13 +58,15 @@ class DirectionToken extends StatelessWidget {
 
 class ChargeToken extends StatelessWidget {
   final String glyph;
+  final IconData? icon;
   final InputTokenSize size;
 
-  const ChargeToken(this.glyph, {super.key, this.size = InputTokenSize.normal});
+  const ChargeToken(this.glyph, {super.key, this.icon, this.size = InputTokenSize.normal});
 
   @override
   Widget build(BuildContext context) {
     final dim = size == InputTokenSize.large ? 48.0 : 26.0;
+    final iconSize = size == InputTokenSize.large ? 28.0 : 16.0;
     final fontSize = size == InputTokenSize.large ? 24.0 : 14.0;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1.5),
@@ -71,15 +78,17 @@ class ChargeToken extends StatelessWidget {
         border: Border.all(color: Colors.amber.shade700, width: 2),
       ),
       alignment: Alignment.center,
-      child: Text(
-        glyph,
-        style: TextStyle(
-          fontSize: fontSize,
-          height: 1,
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      child: icon != null
+          ? Icon(icon, size: iconSize, color: AppColors.textPrimary)
+          : Text(
+              glyph,
+              style: TextStyle(
+                fontSize: fontSize,
+                height: 1,
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
     );
   }
 }
@@ -229,18 +238,33 @@ const _modTokens = <String, String>{
   '^4': '←',
 };
 
+// Phosphor icon mapping for directional glyphs
+const _glyphToIcon = <String, IconData>{
+  '↖': PhosphorIconsBold.arrowUpLeft,
+  '↑': PhosphorIconsBold.arrowUp,
+  '↗': PhosphorIconsBold.arrowUpRight,
+  '←': PhosphorIconsBold.arrowLeft,
+  '●': PhosphorIconsFill.circle,
+  '→': PhosphorIconsBold.arrowRight,
+  '↙': PhosphorIconsBold.arrowDownLeft,
+  '↓': PhosphorIconsBold.arrowDown,
+  '↘': PhosphorIconsBold.arrowDownRight,
+};
+
 /// Parsed token — intermediate representation for both InlineSpan
 /// and Widget rendering.
 sealed class ParsedToken {}
 
 class DirectionParsed extends ParsedToken {
   final String glyph;
-  DirectionParsed(this.glyph);
+  final IconData? icon;
+  DirectionParsed(this.glyph, {this.icon});
 }
 
 class ChargeParsed extends ParsedToken {
   final String glyph;
-  ChargeParsed(this.glyph);
+  final IconData? icon;
+  ChargeParsed(this.glyph, {this.icon});
 }
 
 class ButtonParsed extends ParsedToken {
@@ -291,7 +315,7 @@ List<ParsedToken> parseInputTokens(String raw) {
       if (_motionTokens.containsKey(two)) {
         flushText();
         for (final arrow in _motionTokens[two]!) {
-          tokens.add(DirectionParsed(arrow));
+          tokens.add(DirectionParsed(arrow, icon: _glyphToIcon[arrow]));
         }
         i += 2;
         continue;
@@ -300,7 +324,8 @@ List<ParsedToken> parseInputTokens(String raw) {
       // Direction tokens
       if (_dirTokens.containsKey(two)) {
         flushText();
-        tokens.add(DirectionParsed(_dirTokens[two]!));
+        final glyph = _dirTokens[two]!;
+        tokens.add(DirectionParsed(glyph, icon: _glyphToIcon[glyph]));
         i += 2;
         continue;
       }
@@ -382,7 +407,7 @@ List<ParsedToken> parseInputTokens(String raw) {
         flushText();
         final glyph = _modTokens[two]!;
         if (glyph.length == 1 && '↖↑↗←●→↙↓↘'.contains(glyph)) {
-          tokens.add(ChargeParsed(glyph));
+          tokens.add(ChargeParsed(glyph, icon: _glyphToIcon[glyph]));
         } else {
           tokens.add(OperatorParsed(glyph));
         }
@@ -418,13 +443,13 @@ List<InlineSpan> tokeniseInput(String raw, BuildContext context) {
 
 InlineSpan _parsedToSpan(ParsedToken t, BuildContext context) {
   return switch (t) {
-    DirectionParsed(:final glyph) => WidgetSpan(
+    DirectionParsed(:final glyph, :final icon) => WidgetSpan(
         alignment: PlaceholderAlignment.middle,
-        child: DirectionToken(glyph),
+        child: DirectionToken(glyph, icon: icon),
       ),
-    ChargeParsed(:final glyph) => WidgetSpan(
+    ChargeParsed(:final glyph, :final icon) => WidgetSpan(
         alignment: PlaceholderAlignment.middle,
-        child: ChargeToken(glyph),
+        child: ChargeToken(glyph, icon: icon),
       ),
     ButtonParsed(:final label, :final color) => WidgetSpan(
         alignment: PlaceholderAlignment.middle,
@@ -468,8 +493,8 @@ List<Widget> tokensToWidgets(List<ParsedToken> tokens,
     {InputTokenSize size = InputTokenSize.normal}) {
   return tokens.map((t) {
     return switch (t) {
-      DirectionParsed(:final glyph) => DirectionToken(glyph, size: size),
-      ChargeParsed(:final glyph) => ChargeToken(glyph, size: size),
+      DirectionParsed(:final glyph, :final icon) => DirectionToken(glyph, icon: icon, size: size),
+      ChargeParsed(:final glyph, :final icon) => ChargeToken(glyph, icon: icon, size: size),
       ButtonParsed(:final label, :final color) =>
         ButtonToken(label, color, size: size),
       OperatorParsed(:final op) => OperatorToken(op, size: size),
