@@ -32,25 +32,46 @@ class DipSettingsView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header
-        Row(
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          initiallyExpanded: false,
+          title: Row(
+            children: [
+              const Icon(Icons.tune, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('Soft DIP Settings',
+                    style: Theme.of(context).textTheme.titleMedium),
+              ),
+              IconButton(
+                icon: const Icon(Icons.info_outline, size: 18),
+                tooltip: 'What are Soft DIPs?',
+                onPressed: () => _showInfoDialog(
+                  context,
+                  'Soft DIP Settings',
+                  'Soft DIPs are software-configurable game settings stored in '
+                  'battery-backed SRAM on MVS arcade boards, or in backup RAM '
+                  'on AES home consoles.\n\n'
+                  'They control gameplay options such as difficulty, round time, '
+                  'number of lives, and other game-specific parameters.\n\n'
+                  'On Neo Geo CD, these settings are stored on the memory card '
+                  'or internal storage. Each region (EU / US / JP) can have '
+                  'different default values.',
+                ),
+              ),
+            ],
+          ),
           children: [
-            const Icon(Icons.tune, size: 20),
-            const SizedBox(width: 8),
-            Text('DIP Settings',
-                style: Theme.of(context).textTheme.titleMedium),
+            // Region tabs + settings
+            if (availableRegions.isNotEmpty)
+              _RegionTabView(
+                regions: availableRegions,
+                dipData: dipData,
+              ),
           ],
         ),
-        const SizedBox(height: 8),
 
-        // Region tabs + settings
-        if (availableRegions.isNotEmpty)
-          _RegionTabView(
-            regions: availableRegions,
-            dipData: dipData,
-          ),
-
-        // Debug DIPs
+        // Debug DIPs (separate section)
         if (dipData.hasDebugDips) ...[
           const SizedBox(height: 12),
           _DebugDipsSection(debugDips: dipData.debugDips),
@@ -207,7 +228,7 @@ class _RegionSettingsBody extends StatelessWidget {
   }
 }
 
-// ── Simple setting with expandable options ───────────────────
+// ── Simple setting with all values shown ─────────────────────
 
 class _SimpleSettingTile extends StatelessWidget {
   final DipSimpleSetting setting;
@@ -216,39 +237,29 @@ class _SimpleSettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultLabel = setting.defaultValue >= 0 &&
-            setting.defaultValue < setting.valueDescriptions.length
-        ? setting.valueDescriptions[setting.defaultValue]
-        : '?';
-
-    return ExpansionTile(
-      dense: true,
-      tilePadding: const EdgeInsets.symmetric(horizontal: 4),
-      childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-      title: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              setting.description,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
+          Text(
+            setting.description,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
           ),
-          _ValueChip(label: defaultLabel, isDefault: true),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              for (var i = 0; i < setting.valueDescriptions.length; i++)
+                _ValueChip(
+                  label: setting.valueDescriptions[i],
+                  isDefault: i == setting.defaultValue,
+                ),
+            ],
+          ),
         ],
       ),
-      children: [
-        Wrap(
-          spacing: 6,
-          runSpacing: 4,
-          children: [
-            for (var i = 0; i < setting.valueDescriptions.length; i++)
-              _ValueChip(
-                label: setting.valueDescriptions[i],
-                isDefault: i == setting.defaultValue,
-              ),
-          ],
-        ),
-      ],
     );
   }
 }
@@ -270,11 +281,27 @@ class _DebugDipsSection extends StatelessWidget {
         children: [
           Icon(Icons.bug_report, size: 18, color: cs.tertiary),
           const SizedBox(width: 8),
-          Text('Debug DIP Switches',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(color: cs.tertiary)),
+          Expanded(
+            child: Text('Debug DIP Switches',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(color: cs.tertiary)),
+          ),
+          IconButton(
+            icon: Icon(Icons.info_outline, size: 16, color: cs.tertiary),
+            tooltip: 'What are Debug DIPs?',
+            onPressed: () => _showInfoDialog(
+              context,
+              'Debug DIP Switches',
+              'Debug DIP switches correspond to the physical hardware '
+              'DIP switches found on MVS arcade boards.\n\n'
+              'They are typically used for diagnostic and test modes, '
+              'such as entering the service menu, enabling free play, '
+              'or activating debug features built into the game.\n\n'
+              'Most players will never need to change these settings.',
+            ),
+          ),
         ],
       ),
       children: [
@@ -342,6 +369,22 @@ class _SectionLabel extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showInfoDialog(BuildContext context, String title, String body) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: Text(body),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ValueChip extends StatelessWidget {

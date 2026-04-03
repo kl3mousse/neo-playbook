@@ -191,25 +191,35 @@ class GameDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // ROMs table
-                  if (game.roms.isNotEmpty) ...[
-                    Text('ROM Versions',
-                        style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 8),
-                    ...game.roms.map((rom) => Card(
-                          child: ListTile(
-                            title: Text(rom.romName),
-                            subtitle: Text(
-                              [
-                                rom.description,
-                                if (rom.serial.isNotEmpty) rom.serial,
-                                if (rom.platformTag.isNotEmpty)
-                                  'Platform: ${rom.platformTag}',
-                              ].join('\n'),
-                            ),
-                            isThreeLine: true,
-                          ),
-                        )),
-                  ],
+                  if (game.roms.isNotEmpty)
+                    ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      initiallyExpanded: false,
+                      title: Row(
+                        children: [
+                          const Icon(Icons.memory, size: 20),
+                          const SizedBox(width: 8),
+                          Text('ROM Versions',
+                              style: Theme.of(context).textTheme.titleMedium),
+                        ],
+                      ),
+                      children: [
+                        ...game.roms.map((rom) => Card(
+                              child: ListTile(
+                                title: Text(rom.romName),
+                                subtitle: Text(
+                                  [
+                                    rom.description,
+                                    if (rom.serial.isNotEmpty) rom.serial,
+                                    if (rom.platformTag.isNotEmpty)
+                                      'Platform: ${rom.platformTag}',
+                                  ].join('\n'),
+                                ),
+                                isThreeLine: true,
+                              ),
+                            )),
+                      ],
+                    ),
                 ],
               ),
             ),
