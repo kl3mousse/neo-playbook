@@ -312,16 +312,23 @@ class _CommunityNotesSection extends StatelessWidget {
             Text('Community Notes',
                 style: Theme.of(context).textTheme.titleMedium),
             const Spacer(),
-            if (AuthService.isLoggedIn)
-              TextButton.icon(
-                onPressed: () => showModalBottomSheet(
+            TextButton.icon(
+              onPressed: () {
+                if (!AuthService.isLoggedIn) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sign in to add a note')),
+                  );
+                  return;
+                }
+                showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   builder: (_) => AddNoteSheet(gameId: gameId),
-                ),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add'),
-              ),
+                );
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add'),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -418,16 +425,23 @@ class _LeaderboardSection extends StatelessWidget {
             Text('Leaderboard',
                 style: Theme.of(context).textTheme.titleMedium),
             const Spacer(),
-            if (AuthService.isLoggedIn)
-              TextButton.icon(
-                onPressed: () => showModalBottomSheet(
+            TextButton.icon(
+              onPressed: () {
+                if (!AuthService.isLoggedIn) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sign in to submit a score')),
+                  );
+                  return;
+                }
+                showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   builder: (_) => SubmitScoreSheet(gameId: gameId),
-                ),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Submit'),
-              ),
+                );
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Submit'),
+            ),
           ],
         ),
         const SizedBox(height: 8),
