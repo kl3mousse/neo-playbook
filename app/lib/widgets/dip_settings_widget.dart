@@ -277,19 +277,17 @@ class _DebugDipsSection extends StatelessWidget {
 
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
+      initiallyExpanded: false,
       title: Row(
         children: [
-          Icon(Icons.bug_report, size: 18, color: cs.tertiary),
+          const Icon(Icons.bug_report, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text('Debug DIP Switches',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(color: cs.tertiary)),
+                style: Theme.of(context).textTheme.titleMedium),
           ),
           IconButton(
-            icon: Icon(Icons.info_outline, size: 16, color: cs.tertiary),
+            icon: const Icon(Icons.info_outline, size: 18),
             tooltip: 'What are Debug DIPs?',
             onPressed: () => _showInfoDialog(
               context,
