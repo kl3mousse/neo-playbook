@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/game.dart';
+import '../models/user_favorite.dart';
 import '../theme/app_theme.dart';
 
 Color genreColor(String genre) {
@@ -50,8 +51,9 @@ class _DiagonalLinesPainter extends CustomPainter {
 class GameCard extends StatefulWidget {
   final Game game;
   final VoidCallback? onTap;
+  final FavoriteStatus? status;
 
-  const GameCard({super.key, required this.game, this.onTap});
+  const GameCard({super.key, required this.game, this.onTap, this.status});
 
   @override
   State<GameCard> createState() => _GameCardState();
@@ -121,6 +123,28 @@ class _GameCardState extends State<GameCard>
                       painter: _DiagonalLinesPainter(),
                     ),
                   ),
+                  // Status badge
+                  if (widget.status != null)
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.background.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '${widget.status!.icon} ${widget.status!.label}',
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                   // Year badge
                   Positioned(
                     top: 10,

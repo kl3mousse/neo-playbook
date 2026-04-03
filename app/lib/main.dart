@@ -65,8 +65,8 @@ class _MainNavigationState extends State<MainNavigation> {
 
         final screens = [
           const GamesListScreen(),
-          const FavoritesScreen(),
-          const CollectionScreen(),
+          FavoritesScreen(key: ValueKey(snapshot.data?.uid)),
+          CollectionScreen(key: ValueKey(snapshot.data?.uid)),
           isLoggedIn
               ? const ProfileScreen()
               : LoginScreen(
