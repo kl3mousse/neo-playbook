@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
+import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/games_list_screen.dart';
 import 'screens/favorites_screen.dart';
@@ -11,7 +13,8 @@ import 'screens/profile_screen.dart';
 import 'services/auth_service.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Enable Firestore offline persistence
@@ -30,7 +33,7 @@ class OtakuPlaybookApp extends StatelessWidget {
       title: 'Otaku Playbook',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const AppShell(),
+      home: const SplashScreen(destination: AppShell()),
     );
   }
 }
