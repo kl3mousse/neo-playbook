@@ -7,6 +7,7 @@ import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/game_card.dart';
 import 'game_detail_screen.dart';
+import 'character_moves_screen.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -192,17 +193,18 @@ class _FaveMoveListsTab extends StatelessWidget {
                   tooltip: 'Remove bookmark',
                   onPressed: () => UserService.removeFaveMove(fave.id),
                 ),
-                onTap: () async {
-                  final game =
-                      await FirestoreService.getGame(fave.gameId);
-                  if (game != null && context.mounted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => GameDetailScreen(game: game),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CharacterMovesScreen(
+                        romName: fave.romName,
+                        sectionTitle: fave.sectionTitle,
+                        gameId: fave.gameId,
+                        gameTitle: fave.gameTitle,
                       ),
-                    );
-                  }
+                    ),
+                  );
                 },
               ),
             );

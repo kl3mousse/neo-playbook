@@ -159,17 +159,20 @@ class MoveRow extends StatelessWidget {
 
 // ── Section block (ExpansionTile) ───────────────────────────
 
-class _SectionBlock extends StatelessWidget {
+class SectionBlock extends StatelessWidget {
   final MoveListSection section;
   final String? gameId;
   final String? gameTitle;
   final String? romName;
+  final bool initiallyExpanded;
 
-  const _SectionBlock({
+  const SectionBlock({
+    super.key,
     required this.section,
     this.gameId,
     this.gameTitle,
     this.romName,
+    this.initiallyExpanded = false,
   });
 
   @override
@@ -180,7 +183,7 @@ class _SectionBlock extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 2),
       child: ExpansionTile(
-        initiallyExpanded: false,
+        initiallyExpanded: initiallyExpanded,
         tilePadding: const EdgeInsets.symmetric(horizontal: 12),
         title: Text(
           section.title,
@@ -243,9 +246,8 @@ class _SectionBlock extends StatelessWidget {
 
 // ── Main public widget ──────────────────────────────────────
 
-/// MAME-style move list viewer with tab strip for character
-/// sections and scrollable rich-text body.
-class MoveListView extends StatefulWidget {
+/// MAME-style move list viewer with character cards.
+class MoveListView extends StatelessWidget {
   final CommandData commandData;
   final String? gameId;
   final String? gameTitle;
@@ -260,40 +262,14 @@ class MoveListView extends StatefulWidget {
   });
 
   @override
-  State<MoveListView> createState() => _MoveListViewState();
-}
-
-class _MoveListViewState extends State<MoveListView>
-    with SingleTickerProviderStateMixin {
-  late final List<MoveListSection> _commonSections;
-  late final List<MoveListSection> _charSections;
-  TabController? _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _commonSections = widget.commandData.sections
+  Widget build(BuildContext context) {
+    final commonSections = commandData.sections
         .where((s) => s.sectionType != 'character')
         .toList();
-    _charSections = widget.commandData.sections
+    final charSections = commandData.sections
         .where((s) => s.sectionType == 'character')
         .toList();
-    if (_charSections.length > 1) {
-      _tabController = TabController(
-        length: _charSections.length,
-        vsync: this,
-      );
-    }
-  }
 
-  @override
-  void dispose() {
-    _tabController?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -308,7 +284,7 @@ class _MoveListViewState extends State<MoveListView>
         ),
         const SizedBox(height: 2),
         Text(
-          widget.commandData.title,
+          commandData.title,
           style: Theme.of(context)
               .textTheme
               .bodySmall
@@ -317,96 +293,24 @@ class _MoveListViewState extends State<MoveListView>
         const SizedBox(height: 8),
 
         // Common sections (controls, how-to-play, common commands)
-        for (final s in _commonSections)
-          _SectionBlock(section: s),
+        for (final s in commonSections)
+          SectionBlock(section: s),
 
-        // Character sections
-        if (_charSections.isNotEmpty) ...[
+        // Character sections – one card per character
+        if (charSections.isNotEmpty) ...[
           const SizedBox(height: 8),
-          if (_charSections.length == 1)
-            // Single character – just show as expansion tile
-            _SectionBlock(
-              section: _charSections.first,
-              gameId: widget.gameId,
-              gameTitle: widget.gameTitle,
-              romName: widget.romName,
-            )
-          else ...[
-            // Tab strip
-            TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              indicatorSize: TabBarIndicatorSize.label,
-              labelStyle: const TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w600),
-              unselectedLabelStyle: const TextStyle(fontSize: 12),
-              tabs: _charSections
-                  .map((s) => Tab(text: s.title))
-                  .toList(),
+          for (final s in charSections)
+            SectionBlock(
+              section: s,
+              gameId: gameId,
+              gameTitle: gameTitle,
+              romName: romName,
             ),
-            const SizedBox(height: 4),
-            // Tab body – constrained height for scrollability within page
-            SizedBox(
-              height: 420,
-              child: TabBarView(
-                controller: _tabController,
-                children: _charSections.map((section) {
-                  return Column(
-                    children: [
-                      // Bookmark action row
-                      if (widget.gameId != null && widget.romName != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          child: Row(
-                            children: [
-                              Text(
-                                section.subtitle ?? '',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
-                              ),
-                              const Spacer(),
-                              _BookmarkIcon(
-                                gameId: widget.gameId!,
-                                gameTitle: widget.gameTitle ?? '',
-                                romName: widget.romName!,
-                                section: section,
-                              ),
-                            ],
-                          ),
-                        ),
-                      Expanded(
-                        child: ListView.builder(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 4),
-                          itemCount: section.moves.length,
-                          itemBuilder: (_, i) {
-                            final m = section.moves[i];
-                            return MoveRow(
-                              move: m,
-                              onTap: m.input.isNotEmpty
-                                  ? () => _openExecution(context, m)
-                                  : null,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
         ],
 
         // Legend footer
         const SizedBox(height: 8),
-        _Legend(),
+        const MoveLegend(),
       ],
     );
   }
@@ -474,7 +378,9 @@ class _BookmarkIcon extends StatelessWidget {
 
 // ── Legend row ───────────────────────────────────────────────
 
-class _Legend extends StatelessWidget {
+class MoveLegend extends StatelessWidget {
+  const MoveLegend({super.key});
+
   @override
   Widget build(BuildContext context) {
     const items = [
