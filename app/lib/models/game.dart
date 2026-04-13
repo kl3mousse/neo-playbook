@@ -105,6 +105,7 @@ class Game {
   final String pageType;
   final String platform;
   final int? hfsdbId;
+  final int? ngmId;
   final String title;
   final String? altTitle;
   final int? year;
@@ -123,6 +124,7 @@ class Game {
     required this.pageType,
     required this.platform,
     this.hfsdbId,
+    this.ngmId,
     required this.title,
     this.altTitle,
     this.year,
@@ -171,6 +173,9 @@ class Game {
       pageType: data['page_type'] as String? ?? 'game',
       platform: data['platform'] as String? ?? '',
       hfsdbId: data['hfsdb_id'] as int?,
+      ngmId: data['platform_specific'] is Map
+          ? _parseInt((data['platform_specific'] as Map)['ngm_id'])
+          : null,
       title: data['title'] as String? ?? '',
       altTitle: data['alt_title'] as String?,
       year: _parseInt(data['year']),

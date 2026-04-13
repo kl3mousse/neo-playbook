@@ -133,6 +133,8 @@ class GameDetailScreen extends StatelessWidget {
                       _InfoChip(label: game.playersLabel),
                       if (game.hfsdbId != null)
                         _HfsdbChip(hfsdbId: game.hfsdbId!),
+                      if (game.ngmId != null)
+                        _NgmChip(ngmId: game.ngmId!),
                     ],
                   ),
 
@@ -601,6 +603,36 @@ class _CollectionStatusSection extends StatelessWidget {
 }
 
 // ── Shared Widgets ──────────────────────────────────────────────────────
+
+class _NgmChip extends StatelessWidget {
+  final int ngmId;
+  const _NgmChip({required this.ngmId});
+
+  String get _formattedId => ngmId.toString().padLeft(3, '0');
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.textSecondary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        'NGM-$_formattedId / NGH-$_formattedId',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+}
 
 class _HfsdbChip extends StatelessWidget {
   final int hfsdbId;
