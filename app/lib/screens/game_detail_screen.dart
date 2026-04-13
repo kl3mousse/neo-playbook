@@ -27,7 +27,7 @@ class GameDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = AuthService.isLoggedIn;
-    final baseColor = genreColor(game.genre);
+    final baseColor = genreColor(game.primaryGenre);
 
     return Scaffold(
       appBar: AppBar(
@@ -107,7 +107,7 @@ class GameDetailScreen extends StatelessWidget {
                   ],
                   const SizedBox(height: 8),
                   Text(
-                    '${game.year} • ${game.publisher}',
+                    [game.yearLabel, game.publisher ?? ''].where((s) => s.isNotEmpty).join(' • '),
                     style: TextStyle(
                       color: AppColors.textPrimary.withValues(alpha: 0.8),
                       fontSize: 14,
@@ -128,11 +128,8 @@ class GameDetailScreen extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 6,
                     children: [
-                      _InfoChip(label: game.genre, filled: true),
-                      _InfoChip(label: game.type),
-                      _InfoChip(label: game.nbPlayers),
-                      if (game.megs != null)
-                        _InfoChip(label: '${game.megs} MEGs'),
+                      ...game.genre.map((g) => _InfoChip(label: g, filled: true)),
+                      _InfoChip(label: game.playersLabel),
                     ],
                   ),
 
@@ -155,7 +152,7 @@ class GameDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Move List
-                  if (game.roms.isNotEmpty)
+                  if (game.features.hasMoveLists && game.roms.isNotEmpty)
                     _MoveListLoader(
                       romNames: game.roms.map((r) => r.romName).toList(),
                       gameId: game.id,
@@ -165,10 +162,10 @@ class GameDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // DIP Settings
-                  if (game.roms.isNotEmpty)
+                  if ((game.features.hasSoftDips || game.features.hasDebugDips) &&
+                      game.roms.isNotEmpty)
                     _DipSettingsLoader(
                       romNames: game.roms
-                          .where((r) => !r.excludeSoftdips)
                           .map((r) => r.romName)
                           .toList(),
                     ),
@@ -209,10 +206,9 @@ class GameDetailScreen extends StatelessWidget {
                                 title: Text(rom.romName),
                                 subtitle: Text(
                                   [
-                                    rom.description,
-                                    if (rom.serial.isNotEmpty) rom.serial,
-                                    if (rom.platformTag.isNotEmpty)
-                                      'Platform: ${rom.platformTag}',
+                                    if (rom.title != null) rom.title!,
+                                    if (rom.isParent) 'Parent ROM',
+                                    if (rom.region != null) rom.region!,
                                   ].join('\n'),
                                 ),
                                 isThreeLine: true,

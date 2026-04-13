@@ -34,11 +34,6 @@ class FirestoreService {
     return Game.fromFirestore(doc);
   }
 
-  /// Update a game document (merge).
-  static Future<void> updateGame(Game game) {
-    return _gamesRef.doc(game.id).set(game.toFirestore(), SetOptions(merge: true));
-  }
-
   /// Search games by title (client-side filter on stream).
   static Stream<List<Game>> searchGames(String query) {
     final lower = query.toLowerCase();

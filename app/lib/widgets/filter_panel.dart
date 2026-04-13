@@ -5,15 +5,13 @@ import '../models/game.dart';
 class GameFilters {
   final String? genre;
   final String? publisher;
-  final String? playerCount;
-  final String? type;
+  final int? playerCount;
   final RangeValues? yearRange;
 
   const GameFilters({
     this.genre,
     this.publisher,
     this.playerCount,
-    this.type,
     this.yearRange,
   });
 
@@ -21,21 +19,18 @@ class GameFilters {
       genre != null ||
       publisher != null ||
       playerCount != null ||
-      type != null ||
       yearRange != null;
 
   GameFilters copyWith({
     String? Function()? genre,
     String? Function()? publisher,
-    String? Function()? playerCount,
-    String? Function()? type,
+    int? Function()? playerCount,
     RangeValues? Function()? yearRange,
   }) {
     return GameFilters(
       genre: genre != null ? genre() : this.genre,
       publisher: publisher != null ? publisher() : this.publisher,
       playerCount: playerCount != null ? playerCount() : this.playerCount,
-      type: type != null ? type() : this.type,
       yearRange: yearRange != null ? yearRange() : this.yearRange,
     );
   }
@@ -44,22 +39,19 @@ class GameFilters {
   List<Game> apply(List<Game> games) {
     var filtered = games;
     if (genre != null) {
-      filtered = filtered.where((g) => g.genre == genre).toList();
+      filtered = filtered.where((g) => g.genre.contains(genre!)).toList();
     }
     if (publisher != null) {
       filtered = filtered.where((g) => g.publisher == publisher).toList();
     }
     if (playerCount != null) {
-      filtered = filtered.where((g) => g.nbPlayers == playerCount).toList();
-    }
-    if (type != null) {
-      filtered = filtered.where((g) => g.type == type).toList();
+      filtered =
+          filtered.where((g) => g.nbPlayers == playerCount).toList();
     }
     if (yearRange != null) {
       filtered = filtered.where((g) {
-        final year = int.tryParse(g.year);
-        if (year == null) return false;
-        return year >= yearRange!.start && year <= yearRange!.end;
+        if (g.year == null) return false;
+        return g.year! >= yearRange!.start && g.year! <= yearRange!.end;
       }).toList();
     }
     return filtered;
@@ -101,12 +93,11 @@ class FilterPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Extract unique values from games
-    final genres = allGames.map((g) => g.genre).where((g) => g.isNotEmpty).toSet().toList()..sort();
-    final publishers = allGames.map((g) => g.publisher).where((p) => p.isNotEmpty).toSet().toList()..sort();
-    final playerCounts = allGames.map((g) => g.nbPlayers).where((p) => p.isNotEmpty).toSet().toList()..sort();
-    final types = allGames.map((g) => g.type).where((t) => t.isNotEmpty).toSet().toList()..sort();
+    final genres = allGames.expand((g) => g.genre).toSet().toList()..sort();
+    final publishers = allGames.map((g) => g.publisher).where((p) => p != null && p.isNotEmpty).cast<String>().toSet().toList()..sort();
+    final playerCounts = allGames.map((g) => g.nbPlayers).where((p) => p != null).cast<int>().toSet().toList()..sort();
 
-    final years = allGames.map((g) => int.tryParse(g.year)).where((y) => y != null).cast<int>().toList();
+    final years = allGames.map((g) => g.year).where((y) => y != null).cast<int>().toList();
     final minYear = years.isEmpty ? 1990.0 : years.reduce((a, b) => a < b ? a : b).toDouble();
     final maxYear = years.isEmpty ? 2025.0 : years.reduce((a, b) => a > b ? a : b).toDouble();
 
@@ -171,20 +162,13 @@ class FilterPanel extends StatelessWidget {
         if (playerCounts.length > 1)
           _ChipRow(
             label: 'Players',
-            values: playerCounts,
-            selected: filters.playerCount,
-            onSelected: (v) => onFiltersChanged(filters.copyWith(
-                playerCount: () => v == filters.playerCount ? null : v)),
-          ),
-
-        // Type chips
-        if (types.length > 1)
-          _ChipRow(
-            label: 'Type',
-            values: types,
-            selected: filters.type,
-            onSelected: (v) => onFiltersChanged(
-                filters.copyWith(type: () => v == filters.type ? null : v)),
+            values: playerCounts.map((p) => '$p').toList(),
+            selected: filters.playerCount != null ? '${filters.playerCount}' : null,
+            onSelected: (v) {
+              final intVal = int.tryParse(v);
+              onFiltersChanged(filters.copyWith(
+                  playerCount: () => intVal == filters.playerCount ? null : intVal));
+            },
           ),
 
         // Year range slider

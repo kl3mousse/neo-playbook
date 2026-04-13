@@ -65,7 +65,7 @@ class _GameCardState extends State<GameCard>
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = genreColor(widget.game.genre);
+    final baseColor = genreColor(widget.game.primaryGenre);
     final darkColor = HSLColor.fromColor(baseColor)
         .withLightness(0.12)
         .toColor();
@@ -157,7 +157,7 @@ class _GameCardState extends State<GameCard>
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        widget.game.year,
+                        widget.game.yearLabel,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 11,
@@ -204,7 +204,7 @@ class _GameCardState extends State<GameCard>
                             ),
                           ),
                           child: Text(
-                            widget.game.genre,
+                            widget.game.primaryGenre,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 11,

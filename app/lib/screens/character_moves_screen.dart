@@ -80,11 +80,11 @@ class CharacterMovesScreen extends StatelessWidget {
           }
 
           final commonSections = commandData.sections
-              .where((s) => s.sectionType != 'character')
+              .where((s) => s.sectionType != 'other')
               .toList();
           final targetSection = commandData.sections
               .where((s) =>
-                  s.sectionType == 'character' && s.title == sectionTitle)
+                  s.sectionType == 'other' && s.title == sectionTitle)
               .toList();
 
           if (targetSection.isEmpty) {

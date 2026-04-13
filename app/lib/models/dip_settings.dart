@@ -71,17 +71,32 @@ class RegionDipSettings {
   bool get isEmpty => specialSettings.isEmpty && simpleSettings.isEmpty;
 }
 
+/// A single debug DIP switch effect.
+class DebugSwitch {
+  final int switchNumber;
+  final String effect;
+
+  const DebugSwitch({required this.switchNumber, required this.effect});
+
+  factory DebugSwitch.fromMap(Map<String, dynamic> map) {
+    return DebugSwitch(
+      switchNumber: map['switch'] as int? ?? 0,
+      effect: map['effect'] as String? ?? '',
+    );
+  }
+}
+
 /// Full DIP settings document from Firestore.
 class DipSettingsData {
   final String id;
-  final String romName;
+  final String? gameId;
   final Map<String, RegionDipSettings> regions;
-  final Map<String, Map<String, String>> debugDips;
+  final Map<String, List<DebugSwitch>> debugDips;
   final Timestamp? syncedAt;
 
   const DipSettingsData({
     required this.id,
-    required this.romName,
+    this.gameId,
     required this.regions,
     required this.debugDips,
     this.syncedAt,
@@ -98,17 +113,18 @@ class DipSettingsData {
           RegionDipSettings.fromMap(Map<String, dynamic>.from(value)),
         ));
 
-    // Parse debug DIPs
+    // Parse debug DIPs (bank → array of DebugSwitch)
     final debugRaw = data['debug_dips'] as Map<String, dynamic>? ?? {};
-    final debugDips = debugRaw.map((groupKey, groupValue) => MapEntry(
-          groupKey,
-          (groupValue as Map<String, dynamic>)
-              .map((k, v) => MapEntry(k, v.toString())),
+    final debugDips = debugRaw.map((bankKey, bankValue) => MapEntry(
+          bankKey,
+          (bankValue as List<dynamic>)
+              .map((e) => DebugSwitch.fromMap(Map<String, dynamic>.from(e)))
+              .toList(),
         ));
 
     return DipSettingsData(
       id: doc.id,
-      romName: data['rom_name'] as String? ?? doc.id,
+      gameId: data['game_id'] as String?,
       regions: regions,
       debugDips: debugDips,
       syncedAt: parseTimestamp(data['synced_at']),

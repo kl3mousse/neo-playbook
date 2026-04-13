@@ -267,7 +267,7 @@ class _SimpleSettingTile extends StatelessWidget {
 // ── Debug DIPs section ───────────────────────────────────────
 
 class _DebugDipsSection extends StatelessWidget {
-  final Map<String, Map<String, String>> debugDips;
+  final Map<String, List<DebugSwitch>> debugDips;
 
   const _DebugDipsSection({required this.debugDips});
 
@@ -307,7 +307,7 @@ class _DebugDipsSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 4, bottom: 2),
             child: Text(
-              'DIP Group ${entry.key}',
+              'DIP Bank ${entry.key}',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -315,7 +315,7 @@ class _DebugDipsSection extends StatelessWidget {
               ),
             ),
           ),
-          ...entry.value.entries.map((bit) => Padding(
+          ...entry.value.map((ds) => Padding(
                 padding: const EdgeInsets.only(left: 12, top: 1, bottom: 1),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +323,7 @@ class _DebugDipsSection extends StatelessWidget {
                     SizedBox(
                       width: 28,
                       child: Text(
-                        '${bit.key}.',
+                        '${ds.switchNumber}.',
                         style: TextStyle(
                           fontSize: 12,
                           fontFamily: 'monospace',
@@ -333,7 +333,7 @@ class _DebugDipsSection extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        bit.value,
+                        ds.effect,
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurfaceVariant,

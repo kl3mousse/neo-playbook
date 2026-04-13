@@ -201,7 +201,7 @@ class SectionBlock extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (section.sectionType == 'character' &&
+            if (section.sectionType == 'other' &&
                 gameId != null &&
                 romName != null)
               _BookmarkIcon(
@@ -211,7 +211,7 @@ class SectionBlock extends StatelessWidget {
                 section: section,
               ),
             Text(
-              '${section.moves.length}',
+              '${section.entries.length}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(width: 4),
@@ -219,7 +219,7 @@ class SectionBlock extends StatelessWidget {
           ],
         ),
         children: [
-          if (section.moves.isEmpty)
+          if (section.entries.isEmpty)
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text('No moves listed'),
@@ -228,14 +228,26 @@ class SectionBlock extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Column(
-                children: section.moves
-                    .map((m) => MoveRow(
-                          move: m,
-                          onTap: m.input.isNotEmpty
-                              ? () => _openExecution(context, m)
+                children: [
+                  for (final m in section.entries) ...[
+                    MoveRow(
+                      move: m,
+                      onTap: m.input.isNotEmpty
+                          ? () => _openExecution(context, m)
+                          : null,
+                    ),
+                    for (final fu in m.followUps)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 24),
+                        child: MoveRow(
+                          move: fu,
+                          onTap: fu.input.isNotEmpty
+                              ? () => _openExecution(context, fu)
                               : null,
-                        ))
-                    .toList(),
+                        ),
+                      ),
+                  ],
+                ],
               ),
             ),
         ],
@@ -264,10 +276,10 @@ class MoveListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final commonSections = commandData.sections
-        .where((s) => s.sectionType != 'character')
+        .where((s) => s.sectionType != 'other')
         .toList();
     final charSections = commandData.sections
-        .where((s) => s.sectionType == 'character')
+        .where((s) => s.sectionType == 'other')
         .toList();
 
     return Column(
