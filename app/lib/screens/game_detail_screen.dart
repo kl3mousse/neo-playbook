@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/game.dart';
 import '../models/move_list.dart';
 import '../models/dip_settings.dart';
@@ -133,6 +134,8 @@ class GameDetailScreen extends StatelessWidget {
                       _InfoChip(label: game.playersLabel),
                       if (game.hfsdbId != null)
                         _HfsdbChip(hfsdbId: game.hfsdbId!),
+                      if (game.igdbUrl != null && game.igdbUrl!.isNotEmpty)
+                        _IgdbChip(igdbUrl: game.igdbUrl!),
                       if (game.ngmId != null)
                         _NgmChip(ngmId: game.ngmId!),
                     ],
@@ -628,6 +631,55 @@ class _NgmChip extends StatelessWidget {
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+class _IgdbChip extends StatelessWidget {
+  final String igdbUrl;
+  const _IgdbChip({required this.igdbUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => launchUrl(
+        Uri.parse(igdbUrl),
+        mode: LaunchMode.externalApplication,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.textSecondary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              'assets/images/logo-igdb.svg',
+              width: 16,
+              height: 16,
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'IGDB',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
         ),
       ),
     );

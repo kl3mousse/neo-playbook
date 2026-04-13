@@ -43,6 +43,7 @@ dependencies:
   connectivity_plus: ^6.0.0
   phosphor_flutter: ^2.1.0
   url_launcher: ^6.3.2
+  flutter_svg: ^2.2.4
 
 dev_dependencies:
   flutter_test:

@@ -106,6 +106,7 @@ class Game {
   final String platform;
   final int? hfsdbId;
   final int? ngmId;
+  final String? igdbUrl;
   final String title;
   final String? altTitle;
   final int? year;
@@ -125,6 +126,7 @@ class Game {
     required this.platform,
     this.hfsdbId,
     this.ngmId,
+    this.igdbUrl,
     required this.title,
     this.altTitle,
     this.year,
@@ -176,6 +178,7 @@ class Game {
       ngmId: data['platform_specific'] is Map
           ? _parseInt((data['platform_specific'] as Map)['ngm_id'])
           : null,
+      igdbUrl: data['igdb_url'] as String?,
       title: data['title'] as String? ?? '',
       altTitle: data['alt_title'] as String?,
       year: _parseInt(data['year']),
