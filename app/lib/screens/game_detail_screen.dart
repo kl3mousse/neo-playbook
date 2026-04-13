@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/game.dart';
 import '../models/move_list.dart';
 import '../models/dip_settings.dart';
@@ -130,6 +131,8 @@ class GameDetailScreen extends StatelessWidget {
                     children: [
                       ...game.genre.map((g) => _InfoChip(label: g, filled: true)),
                       _InfoChip(label: game.playersLabel),
+                      if (game.hfsdbId != null)
+                        _HfsdbChip(hfsdbId: game.hfsdbId!),
                     ],
                   ),
 
@@ -598,6 +601,51 @@ class _CollectionStatusSection extends StatelessWidget {
 }
 
 // ── Shared Widgets ──────────────────────────────────────────────────────
+
+class _HfsdbChip extends StatelessWidget {
+  final int hfsdbId;
+  const _HfsdbChip({required this.hfsdbId});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => launchUrl(
+        Uri.parse('https://db.hfsplay.fr/games/$hfsdbId'),
+        mode: LaunchMode.externalApplication,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.textSecondary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/logo_hfs.png',
+              width: 16,
+              height: 16,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'HFS',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _InfoChip extends StatelessWidget {
   final String label;
