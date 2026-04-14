@@ -239,24 +239,31 @@ class _SimpleSettingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
         children: [
-          Text(
-            setting.description,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          SizedBox(
+            width: 140,
+            child: Text(
+              setting.description,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w500),
+            ),
           ),
-          const SizedBox(height: 4),
-          Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            children: [
-              for (var i = 0; i < setting.valueDescriptions.length; i++)
-                _ValueChip(
-                  label: setting.valueDescriptions[i],
-                  isDefault: i == setting.defaultValue,
-                ),
-            ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                for (var i = 0; i < setting.valueDescriptions.length; i++)
+                  _ValueChip(
+                    label: setting.valueDescriptions[i],
+                    isDefault: i == setting.defaultValue,
+                  ),
+              ],
+            ),
           ),
         ],
       ),
