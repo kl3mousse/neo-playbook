@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../models/user_profile.dart';
@@ -56,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 16),
               FilledButton(
-                onPressed: () => Navigator.pushNamed(context, '/login'),
+                onPressed: () => context.push('/login'),
                 child: const Text('Sign In'),
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/game.dart';
 import '../models/user_favorite.dart';
 import '../models/fave_move_list.dart';
@@ -6,7 +7,6 @@ import '../services/user_service.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/game_card.dart';
-import 'game_detail_screen.dart';
 import 'character_moves_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -203,13 +203,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                 return GameCard(
                                   game: game,
                                   status: statusByGameId[game.id],
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          GameDetailScreen(game: game),
-                                    ),
-                                  ),
+                                  onTap: () =>
+                                      context.push('/game/${game.id}'),
                                 );
                               },
                               childCount: games.length,

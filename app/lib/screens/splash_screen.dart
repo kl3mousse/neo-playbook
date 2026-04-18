@@ -7,9 +7,11 @@ import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
-  final Widget destination;
+  /// Called once the splash sequence has finished and the app is
+  /// ready to display the main UI.
+  final VoidCallback onReady;
 
-  const SplashScreen({super.key, required this.destination});
+  const SplashScreen({super.key, required this.onReady});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -108,16 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigate() {
     if (_navigated || !mounted) return;
     _navigated = true;
-
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (_, __, ___) => widget.destination,
-        transitionsBuilder: (_, animation, __, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 500),
-      ),
-    );
+    widget.onReady();
   }
 
   @override

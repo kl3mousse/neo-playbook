@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/move_list.dart';
 import '../services/firestore_service.dart';
 import '../widgets/move_list_widget.dart';
-import 'game_detail_screen.dart';
 
 /// Dedicated screen for viewing a single character's move list.
 ///
@@ -51,17 +51,7 @@ class CharacterMovesScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.videogame_asset_outlined),
             tooltip: 'View full game',
-            onPressed: () async {
-              final game = await FirestoreService.getGame(gameId);
-              if (game != null && context.mounted) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => GameDetailScreen(game: game),
-                  ),
-                );
-              }
-            },
+            onPressed: () => context.pushReplacement('/game/$gameId'),
           ),
         ],
       ),

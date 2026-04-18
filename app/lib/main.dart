@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:go_router/go_router.dart';
 import 'firebase_options.dart';
+import 'router.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
@@ -24,16 +26,46 @@ void main() async {
   runApp(const OtakuPlaybookApp());
 }
 
-class OtakuPlaybookApp extends StatelessWidget {
+/// Becomes `true` once the splash sequence completes. The splash is shown
+/// as an overlay above the routed content, so deep-linked routes (e.g.
+/// `/game/<id>`) are preserved across the splash.
+final ValueNotifier<bool> splashFinished = ValueNotifier<bool>(false);
+
+/// Currently selected tab in the main shell. Exposed at the top level so
+/// deep-linked pages (e.g. `/game/<id>`) can render a bottom nav that
+/// jumps to the correct tab when tapped.
+final ValueNotifier<int> selectedTabIndex = ValueNotifier<int>(0);
+
+class OtakuPlaybookApp extends StatefulWidget {
   const OtakuPlaybookApp({super.key});
 
   @override
+  State<OtakuPlaybookApp> createState() => _OtakuPlaybookAppState();
+}
+
+class _OtakuPlaybookAppState extends State<OtakuPlaybookApp> {
+  late final GoRouter _router = buildAppRouter(
+    shellBuilder: (_) => const AppShell(),
+  );
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Otaku Playbook',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const SplashScreen(destination: AppShell()),
+      routerConfig: _router,
+      builder: (context, child) {
+        return ValueListenableBuilder<bool>(
+          valueListenable: splashFinished,
+          builder: (context, done, _) {
+            if (done) return child ?? const SizedBox.shrink();
+            return SplashScreen(
+              onReady: () => splashFinished.value = true,
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -57,7 +89,21 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    selectedTabIndex.addListener(_onTabChanged);
+  }
+
+  @override
+  void dispose() {
+    selectedTabIndex.removeListener(_onTabChanged);
+    super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,18 +119,18 @@ class _MainNavigationState extends State<MainNavigation> {
           isLoggedIn
               ? const ProfileScreen()
               : LoginScreen(
-                  onSkip: () => setState(() => _currentIndex = 0),
+                  onSkip: () => selectedTabIndex.value = 0,
                 ),
         ];
 
         return Scaffold(
           body: IndexedStack(
-            index: _currentIndex,
+            index: selectedTabIndex.value,
             children: screens,
           ),
           bottomNavigationBar: NavigationBar(
-            selectedIndex: _currentIndex,
-            onDestinationSelected: (i) => setState(() => _currentIndex = i),
+            selectedIndex: selectedTabIndex.value,
+            onDestinationSelected: (i) => selectedTabIndex.value = i,
             destinations: const [
               NavigationDestination(
                 icon: Icon(Icons.videogame_asset_outlined),

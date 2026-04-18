@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/game.dart';
 import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
 import '../widgets/game_card.dart';
 import '../widgets/filter_panel.dart';
-import 'game_detail_screen.dart';
 
 /// Display-friendly labels for known platform keys.
 /// Falls back to title-cased key for unknown platforms.
@@ -269,12 +269,8 @@ class _GamesListScreenState extends State<GamesListScreen> {
                                 final game = filteredGames[index];
                                 return GameCard(
                                   game: game,
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => GameDetailScreen(game: game),
-                                    ),
-                                  ),
+                                  onTap: () =>
+                                      context.push('/game/${game.id}'),
                                 );
                               },
                             );

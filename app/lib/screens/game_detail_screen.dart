@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../main.dart' show selectedTabIndex;
 import '../models/game.dart';
 import '../models/move_list.dart';
 import '../models/dip_settings.dart';
@@ -8,6 +12,7 @@ import '../models/community_note.dart';
 import '../models/game_score.dart';
 import '../models/user_favorite.dart';
 import '../models/collection_item.dart';
+import '../router.dart' show canonicalGameUrl;
 import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
@@ -30,6 +35,10 @@ class GameDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLoggedIn = AuthService.isLoggedIn;
     final baseColor = genreColor(game.primaryGenre);
+    // When the detail page was opened via a deep link (cold start with
+    // no back stack), show a bottom nav so users can reach other parts
+    // of the app.
+    final showRootNav = !GoRouter.of(context).canPop();
 
     return Scaffold(
       appBar: AppBar(
@@ -41,6 +50,12 @@ class GameDetailScreen extends StatelessWidget {
           ),
         ),
         actions: [
+          // Share game URL
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            tooltip: 'Share',
+            onPressed: () => _shareGame(context),
+          ),
           if (isLoggedIn) ...[
             // Favorite button
             _FavoriteButton(gameId: game.id),
@@ -230,6 +245,66 @@ class GameDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: showRootNav ? const _DeepLinkBottomNav() : null,
+    );
+  }
+
+  Future<void> _shareGame(BuildContext context) async {
+    final url = canonicalGameUrl(game.id);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await SharePlus.instance.share(
+        ShareParams(text: url, subject: game.title),
+      );
+    } catch (_) {
+      // Fallback: copy to clipboard (e.g. on web where the share API
+      // may be unavailable).
+      await Clipboard.setData(ClipboardData(text: url));
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Link copied to clipboard')),
+      );
+    }
+  }
+}
+
+// ── Deep-link bottom nav ────────────────────────────────────────────────
+
+/// Bottom navigation shown on pages reached via a deep link (no back
+/// stack). Tapping a destination updates [selectedTabIndex] and sends
+/// the user to the main shell.
+class _DeepLinkBottomNav extends StatelessWidget {
+  const _DeepLinkBottomNav();
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationBar(
+      selectedIndex: 0,
+      onDestinationSelected: (i) {
+        selectedTabIndex.value = i;
+        context.go('/');
+      },
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.videogame_asset_outlined),
+          selectedIcon: Icon(Icons.videogame_asset),
+          label: 'Games',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.favorite_outline),
+          selectedIcon: Icon(Icons.favorite),
+          label: 'Favorites',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.collections_bookmark_outlined),
+          selectedIcon: Icon(Icons.collections_bookmark),
+          label: 'Collection',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
     );
   }
 }
