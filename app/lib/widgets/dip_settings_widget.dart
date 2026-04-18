@@ -280,8 +280,6 @@ class _DebugDipsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       initiallyExpanded: false,
@@ -310,48 +308,55 @@ class _DebugDipsSection extends StatelessWidget {
         ],
       ),
       children: [
-        for (final entry in debugDips.entries) ...[
-          Padding(
-            padding: const EdgeInsets.only(top: 4, bottom: 2),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final entry in debugDips.entries) ...[
+                _SectionLabel(label: 'Bank ${entry.key}'),
+                const SizedBox(height: 4),
+                ...entry.value.map((ds) => _DebugSwitchTile(debugSwitch: ds)),
+                const SizedBox(height: 12),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DebugSwitchTile extends StatelessWidget {
+  final DebugSwitch debugSwitch;
+
+  const _DebugSwitchTile({required this.debugSwitch});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Expanded(
             child: Text(
-              'DIP Bank ${entry.key}',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: cs.onSurfaceVariant,
-              ),
+              debugSwitch.effect,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
-          ...entry.value.map((ds) => Padding(
-                padding: const EdgeInsets.only(left: 12, top: 1, bottom: 1),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 28,
-                      child: Text(
-                        '${ds.switchNumber}.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'monospace',
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        ds.effect,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
+          const SizedBox(width: 8),
+          const Wrap(
+            spacing: 6,
+            children: [
+              _ValueChip(label: 'OFF', isDefault: true),
+              _ValueChip(label: 'ON'),
+            ],
+          ),
         ],
-      ],
+      ),
     );
   }
 }
