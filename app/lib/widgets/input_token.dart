@@ -12,6 +12,27 @@ import '../theme/app_theme.dart';
 
 enum InputTokenSize { normal, large }
 
+// Accessibility labels for single-character notation glyphs used by
+// Direction and Charge tokens. Screen readers will announce the token's
+// meaning instead of an unpronounceable symbol.
+const _glyphA11yLabel = <String, String>{
+  '↖': 'up-back',
+  '↑': 'up',
+  '↗': 'up-forward',
+  '←': 'back',
+  '●': 'neutral',
+  '→': 'forward',
+  '↙': 'down-back',
+  '↓': 'down',
+  '↘': 'down-forward',
+  '○': 'release',
+  '✕': 'any',
+  '→→': 'dash forward',
+  '←←': 'dash back',
+};
+
+String _labelForGlyph(String glyph) => _glyphA11yLabel[glyph] ?? glyph;
+
 // ── DirectionToken ──────────────────────────────────────────
 
 class DirectionToken extends StatelessWidget {
@@ -26,30 +47,34 @@ class DirectionToken extends StatelessWidget {
     final dim = size == InputTokenSize.large ? 48.0 : 26.0;
     final iconSize = size == InputTokenSize.large ? 28.0 : 16.0;
     final fontSize = size == InputTokenSize.large ? 24.0 : 14.0;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 1.5),
-      width: dim,
-      height: dim,
-      decoration: BoxDecoration(
-        color: AppColors.tokenBackground,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: AppColors.textSecondary.withValues(alpha: 0.3),
-          width: 0.5,
+    return Semantics(
+      label: _labelForGlyph(glyph),
+      excludeSemantics: true,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 1.5),
+        width: dim,
+        height: dim,
+        decoration: BoxDecoration(
+          color: AppColors.tokenBackground,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+            width: 0.5,
+          ),
         ),
-      ),
-      alignment: Alignment.center,
-      child: icon != null
-          ? Icon(icon, size: iconSize, color: AppColors.textPrimary)
-          : Text(
-              glyph,
-              style: TextStyle(
-                fontSize: fontSize,
-                height: 1,
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w500,
+        alignment: Alignment.center,
+        child: icon != null
+            ? Icon(icon, size: iconSize, color: AppColors.textPrimary)
+            : Text(
+                glyph,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  height: 1,
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+      ),
     );
   }
 }
@@ -68,27 +93,31 @@ class ChargeToken extends StatelessWidget {
     final dim = size == InputTokenSize.large ? 48.0 : 26.0;
     final iconSize = size == InputTokenSize.large ? 28.0 : 16.0;
     final fontSize = size == InputTokenSize.large ? 24.0 : 14.0;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 1.5),
-      width: dim,
-      height: dim,
-      decoration: BoxDecoration(
-        color: AppColors.tokenBackground,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.amber.shade700, width: 2),
-      ),
-      alignment: Alignment.center,
-      child: icon != null
-          ? Icon(icon, size: iconSize, color: AppColors.textPrimary)
-          : Text(
-              glyph,
-              style: TextStyle(
-                fontSize: fontSize,
-                height: 1,
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w500,
+    return Semantics(
+      label: 'charge ${_labelForGlyph(glyph)}',
+      excludeSemantics: true,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 1.5),
+        width: dim,
+        height: dim,
+        decoration: BoxDecoration(
+          color: AppColors.tokenBackground,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.amber.shade700, width: 2),
+        ),
+        alignment: Alignment.center,
+        child: icon != null
+            ? Icon(icon, size: iconSize, color: AppColors.textPrimary)
+            : Text(
+                glyph,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  height: 1,
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+      ),
     );
   }
 }
@@ -110,24 +139,28 @@ class ButtonToken extends StatelessWidget {
     final hPad = isLarge ? 12.0 : 5.0;
     final vPad = isLarge ? 10.0 : 4.0;
     final minH = isLarge ? 48.0 : 26.0;
-    return UnconstrainedBox(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 1.5),
-        constraints: BoxConstraints(minHeight: minH),
-        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: color, width: 1.5),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: fontSize,
-            height: 1,
-            fontWeight: FontWeight.bold,
-            color: color,
+    return Semantics(
+      label: 'button $label',
+      excludeSemantics: true,
+      child: UnconstrainedBox(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 1.5),
+          constraints: BoxConstraints(minHeight: minH),
+          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: color, width: 1.5),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: fontSize,
+              height: 1,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
         ),
       ),

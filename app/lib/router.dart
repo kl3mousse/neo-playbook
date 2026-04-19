@@ -3,8 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'models/game.dart';
 import 'screens/game_detail_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/settings_screen.dart';
 import 'services/firestore_service.dart';
+import 'services/prefs_service.dart';
 import 'theme/app_theme.dart';
+import 'widgets/skeleton.dart';
 
 /// Canonical web origin used when sharing a URL to a game page.
 const String kCanonicalWebOrigin = 'https://combofox.net';
@@ -37,6 +40,10 @@ GoRouter buildAppRouter({required WidgetBuilder shellBuilder}) {
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
         path: '/game/:id',
         builder: (context, state) =>
             _GameRouteLoader(gameId: state.pathParameters['id']!),
@@ -60,7 +67,13 @@ class _GameRouteLoaderState extends State<_GameRouteLoader> {
   @override
   void initState() {
     super.initState();
-    _future = FirestoreService.getGame(widget.gameId);
+    _future = FirestoreService.getGame(widget.gameId).then((game) {
+      if (game != null) {
+        // Fire-and-forget: record this game as recently visited.
+        PrefsService.pushRecentGame(widget.gameId);
+      }
+      return game;
+    });
   }
 
   @override
@@ -71,7 +84,7 @@ class _GameRouteLoaderState extends State<_GameRouteLoader> {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Scaffold(
             backgroundColor: AppColors.background,
-            body: Center(child: CircularProgressIndicator()),
+            body: GameDetailSkeleton(),
           );
         }
         final game = snapshot.data;
@@ -93,9 +106,22 @@ class _GameRouteLoaderState extends State<_GameRouteLoader> {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 16),
-                    FilledButton(
-                      onPressed: () => context.go('/'),
-                      child: const Text('Back to games'),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () => setState(() {
+                            _future = FirestoreService.getGame(widget.gameId);
+                          }),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                        ),
+                        const SizedBox(width: 12),
+                        FilledButton(
+                          onPressed: () => context.go('/'),
+                          child: const Text('Back to games'),
+                        ),
+                      ],
                     ),
                   ],
                 ),

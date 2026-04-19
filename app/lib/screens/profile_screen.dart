@@ -81,6 +81,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'Profile',
           style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

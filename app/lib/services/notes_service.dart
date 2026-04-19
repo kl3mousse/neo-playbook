@@ -13,10 +13,16 @@ class NotesService {
       _namedDb.collection('community_notes');
 
   /// Stream notes for a game, ordered by upvotes descending.
-  static Stream<List<CommunityNote>> notesForGameStream(String gameId) {
+  /// [limit] caps the number of notes returned; pass a larger value to
+  /// "load more". Defaults to 20.
+  static Stream<List<CommunityNote>> notesForGameStream(
+    String gameId, {
+    int limit = 20,
+  }) {
     return _notesRef
         .where('game_id', isEqualTo: gameId)
         .orderBy('upvotes', descending: true)
+        .limit(limit)
         .snapshots()
         .map((snap) =>
             snap.docs.map((d) => CommunityNote.fromFirestore(d)).toList());

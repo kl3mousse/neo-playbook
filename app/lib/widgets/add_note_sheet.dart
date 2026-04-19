@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/community_note.dart';
 import '../services/notes_service.dart';
+import '../services/prefs_service.dart';
 
 class AddNoteSheet extends StatefulWidget {
   final String gameId;
@@ -19,6 +20,18 @@ class _AddNoteSheetState extends State<AddNoteSheet> {
     final text = _textController.text.trim();
     if (text.length < 3) return;
 
+    final remaining = PrefsService.noteCooldownRemaining();
+    if (remaining > Duration.zero) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please wait ${remaining.inSeconds}s before posting again',
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() => _submitting = true);
     try {
       await NotesService.addNote(
@@ -26,6 +39,7 @@ class _AddNoteSheetState extends State<AddNoteSheet> {
         category: _category,
         text: text,
       );
+      await PrefsService.markNoteSubmitted();
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {

@@ -3,6 +3,7 @@ import '../models/collection_item.dart';
 import '../services/user_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/add_to_collection_sheet.dart';
+import '../widgets/sign_in_prompt.dart';
 
 class CollectionScreen extends StatelessWidget {
   const CollectionScreen({super.key});
@@ -17,15 +18,9 @@ class CollectionScreen extends StatelessWidget {
             style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
           ),
         ),
-        body: const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.collections_bookmark_outlined, size: 64),
-              SizedBox(height: 16),
-              Text('Sign in to manage your collection'),
-            ],
-          ),
+        body: const SignInPrompt(
+          icon: Icons.collections_bookmark_outlined,
+          message: 'Sign in to manage your collection',
         ),
       );
     }
@@ -126,6 +121,7 @@ class CollectionScreen extends StatelessWidget {
                         ...platformItems.map((item) => _CollectionTile(
                               item: item,
                               onDelete: () async {
+                                final scheme = Theme.of(context).colorScheme;
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder: (ctx) => AlertDialog(
@@ -139,6 +135,10 @@ class CollectionScreen extends StatelessWidget {
                                         child: const Text('Cancel'),
                                       ),
                                       FilledButton(
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: scheme.error,
+                                          foregroundColor: scheme.onError,
+                                        ),
                                         onPressed: () =>
                                             Navigator.pop(ctx, true),
                                         child: const Text('Remove'),

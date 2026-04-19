@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/game.dart';
 import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
+import '../services/prefs_service.dart';
 import '../widgets/game_card.dart';
 import '../widgets/filter_panel.dart';
 
@@ -42,6 +45,10 @@ class _GamesListScreenState extends State<GamesListScreen> {
   bool _showFilters = false;
   final _searchFocus = FocusNode();
   bool _searchFocused = false;
+  // Bumped to force the StreamBuilder to re-subscribe after an error.
+  int _streamAttempt = 0;
+  // Latest games snapshot, used by the Shuffle action in the app bar.
+  List<Game> _lastGames = const [];
 
   @override
   void initState() {
@@ -49,7 +56,38 @@ class _GamesListScreenState extends State<GamesListScreen> {
     _searchFocus.addListener(() {
       setState(() => _searchFocused = _searchFocus.hasFocus);
     });
+    _hydrateFromPrefs();
   }
+
+  void _hydrateFromPrefs() {
+    _selectedPlatform = PrefsService.getPlatform();
+    final sortName = PrefsService.getSortOption();
+    if (sortName != null) {
+      _sortOption = SortOption.values.firstWhere(
+        (o) => o.name == sortName,
+        orElse: () => SortOption.title,
+      );
+    }
+    _sortAscending = PrefsService.getSortAscending();
+    final yearStart = PrefsService.getFilterYearStart();
+    final yearEnd = PrefsService.getFilterYearEnd();
+    _filters = GameFilters(
+      genre: PrefsService.getFilterGenre(),
+      publisher: PrefsService.getFilterPublisher(),
+      playerCount: PrefsService.getFilterPlayers(),
+      yearRange: (yearStart != null && yearEnd != null)
+          ? RangeValues(yearStart.toDouble(), yearEnd.toDouble())
+          : null,
+    );
+  }
+
+  Future<void> _persistFilters(GameFilters f) => PrefsService.setFilters(
+        genre: f.genre,
+        publisher: f.publisher,
+        players: f.playerCount,
+        yearStart: f.yearRange?.start.round(),
+        yearEnd: f.yearRange?.end.round(),
+      );
 
   @override
   void dispose() {
@@ -74,6 +112,12 @@ class _GamesListScreenState extends State<GamesListScreen> {
     return sorted;
   }
 
+  void _shuffle() {
+    if (_lastGames.isEmpty) return;
+    final game = _lastGames[Random().nextInt(_lastGames.length)];
+    context.push('/game/${game.id}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,21 +129,34 @@ class _GamesListScreenState extends State<GamesListScreen> {
             fontWeight: FontWeight.w800,
           ),
         ),
-
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shuffle),
+            tooltip: 'Pick a random game',
+            onPressed: _lastGames.isEmpty ? null : _shuffle,
+          ),
+        ],
       ),
       body: StreamBuilder<List<Game>>(
+        key: ValueKey(_streamAttempt),
         stream: _searchQuery.isEmpty
             ? FirestoreService.gamesStream()
             : FirestoreService.searchGames(_searchQuery),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return _ErrorRetry(
+              error: snapshot.error,
+              onRetry: () => setState(() => _streamAttempt++),
+            );
           }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
           final allGames = snapshot.data ?? [];
+          // Keep a reference so the Shuffle action in the app bar has
+          // something to pick from after the first successful load.
+          _lastGames = allGames;
 
           // Derive available platforms from data
           final availablePlatforms = allGames
@@ -148,6 +205,8 @@ class _GamesListScreenState extends State<GamesListScreen> {
                                       _selectedPlatform = p;
                                       _filters = GameFilters.empty();
                                     });
+                                    PrefsService.setPlatform(p);
+                                    _persistFilters(GameFilters.empty());
                                   },
                                 ),
                               ))
@@ -209,14 +268,20 @@ class _GamesListScreenState extends State<GamesListScreen> {
                       FilterPanel(
                         allGames: platformGames,
                         filters: _filters,
-                        onFiltersChanged: (f) =>
-                            setState(() => _filters = f),
+                        onFiltersChanged: (f) {
+                          setState(() => _filters = f);
+                          _persistFilters(f);
+                        },
                         sortOption: _sortOption,
                         sortAscending: _sortAscending,
-                        onSortChanged: (s) =>
-                            setState(() => _sortOption = s),
-                        onSortDirectionToggled: () =>
-                            setState(() => _sortAscending = !_sortAscending),
+                        onSortChanged: (s) {
+                          setState(() => _sortOption = s);
+                          PrefsService.setSortOption(s.name);
+                        },
+                        onSortDirectionToggled: () {
+                          setState(() => _sortAscending = !_sortAscending);
+                          PrefsService.setSortAscending(_sortAscending);
+                        },
                       ),
 
                     // Result count
@@ -225,13 +290,18 @@ class _GamesListScreenState extends State<GamesListScreen> {
                       child: Row(
                         children: [
                           Text(
-                            '${filteredGames.length} game${filteredGames.length == 1 ? '' : 's'}',
+                            filteredGames.length == platformGames.length
+                                ? '${filteredGames.length} game${filteredGames.length == 1 ? '' : 's'}'
+                                : '${filteredGames.length} of ${platformGames.length} games',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           if (_filters.hasActiveFilters)
                             TextButton(
-                              onPressed: () => setState(
-                                  () => _filters = GameFilters.empty()),
+                              onPressed: () {
+                                setState(
+                                    () => _filters = GameFilters.empty());
+                                _persistFilters(GameFilters.empty());
+                              },
                               child: const Text('Clear filters',
                                   style: TextStyle(fontSize: 12)),
                             ),
@@ -255,24 +325,35 @@ class _GamesListScreenState extends State<GamesListScreen> {
                                     : constraints.maxWidth > 600
                                         ? 3
                                         : 2;
-                            return GridView.builder(
-                              padding: const EdgeInsets.all(12),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                childAspectRatio: 1.1,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                              ),
-                              itemCount: filteredGames.length,
-                              itemBuilder: (context, index) {
-                                final game = filteredGames[index];
-                                return GameCard(
-                                  game: game,
-                                  onTap: () =>
-                                      context.push('/game/${game.id}'),
-                                );
+                            return RefreshIndicator(
+                              onRefresh: () async {
+                                setState(() => _streamAttempt++);
+                                // Give the new stream a moment to emit
+                                // before dismissing the indicator.
+                                await Future<void>.delayed(
+                                    const Duration(milliseconds: 350));
                               },
+                              child: GridView.builder(
+                                padding: const EdgeInsets.all(12),
+                                physics:
+                                    const AlwaysScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount,
+                                  childAspectRatio: 1.1,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                ),
+                                itemCount: filteredGames.length,
+                                itemBuilder: (context, index) {
+                                  final game = filteredGames[index];
+                                  return GameCard(
+                                    game: game,
+                                    onTap: () =>
+                                        context.push('/game/${game.id}'),
+                                  );
+                                },
+                              ),
                             );
                           },
                         ),
@@ -283,6 +364,77 @@ class _GamesListScreenState extends State<GamesListScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Friendly error state with a Retry action. Hides the raw error behind
+/// a disclosure so the default view stays calm.
+class _ErrorRetry extends StatelessWidget {
+  final Object? error;
+  final VoidCallback onRetry;
+
+  const _ErrorRetry({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_off, size: 48, color: scheme.error),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Couldn't load games",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Check your connection and try again.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                  if (error != null) ...[
+                    const SizedBox(height: 12),
+                    ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      childrenPadding:
+                          const EdgeInsets.only(bottom: 8, top: 4),
+                      title: Text(
+                        'Details',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      children: [
+                        SelectableText(
+                          '$error',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

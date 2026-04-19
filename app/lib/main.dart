@@ -13,11 +13,14 @@ import 'screens/favorites_screen.dart';
 import 'screens/collection_screen.dart';
 import 'screens/profile_screen.dart';
 import 'services/auth_service.dart';
+import 'services/prefs_service.dart';
+import 'widgets/offline_banner.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await PrefsService.init();
 
   // Enable Firestore offline persistence
   FirebaseFirestore.instance.settings =
@@ -124,13 +127,24 @@ class _MainNavigationState extends State<MainNavigation> {
         ];
 
         return Scaffold(
-          body: IndexedStack(
-            index: selectedTabIndex.value,
-            children: screens,
+          body: Column(
+            children: [
+              const OfflineBanner(),
+              Expanded(
+                child: IndexedStack(
+                  index: selectedTabIndex.value,
+                  children: screens,
+                ),
+              ),
+            ],
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: selectedTabIndex.value,
             onDestinationSelected: (i) => selectedTabIndex.value = i,
+            labelBehavior:
+                MediaQuery.sizeOf(context).width >= 600
+                    ? NavigationDestinationLabelBehavior.alwaysShow
+                    : NavigationDestinationLabelBehavior.onlyShowSelected,
             destinations: const [
               NavigationDestination(
                 icon: Icon(Icons.videogame_asset_outlined),

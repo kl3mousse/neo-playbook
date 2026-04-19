@@ -15,12 +15,16 @@ class ScoresService {
   static CollectionReference<Map<String, dynamic>> get _scoresRef =>
       _namedDb.collection('scores');
 
-  /// Stream scores for a game, ordered by score descending, limit 50.
-  static Stream<List<GameScore>> scoresForGameStream(String gameId) {
+  /// Stream scores for a game, ordered by score descending.
+  /// [limit] caps the result so leaderboards can paginate. Defaults to 20.
+  static Stream<List<GameScore>> scoresForGameStream(
+    String gameId, {
+    int limit = 20,
+  }) {
     return _scoresRef
         .where('game_id', isEqualTo: gameId)
         .orderBy('score', descending: true)
-        .limit(50)
+        .limit(limit)
         .snapshots()
         .map((snap) =>
             snap.docs.map((d) => GameScore.fromFirestore(d)).toList());

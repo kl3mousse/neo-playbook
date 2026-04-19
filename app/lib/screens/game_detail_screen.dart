@@ -14,6 +14,7 @@ import '../models/user_favorite.dart';
 import '../models/collection_item.dart';
 import '../router.dart' show canonicalGameUrl;
 import '../theme/app_theme.dart';
+import '../theme/platform_palette.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
@@ -35,6 +36,7 @@ class GameDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLoggedIn = AuthService.isLoggedIn;
     final baseColor = genreColor(game.primaryGenre);
+    final palette = platformPalette(game.platform);
     // When the detail page was opened via a deep link (cold start with
     // no back stack), show a bottom nav so users can reach other parts
     // of the app.
@@ -79,60 +81,11 @@ class GameDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Genre-colored header
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    baseColor.withValues(alpha: 0.8),
-                    AppColors.surface,
-                  ],
-                ),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    game.title,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 28,
-                      fontFamily: 'Doto',
-                      fontWeight: FontWeight.w800,
-                      height: 1.1,
-                      shadows: [
-                        Shadow(blurRadius: 8, color: Colors.black87),
-                      ],
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (game.altTitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      game.altTitle!,
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 14,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-                  Text(
-                    [game.yearLabel, game.publisher ?? ''].where((s) => s.isNotEmpty).join(' • '),
-                    style: TextStyle(
-                      color: AppColors.textPrimary.withValues(alpha: 0.8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+            // Platform-accented typographic hero header.
+            _HeroHeader(
+              game: game,
+              palette: palette,
+              genreAccent: baseColor,
             ),
 
             Padding(
@@ -375,9 +328,17 @@ class _FavoriteButton extends StatelessWidget {
 
 // ── Community Notes Section ─────────────────────────────────────────────
 
-class _CommunityNotesSection extends StatelessWidget {
+class _CommunityNotesSection extends StatefulWidget {
   final String gameId;
   const _CommunityNotesSection({required this.gameId});
+
+  @override
+  State<_CommunityNotesSection> createState() => _CommunityNotesSectionState();
+}
+
+class _CommunityNotesSectionState extends State<_CommunityNotesSection> {
+  static const _pageSize = 20;
+  int _limit = _pageSize;
 
   @override
   Widget build(BuildContext context) {
@@ -402,7 +363,7 @@ class _CommunityNotesSection extends StatelessWidget {
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  builder: (_) => AddNoteSheet(gameId: gameId),
+                  builder: (_) => AddNoteSheet(gameId: widget.gameId),
                 );
               },
               icon: const Icon(Icons.add, size: 18),
@@ -412,7 +373,10 @@ class _CommunityNotesSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         StreamBuilder<List<CommunityNote>>(
-          stream: NotesService.notesForGameStream(gameId),
+          stream: NotesService.notesForGameStream(
+            widget.gameId,
+            limit: _limit,
+          ),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
@@ -425,8 +389,21 @@ class _CommunityNotesSection extends StatelessWidget {
                     style: TextStyle(fontStyle: FontStyle.italic)),
               );
             }
+            final canLoadMore = notes.length >= _limit;
             return Column(
-              children: notes.map((note) => _NoteCard(note: note)).toList(),
+              children: [
+                ...notes.map((note) => _NoteCard(note: note)),
+                if (canLoadMore)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: TextButton.icon(
+                      onPressed: () =>
+                          setState(() => _limit += _pageSize),
+                      icon: const Icon(Icons.expand_more, size: 18),
+                      label: const Text('Load more'),
+                    ),
+                  ),
+              ],
             );
           },
         ),
@@ -488,9 +465,17 @@ class _NoteCard extends StatelessWidget {
 
 // ── Leaderboard Section ─────────────────────────────────────────────────
 
-class _LeaderboardSection extends StatelessWidget {
+class _LeaderboardSection extends StatefulWidget {
   final String gameId;
   const _LeaderboardSection({required this.gameId});
+
+  @override
+  State<_LeaderboardSection> createState() => _LeaderboardSectionState();
+}
+
+class _LeaderboardSectionState extends State<_LeaderboardSection> {
+  static const _pageSize = 20;
+  int _limit = _pageSize;
 
   @override
   Widget build(BuildContext context) {
@@ -515,7 +500,7 @@ class _LeaderboardSection extends StatelessWidget {
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  builder: (_) => SubmitScoreSheet(gameId: gameId),
+                  builder: (_) => SubmitScoreSheet(gameId: widget.gameId),
                 );
               },
               icon: const Icon(Icons.add, size: 18),
@@ -525,7 +510,10 @@ class _LeaderboardSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         StreamBuilder<List<GameScore>>(
-          stream: ScoresService.scoresForGameStream(gameId),
+          stream: ScoresService.scoresForGameStream(
+            widget.gameId,
+            limit: _limit,
+          ),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
@@ -538,10 +526,21 @@ class _LeaderboardSection extends StatelessWidget {
                     style: TextStyle(fontStyle: FontStyle.italic)),
               );
             }
+            final canLoadMore = scores.length >= _limit;
             return Column(
               children: [
                 for (int i = 0; i < scores.length; i++)
                   _ScoreTile(rank: i + 1, score: scores[i]),
+                if (canLoadMore)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: TextButton.icon(
+                      onPressed: () =>
+                          setState(() => _limit += _pageSize),
+                      icon: const Icon(Icons.expand_more, size: 18),
+                      label: const Text('Load more'),
+                    ),
+                  ),
               ],
             );
           },
@@ -594,15 +593,67 @@ class _ScoreTile extends StatelessWidget {
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(ctx),
               ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.share_outlined),
+                  tooltip: 'Share proof link',
+                  onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(ctx);
+                    try {
+                      await SharePlus.instance.share(
+                        ShareParams(
+                          text: score.proofUrl,
+                          subject: 'Score proof',
+                        ),
+                      );
+                    } catch (_) {
+                      await Clipboard.setData(
+                          ClipboardData(text: score.proofUrl));
+                      messenger.showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Proof link copied to clipboard')),
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
-            Image.network(
-              score.proofUrl,
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) =>
-                  const Padding(
+            GestureDetector(
+              onLongPress: () async {
+                await Clipboard.setData(
+                    ClipboardData(text: score.proofUrl));
+                if (!ctx.mounted) return;
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(
+                      content: Text('Proof link copied to clipboard')),
+                );
+              },
+              child: InteractiveViewer(
+                maxScale: 4,
+                child: Image.network(
+                  score.proofUrl,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return Padding(
+                      padding: const EdgeInsets.all(48),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: progress.expectedTotalBytes != null
+                              ? progress.cumulativeBytesLoaded /
+                                  progress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (_, _, _) => const Padding(
                     padding: EdgeInsets.all(32),
-                    child: Text('Could not load proof image'),
+                    child: Text("Couldn't load proof image"),
                   ),
+                ),
+              ),
             ),
           ],
         ),
@@ -907,6 +958,130 @@ class _DipSettingsLoader extends StatelessWidget {
 
         return DipSettingsView(dipData: dipData);
       },
+    );
+  }
+}
+
+// ── Hero Header ─────────────────────────────────────────────────────────
+
+/// Platform-accented typographic banner rendered at the top of the game
+/// detail screen. Replaces the previous genre-coloured splash and stays
+/// text-only (no game imagery, by design).
+class _HeroHeader extends StatelessWidget {
+  final Game game;
+  final PlatformPalette palette;
+  final Color genreAccent;
+
+  const _HeroHeader({
+    required this.game,
+    required this.palette,
+    required this.genreAccent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            palette.start,
+            Color.lerp(palette.end, AppColors.surface, 0.4)!,
+          ],
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Platform badge + genre accent dot.
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.32),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    width: 0.8,
+                  ),
+                ),
+                child: Text(
+                  palette.label,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: genreAccent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                game.yearLabel,
+                style: TextStyle(
+                  color: AppColors.textPrimary.withValues(alpha: 0.85),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            game.title,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 30,
+              fontFamily: 'Doto',
+              fontWeight: FontWeight.w800,
+              height: 1.05,
+              letterSpacing: -0.3,
+              shadows: [
+                Shadow(blurRadius: 10, color: Colors.black87),
+              ],
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (game.altTitle != null && game.altTitle!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              game.altTitle!,
+              style: TextStyle(
+                color: AppColors.textPrimary.withValues(alpha: 0.72),
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+          if (game.publisher != null && game.publisher!.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              game.publisher!.toUpperCase(),
+              style: TextStyle(
+                color: AppColors.textPrimary.withValues(alpha: 0.85),
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.4,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import '../services/user_service.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/game_card.dart';
+import '../widgets/sign_in_prompt.dart';
 import 'character_moves_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -29,15 +30,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
           ),
         ),
-        body: const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.favorite_border, size: 64),
-              SizedBox(height: 16),
-              Text('Sign in to track your favorite games'),
-            ],
-          ),
+        body: const SignInPrompt(
+          icon: Icons.favorite_border,
+          message: 'Sign in to track your favorite games',
         ),
       );
     }

@@ -91,8 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         border: OutlineInputBorder(),
                       ),
                       textCapitalization: TextCapitalization.words,
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      validator: (v) {
+                        final s = v?.trim() ?? '';
+                        if (s.isEmpty) return 'Required';
+                        if (s.length < 2) return 'Min 2 characters';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                   ],
@@ -123,7 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 16),
-                    Text(_error!, style: const TextStyle(color: Colors.red)),
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                   ],
                   const SizedBox(height: 24),
                   SizedBox(
