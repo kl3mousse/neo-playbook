@@ -1,169 +1,104 @@
-# neo-playbook
-an opensource python program that scraps pictures &amp; texts on the web, to create a PDF that lists all known Neo Geo games.
+# ComboFox
 
-As a kid, I've always spent so much time reading magazines about videogames. I wanted here to recreate that experience for the arcade games I'm playing, starting with NeoGeo games. We have a habit at home with my kids, we only change games once a month, unplug the Jammas or MVS carts and pick new ones once. 
-I wanted a little book showing all NeoGeo games, so that we can have a look in advance and pick our favorite on Day 1.
+A mobile and web app for arcade fighting-game fans to browse game catalogs and view move lists — starting with Neo Geo and CPS2 classics.
 
-# current status
+## Prerequisites
 
-in development. Prototype looks good enough to be shared publicly, have a look at the alpha version in the github releases. Contributions welcome (create an issue to raise the hand).
-Done
-- all games from NeoGeo era (~90's) are there
-- visuals & texts OK
-- moves lists from MAME command.dat integrated (still lots to do to get it nicely loaded)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (stable channel)
+- [Firebase CLI](https://firebase.google.com/docs/cli)
+- [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/) (`dart pub global activate flutterfire_cli`)
+- [Node.js 20](https://nodejs.org/) (for Cloud Functions)
 
-To Do list: now moved to Github issues for better tracking!
-
-# prerequisites
-
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
-- a `secrets.json` file (copy `secrets_sample.json` and fill in your API keys)
-- (optional) Firebase CLI — for deploying security rules
-- (optional) Flutter SDK — for the admin app
-
-# setup
+## Setup
 
 ```bash
-# install uv (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
+# Install Flutter dependencies
+flutter pub get
 
-# install dependencies
-uv sync
-
-# copy secrets template and fill in your API keys
-cp secrets_sample.json secrets.json
-```
-
-### Firebase setup (optional — for sync command)
-
-```bash
-# install firebase-admin extra
-uv sync --extra firebase
-
-# copy the service account key template
-cp firebase-service-account-sample.json firebase-service-account.json
-# then fill it with your real key from:
-#   Firebase console → Project settings → Service accounts → Generate new private key
-```
-
-### Flutter setup (optional — for admin app)
-
-```bash
-cd app
-
-# generate Firebase config (requires flutterfire CLI)
+# Generate Firebase config (creates lib/firebase_options.dart)
+# Use firebase_options_sample.dart as a reference for the expected shape.
 flutterfire configure
 
-# install dependencies
-flutter pub get
+# Install Cloud Functions dependencies
+cd functions && npm install && cd ..
 ```
 
-# run
-
-Both commands are run via `python -m neo_playbook`:
+## Run
 
 ```bash
-# Step 1: Fetch remote data (HFSdb API, images, soft DIPs, command blocks)
-uv run python -m neo_playbook fetch
+# Web
+flutter run -d chrome
 
-# Step 2: Generate the PDF from the enriched data
-uv run python -m neo_playbook render
-
-# Step 3 (optional): Sync games & images to Firebase
-uv run python -m neo_playbook sync          # skip already-synced games
-uv run python -m neo_playbook sync --force  # re-upload everything
+# iOS / Android (with a connected device or emulator)
+flutter run
 ```
 
-**fetch** connects to the [HFSdb API](https://db.hfsplay.fr) (requires a token in `secrets.json`), downloads images, extracts Neo Geo soft DIP settings from ROM files, and generates command-list PNGs from MAME's `command.dat`. It is idempotent — already-populated entries are skipped unless you pass `--force`.
+## Build & Deploy
 
-**render** reads the enriched data and local images and produces an A4 PDF in `output/pdf/`. No network calls.
+```bash
+# Build the web app
+flutter build web --release
 
-**sync** pushes game data to Firestore and uploads cached images to Firebase Storage. Requires `firebase-service-account.json` (see setup above). Skips games already in Firestore unless `--force` is passed.
+# Deploy everything (hosting + Firestore rules + Storage rules + Functions)
+firebase deploy
 
-# project structure
+# Or deploy selectively
+firebase deploy --only hosting
+firebase deploy --only functions
+firebase deploy --only firestore
+firebase deploy --only storage
+```
+
+## Project Structure
 
 ```
-neo-geo-game-mag/
-├── src/neo_playbook/        # Python package
-│   ├── __main__.py          # entry point (fetch / render)
-│   ├── paths.py             # all path constants in one place
-│   ├── fetch.py             # data enrichment pipeline
-│   ├── render.py            # PDF generation
-│   ├── dips.py              # Neo Geo soft-DIP ROM parser
-│   ├── get_image.py         # image downloader with cache
-│   ├── hfsdb.py             # HFSdb API client
-│   ├── img_tools.py         # PIL image transforms
-│   └── mame_commands.py     # MAME command.dat → PNG
-├── data/                    # all local data sources
-│   ├── games.json           # ★ source of truth — edit this to add/modify games
-│   ├── dips.yaml            # cached soft-DIP settings (auto-generated)
-│   ├── debug_dips.yaml      # cached debug-DIP settings (auto-generated)
-│   ├── command-dat/         # MAME command.dat file
-│   └── rom/                 # Neo Geo ROM zips (for soft-DIP extraction)
-├── assets/                  # static assets for the PDF
+combofox/
+├── lib/                     # Dart source (screens, models, services, widgets, theme)
+├── android/                 # Android shell
+├── ios/                     # iOS shell
+├── web/                     # Web shell
+├── test/                    # Flutter tests
+├── assets/                  # Images, fonts
 │   ├── fonts/
-│   ├── images/              # cover, margins, icons, etc.
-│   │   └── icons/           # type / genre / platform icons
-│   └── templates/           # HTML templates (credits page)
-├── output/                  # generated files (git-ignored)
-│   ├── cache/               # downloaded images & generated PNGs
-│   └── pdf/                 # final PDF output
-├── pyproject.toml
-├── secrets.json             # API keys (git-ignored, see secrets_sample.json)
-├── firebase-service-account.json  # Firebase key (git-ignored, see *-sample.json)
-├── firebase.json            # Firebase project config
+│   └── images/
+├── functions/               # Firebase Cloud Functions (TypeScript, Node 20)
+│   ├── src/index.ts
+│   ├── package.json
+│   └── tsconfig.json
+├── pubspec.yaml             # Flutter dependencies
+├── analysis_options.yaml    # Dart linter rules
+├── firebase.json            # Firebase project config (hosting, firestore, storage, functions)
+├── .firebaserc              # Firebase project alias
 ├── firestore.rules          # Firestore security rules
 ├── storage.rules            # Storage security rules
-├── app/                     # Flutter admin app (see app/README.md)
-│   └── lib/
-│       ├── main.dart
-│       ├── models/game.dart
-│       ├── services/        # auth, firestore, storage
-│       ├── screens/         # login, games list, game detail
-│       └── widgets/         # game card
+├── old/                     # Archived: original Python PDF generator (historical)
+├── LICENSE
 └── README.md
 ```
 
-# where to edit data
+## Firebase Config
 
-### Adding or modifying games
-
-Edit **`data/games.json`** (git-ignored — see `data/sample_games.json` for the schema). Each game entry looks like this:
-
-| Field | What it does | Filled by |
+| File | Purpose | Git-tracked? |
 |---|---|---|
-| `page_type` | `"game"`, `"cover_1"`, `"credits"`, or `"blank"` | you |
-| `hfsdb_id` | HFSdb game ID — used by `fetch` to pull description & images | you |
-| `title` / `alt_title` | Game name (English / Japanese) | you |
-| `year` / `publisher` | Year of release and publisher | you |
-| `type` | `Licenced`, `Homebrew`, `Unreleased`, `Bootleg`, `Hack`, `Port`, etc. | you |
-| `genre` | `Combat`, `Shoot them up`, `Sport`, `Puzzle-Game`, etc. | you |
-| `description` | Game description text | auto (fetch) or manual override |
-| `images` | URLs + local paths for wallpaper, cover3d, screenshots, etc. | auto (fetch) |
-| `roms` | ROM versions (name, description, serial). Used for soft-DIP extraction | you |
-| `platform_specific.megs` | Cart size in MEGs | you |
-| `platform_specific.ngm_id` | NGM catalogue number | you |
-| `background_vshift` | Vertical offset for the background image crop (tweak visually) | you |
-| `invert_screenshots` | Swap main and alt screenshots | you |
-| `softdips_image` | Path to generated soft-DIP settings PNG | auto (fetch) |
-| `command_blocks` | List of generated command-block PNG paths | auto (fetch) |
+| `firebase.json` | Project-wide Firebase config | Yes |
+| `.firebaserc` | Project alias (`otaku-playbook`) | Yes |
+| `firestore.rules` | Firestore security rules | Yes |
+| `storage.rules` | Storage security rules | Yes |
+| `lib/firebase_options.dart` | FlutterFire auto-generated config | **No** — run `flutterfire configure` |
+| `android/app/google-services.json` | Android Firebase config | **No** — run `flutterfire configure` |
+| `ios/Runner/GoogleService-Info.plist` | iOS Firebase config | **No** — run `flutterfire configure` |
 
-Fields marked **auto (fetch)** are populated by `uv run python -m neo_playbook fetch`. You only need to set the initial fields (title, hfsdb_id, roms, etc.) and run fetch to fill in the rest.
+> **Note:** The Android `applicationId` and iOS bundle identifier still read
+> `com.otakuplaybook.otaku_playbook` to preserve the existing Firebase app
+> registrations and Play Store identity. A future migration PR will rename
+> them alongside a Firebase re-registration.
 
-### Other data sources
+## Legacy
 
-- **`data/command-dat/command.dat`** — MAME's command.dat file. Replace it with a newer version to get updated move lists.
-- **`data/rom/`** — place Neo Geo ROM zips here (e.g. `samsho.zip`). Used to extract soft-DIP settings. Only the `.p1` program ROM inside the zip is read.
-- **`data/dips.yaml`** / **`data/debug_dips.yaml`** — auto-generated caches of extracted DIP settings. Delete them to force re-extraction on the next `fetch` run.
+The `old/` directory contains the original Python scripts that scraped web data
+and generated a PDF magazine of Neo Geo games. It is kept for historical
+reference. See [`old/README.md`](old/README.md).
 
-### Visual assets
+## License
 
-- **`assets/images/`** — margin borders, cover title, MEGs icon, credits background, etc.
-- **`assets/images/icons/`** — game type, genre, and platform icons shown in the sidebar.
-- **`assets/fonts/`** — TTF fonts used in the PDF and in generated PNGs.
-- **`assets/templates/credits.html`** — HTML template for the credits page.
-
-# example of output
-
-![neo playbook sample image](https://github.com/kl3mousse/neo-geo-game-mag/blob/main/img/neo-playbook-proto.png)
+[MIT](LICENSE)

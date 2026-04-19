@@ -1,169 +1,53 @@
-# Custom ignores
+# ===========================
+# ComboFox — root .gitignore
+# ===========================
 
-output/
+# ----- Secrets / local config -----
 secrets.json
 firebase-service-account.json
-*.pkl
-*.pptx
-old/
+lib/firebase_options.dart
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 
-# Data files (strategic — use sample_games.json for schema reference)
-data/games.json
-data/dips.yaml
-data/debug_dips.yaml
-
-# Firebase
+# ----- Firebase -----
 .firebase/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
-# Flutter app
-app/.dart_tool/
-app/.packages
-app/build/
-app/.flutter-plugins
-app/.flutter-plugins-dependencies
-app/android/app/google-services.json
-app/ios/Runner/GoogleService-Info.plist
-app/lib/firebase_options.dart
-app/pubspec.lock
-app/**/*.g.dart
-
-#########################
-# PYTHON STANDARD IGNORES
-#########################
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
+# ----- Flutter / Dart -----
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
 build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+*.g.dart
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# Symbolication & obfuscation
+app.*.symbols
+app.*.map.json
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Android Studio build artifacts
+/android/app/debug
+/android/app/profile
+/android/app/release
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
+# ----- Firebase Functions -----
+functions/node_modules/
+functions/lib/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
+# ----- IDE / OS -----
+.idea/
+*.iml
+.vscode/
+.DS_Store
+*.swp
 *.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
 
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-~$games.xlsx
-
-rom/
-old/
-.venv/
+# ----- Archived Python tree -----
+# old/ is tracked as a historical archive; ignore only its caches
+old/**/__pycache__/
+old/output/
