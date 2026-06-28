@@ -112,7 +112,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
             const SizedBox(height: 16),
             // Platform
             DropdownButtonFormField<String>(
-              value: _platform,
+              initialValue: _platform,
               decoration: const InputDecoration(
                 labelText: 'Platform',
                 border: OutlineInputBorder(),
@@ -128,7 +128,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
             const SizedBox(height: 12),
             // Format
             DropdownButtonFormField<ItemFormat>(
-              value: _format,
+              initialValue: _format,
               decoration: const InputDecoration(
                 labelText: 'Format',
                 border: OutlineInputBorder(),
@@ -144,7 +144,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
             const SizedBox(height: 12),
             // Condition
             DropdownButtonFormField<ItemCondition>(
-              value: _condition,
+              initialValue: _condition,
               decoration: const InputDecoration(
                 labelText: 'Condition',
                 border: OutlineInputBorder(),
@@ -160,7 +160,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
             const SizedBox(height: 12),
             // Region
             DropdownButtonFormField<String>(
-              value: _region,
+              initialValue: _region,
               decoration: const InputDecoration(
                 labelText: 'Region',
                 border: OutlineInputBorder(),
@@ -191,7 +191,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _currency,
+                    initialValue: _currency,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),

@@ -124,7 +124,7 @@ class _SubmitScoreSheetState extends State<SubmitScoreSheet> {
             const SizedBox(height: 12),
             // Platform picker
             DropdownButtonFormField<String>(
-              value: _platform,
+              initialValue: _platform,
               decoration: const InputDecoration(
                 labelText: 'Platform',
                 border: OutlineInputBorder(),
