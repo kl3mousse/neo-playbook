@@ -77,5 +77,20 @@ service cloud.firestore {
       // Only admin can verify (update verified_at)
       allow update: if isAdmin();
     }
+
+    // User feedback from in-app form: authenticated users can create.
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Account deletion requests initiated in-app.
+    match /account_deletion_requests/{userId} {
+      allow create, update: if request.auth != null
+                            && request.auth.uid == userId
+                            && request.resource.data.uid == request.auth.uid;
+      allow read, delete: if isAdmin();
+    }
   }
 }

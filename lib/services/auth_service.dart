@@ -13,10 +13,7 @@ class AuthService {
     required String email,
     required String password,
   }) {
-    return _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    return _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
   static Future<UserCredential> signUp({
@@ -33,4 +30,10 @@ class AuthService {
   }
 
   static Future<void> signOut() => _auth.signOut();
+
+  static Future<void> deleteCurrentUser() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    await user.delete();
+  }
 }

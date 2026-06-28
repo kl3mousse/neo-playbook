@@ -61,6 +61,12 @@ class DirectionToken extends StatelessWidget {
             color: AppColors.textSecondary.withValues(alpha: 0.3),
             width: 0.5,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.1),
+              blurRadius: 6,
+            ),
+          ],
         ),
         alignment: Alignment.center,
         child: icon != null
@@ -150,7 +156,13 @@ class ButtonToken extends StatelessWidget {
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: color, width: 1.5),
+            border: Border.all(color: color, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.45),
+                blurRadius: 8,
+              ),
+            ],
           ),
           alignment: Alignment.center,
           child: Text(

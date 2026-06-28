@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/move_list.dart';
 import '../theme/app_theme.dart';
 import '../screens/execution_mode_screen.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
+import 'arcade_controls_view.dart';
+import 'arcade_panel.dart';
 import 'input_token.dart';
 
 // ═══════════════════════════════════════════════════════════════
@@ -93,7 +96,12 @@ class MoveRow extends StatelessWidget {
     final inputSpans = tokeniseInput(move.input, context);
 
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        if (onTap != null) {
+          HapticFeedback.selectionClick();
+          onTap!();
+        }
+      },
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -103,16 +111,17 @@ class MoveRow extends StatelessWidget {
             // Category dot
             if (catColor != Colors.transparent)
               Container(
-                width: 8,
-                height: 8,
+                width: 10,
+                height: 10,
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
                   color: catColor,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: catColor.withValues(alpha: 0.4),
-                      blurRadius: 4,
+                      color: catColor.withValues(alpha: 0.6),
+                      blurRadius: 6,
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
@@ -185,10 +194,7 @@ class SectionBlock extends StatelessWidget {
       child: ExpansionTile(
         initiallyExpanded: initiallyExpanded,
         tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-        title: Text(
-          section.title,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-        ),
+        title: NeonSectionHeader(section.title),
         subtitle: hasSubtitle
             ? Text(
                 section.subtitle!,
@@ -290,8 +296,7 @@ class MoveListView extends StatelessWidget {
           children: [
             const Icon(Icons.sports_martial_arts, size: 20),
             const SizedBox(width: 6),
-            Text('Move List',
-                style: Theme.of(context).textTheme.titleMedium),
+            Expanded(child: NeonSectionHeader('Move List')),
           ],
         ),
         const SizedBox(height: 2),
@@ -321,7 +326,9 @@ class MoveListView extends StatelessWidget {
         ],
 
         // Legend footer
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
+        const ArcadeControlsView(),
+        const SizedBox(height: 4),
         const MoveLegend(),
       ],
     );

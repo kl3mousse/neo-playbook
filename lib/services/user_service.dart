@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user_profile.dart';
 import '../models/user_favorite.dart';
 import '../models/fave_move_list.dart';
@@ -15,6 +17,12 @@ class UserService {
   static CollectionReference<Map<String, dynamic>> get _usersRef =>
       _namedDb.collection('users');
 
+  static CollectionReference<Map<String, dynamic>> get _feedbackRef =>
+      _namedDb.collection('feedback');
+
+  static CollectionReference<Map<String, dynamic>> get _deletionRequestsRef =>
+      _namedDb.collection('account_deletion_requests');
+
   static CollectionReference<Map<String, dynamic>> _favoritesRef(String uid) =>
       _usersRef.doc(uid).collection('favorites');
 
@@ -23,6 +31,19 @@ class UserService {
 
   static CollectionReference<Map<String, dynamic>> _faveMovesRef(String uid) =>
       _usersRef.doc(uid).collection('fave_moves');
+
+  static Future<void> _deleteAllDocs(Query<Map<String, dynamic>> query) async {
+    while (true) {
+      final snap = await query.limit(300).get();
+      if (snap.docs.isEmpty) break;
+
+      final batch = _namedDb.batch();
+      for (final doc in snap.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+    }
+  }
 
   // ── User Profile ──────────────────────────────────────────────────────
 
@@ -47,7 +68,10 @@ class UserService {
   }
 
   /// Update user profile.
-  static Future<void> updateProfile({required String displayName, String? photoUrl}) async {
+  static Future<void> updateProfile({
+    required String displayName,
+    String? photoUrl,
+  }) async {
     final user = AuthService.currentUser;
     if (user == null) return;
     final data = <String, dynamic>{
@@ -60,6 +84,83 @@ class UserService {
     await _usersRef.doc(user.uid).update(data);
   }
 
+  // ── Support and Feedback ─────────────────────────────────────────────
+
+  static Future<void> submitFeedback({
+    required String message,
+    String? contactEmail,
+  }) async {
+    final user = AuthService.currentUser;
+    await _feedbackRef.add({
+      'message': message.trim(),
+      'contact_email': (contactEmail ?? user?.email ?? '').trim(),
+      'uid': user?.uid,
+      'submitted_at': FieldValue.serverTimestamp(),
+      'status': 'new',
+      'source': 'app',
+    });
+  }
+
+  // ── Account Deletion ────────────────────────────────────────────────
+
+  static Future<void> requestAccountDeletion({String? reason}) async {
+    final user = AuthService.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    await _deletionRequestsRef.doc(user.uid).set({
+      'uid': user.uid,
+      'email': user.email,
+      'reason': (reason ?? 'User requested deletion in app').trim(),
+      'status': 'requested',
+      'requested_at': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  static Future<void> deleteCurrentAccount({String? reason}) async {
+    final user = AuthService.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    await requestAccountDeletion(reason: reason);
+
+    await _deleteAllDocs(_favoritesRef(user.uid));
+    await _deleteAllDocs(_collectionRef(user.uid));
+    await _deleteAllDocs(_faveMovesRef(user.uid));
+    await _deleteAllDocs(
+      _namedDb
+          .collection('community_notes')
+          .where('user_id', isEqualTo: user.uid),
+    );
+    await _deleteAllDocs(
+      _namedDb.collection('scores').where('user_id', isEqualTo: user.uid),
+    );
+
+    await _usersRef.doc(user.uid).delete();
+
+    final profilePicRef = FirebaseStorage.instance.ref().child(
+      'profile_pics/${user.uid}.jpg',
+    );
+    try {
+      await profilePicRef.delete();
+    } on FirebaseException catch (e) {
+      if (e.code != 'object-not-found') {
+        rethrow;
+      }
+    }
+
+    try {
+      await AuthService.deleteCurrentUser();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw StateError(
+          'Recent sign-in required. Please sign in again, then retry account deletion.',
+        );
+      }
+      rethrow;
+    }
+
+    await AuthService.signOut();
+  }
+
   // ── Favorites ─────────────────────────────────────────────────────────
 
   /// Set or update a game's favorite status.
@@ -70,15 +171,13 @@ class UserService {
     final ref = _favoritesRef(user.uid).doc(gameId);
     final doc = await ref.get();
     if (doc.exists) {
-      await ref.update(UserFavorite(
-        gameId: gameId,
-        status: status,
-      ).toFirestore());
+      await ref.update(
+        UserFavorite(gameId: gameId, status: status).toFirestore(),
+      );
     } else {
-      await ref.set(UserFavorite(
-        gameId: gameId,
-        status: status,
-      ).toFirestoreCreate());
+      await ref.set(
+        UserFavorite(gameId: gameId, status: status).toFirestoreCreate(),
+      );
     }
   }
 
@@ -94,8 +193,8 @@ class UserService {
     final user = AuthService.currentUser;
     if (user == null) return Stream.value([]);
     return _favoritesRef(user.uid).snapshots().map(
-          (snap) => snap.docs.map((d) => UserFavorite.fromFirestore(d)).toList(),
-        );
+      (snap) => snap.docs.map((d) => UserFavorite.fromFirestore(d)).toList(),
+    );
   }
 
   /// Get favorite status for a single game.
@@ -111,9 +210,10 @@ class UserService {
   static Stream<UserFavorite?> favoriteStatusStream(String gameId) {
     final user = AuthService.currentUser;
     if (user == null) return Stream.value(null);
-    return _favoritesRef(user.uid).doc(gameId).snapshots().map(
-          (doc) => doc.exists ? UserFavorite.fromFirestore(doc) : null,
-        );
+    return _favoritesRef(user.uid)
+        .doc(gameId)
+        .snapshots()
+        .map((doc) => doc.exists ? UserFavorite.fromFirestore(doc) : null);
   }
 
   // ── Collection ────────────────────────────────────────────────────────
@@ -134,7 +234,9 @@ class UserService {
 
   /// Update a collection item.
   static Future<void> updateCollectionItem(
-      String itemId, CollectionItem item) async {
+    String itemId,
+    CollectionItem item,
+  ) async {
     final user = AuthService.currentUser;
     if (user == null) return;
     await _collectionRef(user.uid).doc(itemId).update(item.toFirestoreUpdate());
@@ -147,18 +249,21 @@ class UserService {
     return _collectionRef(user.uid)
         .orderBy('added_at', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => CollectionItem.fromFirestore(d)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((d) => CollectionItem.fromFirestore(d)).toList(),
+        );
   }
 
   /// Get collection items for a specific game.
   static Future<List<CollectionItem>> getCollectionForGame(
-      String gameId) async {
+    String gameId,
+  ) async {
     final user = AuthService.currentUser;
     if (user == null) return [];
-    final snap = await _collectionRef(user.uid)
-        .where('game_id', isEqualTo: gameId)
-        .get();
+    final snap = await _collectionRef(
+      user.uid,
+    ).where('game_id', isEqualTo: gameId).get();
     return snap.docs.map((d) => CollectionItem.fromFirestore(d)).toList();
   }
 
@@ -181,14 +286,16 @@ class UserService {
     if (doc.exists) {
       await ref.delete();
     } else {
-      await ref.set(FaveMoveList(
-        id: docId,
-        gameId: gameId,
-        gameTitle: gameTitle,
-        romName: romName,
-        sectionTitle: sectionTitle,
-        sectionSubtitle: sectionSubtitle,
-      ).toFirestoreCreate());
+      await ref.set(
+        FaveMoveList(
+          id: docId,
+          gameId: gameId,
+          gameTitle: gameTitle,
+          romName: romName,
+          sectionTitle: sectionTitle,
+          sectionSubtitle: sectionSubtitle,
+        ).toFirestoreCreate(),
+      );
     }
   }
 
@@ -199,8 +306,10 @@ class UserService {
     return _faveMovesRef(user.uid)
         .orderBy('added_at', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => FaveMoveList.fromFirestore(d)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((d) => FaveMoveList.fromFirestore(d)).toList(),
+        );
   }
 
   /// Stream whether a specific section is bookmarked.
@@ -208,10 +317,9 @@ class UserService {
     final user = AuthService.currentUser;
     if (user == null) return Stream.value(false);
     final docId = FaveMoveList.docId(romName, sectionTitle);
-    return _faveMovesRef(user.uid)
-        .doc(docId)
-        .snapshots()
-        .map((doc) => doc.exists);
+    return _faveMovesRef(
+      user.uid,
+    ).doc(docId).snapshots().map((doc) => doc.exists);
   }
 
   /// Remove a bookmarked move list by doc ID.
@@ -228,7 +336,9 @@ class UserService {
     return _collectionRef(user.uid)
         .where('game_id', isEqualTo: gameId)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => CollectionItem.fromFirestore(d)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((d) => CollectionItem.fromFirestore(d)).toList(),
+        );
   }
 }

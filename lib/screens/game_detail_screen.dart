@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../main.dart' show selectedTabIndex;
 import '../models/game.dart';
 import '../models/move_list.dart';
@@ -14,6 +15,7 @@ import '../models/user_favorite.dart';
 import '../models/collection_item.dart';
 import '../router.dart' show canonicalGameUrl;
 import '../theme/app_theme.dart';
+import '../theme/combofox_theme.dart';
 import '../theme/platform_palette.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
@@ -26,6 +28,8 @@ import '../widgets/add_note_sheet.dart';
 import '../widgets/submit_score_sheet.dart';
 import '../widgets/add_to_collection_sheet.dart';
 import '../widgets/game_card.dart' show genreColor;
+import '../widgets/arcade_panel.dart';
+import '../widgets/foxxy_assistant.dart';
 
 class GameDetailScreen extends StatelessWidget {
   final Game game;
@@ -77,7 +81,9 @@ class GameDetailScreen extends StatelessWidget {
           ],
         ],
       ),
-      body: SingleChildScrollView(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -129,10 +135,14 @@ class GameDetailScreen extends StatelessWidget {
 
                   // Move List
                   if (game.features.hasMoveLists && game.roms.isNotEmpty)
-                    _MoveListLoader(
-                      romNames: game.roms.map((r) => r.romName).toList(),
-                      gameId: game.id,
-                      gameTitle: game.title,
+                    ArcadePanel(
+                      isActive: true,
+                      padding: EdgeInsets.zero,
+                      child: _MoveListLoader(
+                        romNames: game.roms.map((r) => r.romName).toList(),
+                        gameId: game.id,
+                        gameTitle: game.title,
+                      ),
                     ),
 
                   const SizedBox(height: 24),
@@ -140,10 +150,15 @@ class GameDetailScreen extends StatelessWidget {
                   // DIP Settings
                   if ((game.features.hasSoftDips || game.features.hasDebugDips) &&
                       game.roms.isNotEmpty)
-                    _DipSettingsLoader(
-                      romNames: game.roms
-                          .map((r) => r.romName)
-                          .toList(),
+                    ArcadePanel(
+                      isActive: true,
+                      accentColor: ComboFoxColors.neonBlue,
+                      padding: EdgeInsets.zero,
+                      child: _DipSettingsLoader(
+                        romNames: game.roms
+                            .map((r) => r.romName)
+                            .toList(),
+                      ),
                     ),
 
                   const SizedBox(height: 24),
@@ -197,6 +212,14 @@ class GameDetailScreen extends StatelessWidget {
             ),
           ],
         ),
+          ),
+          // FoxxyAssistant floating overlay (bottom-left)
+          const Positioned(
+            bottom: 80,
+            left: 12,
+            child: FoxxyAssistant(),
+          ),
+        ],
       ),
       bottomNavigationBar: showRootNav ? const _DeepLinkBottomNav() : null,
     );
@@ -349,9 +372,7 @@ class _CommunityNotesSectionState extends State<_CommunityNotesSection> {
           children: [
             const Icon(Icons.comment, size: 20),
             const SizedBox(width: 8),
-            Text('Community Notes',
-                style: Theme.of(context).textTheme.titleMedium),
-            const Spacer(),
+            const Expanded(child: NeonSectionHeader('Community Notes')),
             TextButton.icon(
               onPressed: () {
                 if (!AuthService.isLoggedIn) {
@@ -486,9 +507,7 @@ class _LeaderboardSectionState extends State<_LeaderboardSection> {
           children: [
             const Icon(Icons.emoji_events, size: 20),
             const SizedBox(width: 8),
-            Text('Leaderboard',
-                style: Theme.of(context).textTheme.titleMedium),
-            const Spacer(),
+            const Expanded(child: NeonSectionHeader('Leaderboard')),
             TextButton.icon(
               onPressed: () {
                 if (!AuthService.isLoggedIn) {
@@ -684,8 +703,7 @@ class _CollectionStatusSection extends StatelessWidget {
               children: [
                 const Icon(Icons.collections_bookmark, size: 20),
                 const SizedBox(width: 8),
-                Text('In Your Collection',
-                    style: Theme.of(context).textTheme.titleMedium),
+                const Expanded(child: NeonSectionHeader('In Your Collection')),
               ],
             ),
             const SizedBox(height: 8),
@@ -964,10 +982,9 @@ class _DipSettingsLoader extends StatelessWidget {
 
 // ── Hero Header ─────────────────────────────────────────────────────────
 
-/// Platform-accented typographic banner rendered at the top of the game
-/// detail screen. Replaces the previous genre-coloured splash and stays
-/// text-only (no game imagery, by design).
-class _HeroHeader extends StatelessWidget {
+/// Platform-accented typographic banner with neon arcade gradient.
+/// Features a subtle "INSERT COIN" flicker text at the top.
+class _HeroHeader extends StatefulWidget {
   final Game game;
   final PlatformPalette palette;
   final Color genreAccent;
@@ -979,107 +996,171 @@ class _HeroHeader extends StatelessWidget {
   });
 
   @override
+  State<_HeroHeader> createState() => _HeroHeaderState();
+}
+
+class _HeroHeaderState extends State<_HeroHeader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _flickerCtrl;
+  late final Animation<double> _flickerAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _flickerCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _flickerAnim = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.4, end: 0.08), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 0.08, end: 0.4), weight: 60),
+    ]).animate(CurvedAnimation(parent: _flickerCtrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _flickerCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            palette.start,
-            Color.lerp(palette.end, AppColors.surface, 0.4)!,
+            ComboFoxColors.neonPurple,
+            Color(0xFF7C1FA8), // mid purple
+            ComboFoxColors.neonPink,
           ],
+          stops: [0.0, 0.5, 1.0],
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x80A855F7), // neonPurple 50%
+            blurRadius: 24,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 22),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          // Platform badge + genre accent dot.
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.32),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    width: 0.8,
-                  ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 36, 24, 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Platform badge + genre accent dot.
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.22),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Text(
+                        widget.palette.label,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: widget.genreAccent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      widget.game.yearLabel,
+                      style: TextStyle(
+                        color: AppColors.textPrimary.withValues(alpha: 0.85),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  palette.label,
+                const SizedBox(height: 12),
+                Text(
+                  widget.game.title,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
+                    fontSize: 30,
+                    fontFamily: 'Doto',
+                    fontWeight: FontWeight.w800,
+                    height: 1.05,
+                    letterSpacing: -0.3,
+                    shadows: [
+                      Shadow(blurRadius: 10, color: Colors.black87),
+                    ],
                   ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: genreAccent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                game.yearLabel,
-                style: TextStyle(
-                  color: AppColors.textPrimary.withValues(alpha: 0.85),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            game.title,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 30,
-              fontFamily: 'Doto',
-              fontWeight: FontWeight.w800,
-              height: 1.05,
-              letterSpacing: -0.3,
-              shadows: [
-                Shadow(blurRadius: 10, color: Colors.black87),
+                if (widget.game.altTitle != null &&
+                    widget.game.altTitle!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.game.altTitle!,
+                    style: TextStyle(
+                      color: AppColors.textPrimary.withValues(alpha: 0.72),
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+                if (widget.game.publisher != null &&
+                    widget.game.publisher!.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    widget.game.publisher!.toUpperCase(),
+                    style: TextStyle(
+                      color: AppColors.textPrimary.withValues(alpha: 0.85),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.4,
+                    ),
+                  ),
+                ],
               ],
             ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
           ),
-          if (game.altTitle != null && game.altTitle!.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              game.altTitle!,
-              style: TextStyle(
-                color: AppColors.textPrimary.withValues(alpha: 0.72),
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
+          // INSERT COIN flicker text
+          Positioned(
+            top: 8,
+            left: 16,
+            child: AnimatedBuilder(
+              animation: _flickerAnim,
+              builder: (context, child) => Opacity(
+                opacity: _flickerAnim.value,
+                child: child,
+              ),
+              child: Text(
+                '// INSERT COIN //',
+                style: GoogleFonts.pressStart2p(
+                  fontSize: 7,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ],
-          if (game.publisher != null && game.publisher!.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Text(
-              game.publisher!.toUpperCase(),
-              style: TextStyle(
-                color: AppColors.textPrimary.withValues(alpha: 0.85),
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.4,
-              ),
-            ),
-          ],
+          ),
         ],
       ),
     );

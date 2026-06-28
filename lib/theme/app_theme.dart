@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'combofox_theme.dart';
 
 // ═══════════════════════════════════════════════════════════════
-// CPS2-Inspired Arcade Theme
+// ComboFox Arcade OS Theme — Neon retro-futuristic design system
 // ═══════════════════════════════════════════════════════════════
 
 class AppColors {
   AppColors._();
 
-  static const background = Color(0xFF0B0F1A);
-  static const primary = Color(0xFF6A00FF);
-  static const secondary = Color(0xFF00E5FF);
-  static const accent = Color(0xFFFF3B3B);
-  static const surface = Color(0xFF121826);
-  static const surfaceLight = Color(0xFF1A2036);
-  static const textPrimary = Color(0xFFFFFFFF);
-  static const textSecondary = Color(0xFFA0A8C0);
+  // Updated to match ComboFoxColors — all existing imports stay valid.
+  static const background = ComboFoxColors.background;
+  static const primary = ComboFoxColors.neonPurple;
+  static const secondary = ComboFoxColors.neonBlue;
+  static const accent = ComboFoxColors.neonPink;
+  static const surface = ComboFoxColors.surface;
+  static const surfaceLight = ComboFoxColors.surfaceElevated;
+  static const textPrimary = ComboFoxColors.textPrimary;
+  static const textSecondary = ComboFoxColors.textSecondary;
 
   // Input token colors
   static const tokenBackground = Color(0xFF2A2F3A);
@@ -37,19 +39,19 @@ class AppGradients {
   static const primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [AppColors.primary, Color(0xFF1A3AF5)],
+    colors: [ComboFoxColors.neonPurple, ComboFoxColors.neonPink],
   );
 
   static const accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF1A3AF5), AppColors.secondary],
+    colors: [ComboFoxColors.neonBlue, ComboFoxColors.neonPurple],
   );
 
   static const surfaceGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [AppColors.surface, AppColors.background],
+    colors: [ComboFoxColors.surface, ComboFoxColors.background],
   );
 }
 
@@ -57,7 +59,7 @@ ThemeData buildAppTheme() {
   return ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: AppColors.background,
+    scaffoldBackgroundColor: Colors.transparent,
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
@@ -85,14 +87,14 @@ ThemeData buildAppTheme() {
       scrolledUnderElevation: 0,
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: AppColors.surface,
-      indicatorColor: AppColors.primary.withValues(alpha: 0.3),
+      backgroundColor: AppColors.background.withValues(alpha: 0.95),
+      indicatorColor: AppColors.primary.withValues(alpha: 0.22),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: AppColors.secondary,
+            color: AppColors.primary,
           );
         }
         return const TextStyle(
@@ -102,15 +104,15 @@ ThemeData buildAppTheme() {
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return const IconThemeData(color: AppColors.secondary);
+          return const IconThemeData(color: AppColors.primary);
         }
         return const IconThemeData(color: AppColors.textSecondary);
       }),
     ),
     tabBarTheme: TabBarThemeData(
-      labelColor: AppColors.secondary,
+      labelColor: AppColors.primary,
       unselectedLabelColor: AppColors.textSecondary,
-      indicatorColor: AppColors.secondary,
+      indicatorColor: AppColors.primary,
       dividerHeight: 0,
     ),
     expansionTileTheme: const ExpansionTileThemeData(
@@ -125,7 +127,7 @@ ThemeData buildAppTheme() {
       backgroundColor: AppColors.surfaceLight,
       side: BorderSide.none,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(

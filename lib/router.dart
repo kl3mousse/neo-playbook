@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'models/game.dart';
 import 'screens/game_detail_screen.dart';
+import 'screens/feedback_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/privacy_policy_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/firestore_service.dart';
 import 'services/prefs_service.dart';
@@ -11,15 +13,18 @@ import 'widgets/skeleton.dart';
 
 /// Canonical web origin used when sharing a URL to a game page.
 const String kCanonicalWebOrigin = 'https://combofox.net';
+const String kPrivacyPolicyUrl = '$kCanonicalWebOrigin/privacy.html';
+const String kFeedbackFormUrl = '$kCanonicalWebOrigin/feedback.html';
+const String kSupportEmail = 'support@combofox.net';
 
 /// Build the canonical share URL for a game.
-String canonicalGameUrl(String gameId) =>
-    '$kCanonicalWebOrigin/#/game/$gameId';
+String canonicalGameUrl(String gameId) => '$kCanonicalWebOrigin/#/game/$gameId';
 
 /// Navigator key for the root navigator. Exposed so widgets that live
 /// outside the routed tree (if any) can still trigger navigation.
-final GlobalKey<NavigatorState> rootNavigatorKey =
-    GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
 
 /// Builds the [GoRouter] used by the app.
 ///
@@ -31,17 +36,19 @@ GoRouter buildAppRouter({required WidgetBuilder shellBuilder}) {
     navigatorKey: rootNavigatorKey,
     initialLocation: '/',
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => shellBuilder(context),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => shellBuilder(context)),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/privacy',
+        builder: (context, state) => const PrivacyPolicyScreen(),
+      ),
+      GoRoute(
+        path: '/feedback',
+        builder: (context, state) => const FeedbackScreen(),
       ),
       GoRoute(
         path: '/game/:id',

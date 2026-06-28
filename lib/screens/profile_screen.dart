@@ -17,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   UserProfile? _profile;
   bool _loading = true;
+  bool _deletingAccount = false;
 
   @override
   void initState() {
@@ -31,12 +32,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     try {
       final profile = await UserService.getOrCreateProfile();
-      if (mounted) setState(() {
-        _profile = profile;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _profile = profile;
+          _loading = false;
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<bool> _confirmDeleteAccount() async {
+    final typed = TextEditingController();
+    var loading = false;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final canDelete = typed.text.trim().toUpperCase() == 'DELETE';
+            return AlertDialog(
+              title: const Text('Delete account'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'This will permanently remove your profile and user data. '
+                    'Type DELETE to confirm.',
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: typed,
+                    enabled: !loading,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Type DELETE',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (_) => setDialogState(() {}),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: loading
+                      ? null
+                      : () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: (!canDelete || loading)
+                      ? null
+                      : () async {
+                          setDialogState(() => loading = true);
+                          Navigator.pop(context, true);
+                        },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
+                  ),
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    typed.dispose();
+    return result ?? false;
+  }
+
+  Future<void> _deleteAccount() async {
+    if (_deletingAccount) return;
+    setState(() => _deletingAccount = true);
+    try {
+      await UserService.deleteCurrentAccount();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account deleted successfully.')),
+      );
+    } on StateError catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Account deletion failed: $e')));
+    } finally {
+      if (mounted) {
+        setState(() => _deletingAccount = false);
+      }
     }
   }
 
@@ -74,6 +167,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     final user = AuthService.currentUser;
+    final displayName = (_profile?.displayName ?? '').trim();
+    final avatarLabel = displayName.isNotEmpty
+        ? displayName.characters.first.toUpperCase()
+        : '?';
 
     return Scaffold(
       appBar: AppBar(
@@ -99,12 +196,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 48,
-                  backgroundImage: _profile?.photoUrl != null && _profile!.photoUrl!.isNotEmpty
+                  backgroundImage:
+                      _profile?.photoUrl != null &&
+                          _profile!.photoUrl!.isNotEmpty
                       ? NetworkImage(_profile!.photoUrl!)
                       : null,
-                  child: (_profile?.photoUrl == null || _profile!.photoUrl!.isEmpty)
+                  child:
+                      (_profile?.photoUrl == null ||
+                          _profile!.photoUrl!.isEmpty)
                       ? Text(
-                          (_profile?.displayName ?? '?')[0].toUpperCase(),
+                          avatarLabel,
                           style: const TextStyle(fontSize: 36),
                         )
                       : null,
@@ -113,14 +214,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: const Icon(Icons.edit, size: 20),
                   tooltip: 'Edit Profile',
                   onPressed: () async {
-                    final updated = await showModalBottomSheet<_ProfileEditResult>(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (_) => _EditProfileSheet(
-                        initialName: _profile?.displayName ?? '',
-                        initialPhotoUrl: _profile?.photoUrl,
-                      ),
-                    );
+                    final updated =
+                        await showModalBottomSheet<_ProfileEditResult>(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => _EditProfileSheet(
+                            initialName: _profile?.displayName ?? '',
+                            initialPhotoUrl: _profile?.photoUrl,
+                          ),
+                        );
                     if (updated != null) {
                       setState(() => _loading = true);
                       await UserService.updateProfile(
@@ -137,7 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           Center(
             child: Text(
-              _profile?.displayName ?? '',
+              displayName,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
@@ -145,8 +247,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text(
               user?.email ?? '',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           const SizedBox(height: 32),
@@ -166,12 +268,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('Privacy Policy'),
+            subtitle: const Text('See how ComboFox handles your data'),
+            onTap: () => context.push('/privacy'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.feedback_outlined),
+            title: const Text('Send Feedback'),
+            subtitle: const Text('Report an issue or request a feature'),
+            onTap: () => context.push('/feedback'),
+          ),
+          const Divider(),
           const SizedBox(height: 16),
           FilledButton.tonal(
             onPressed: () async {
               await AuthService.signOut();
             },
             child: const Text('Sign Out'),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: _deletingAccount
+                ? null
+                : () async {
+                    final confirmed = await _confirmDeleteAccount();
+                    if (!confirmed) return;
+                    await _deleteAccount();
+                  },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            child: _deletingAccount
+                ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Delete Account'),
           ),
         ],
       ),
@@ -216,7 +352,11 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, imageQuality: 80);
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      imageQuality: 80,
+    );
     if (picked != null) {
       final bytes = await picked.readAsBytes();
       setState(() {
@@ -229,7 +369,9 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
   Future<String?> _uploadImage(Uint8List bytes) async {
     final user = AuthService.currentUser;
     if (user == null) return null;
-    final ref = FirebaseStorage.instance.ref().child('profile_pics/${user.uid}.jpg');
+    final ref = FirebaseStorage.instance.ref().child(
+      'profile_pics/${user.uid}.jpg',
+    );
     await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
     return await ref.getDownloadURL();
   }
@@ -242,13 +384,16 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
         url = await _uploadImage(_pickedImageBytes!);
       }
       if (mounted) {
-        Navigator.pop(context, _ProfileEditResult(_nameController.text.trim(), url));
+        Navigator.pop(
+          context,
+          _ProfileEditResult(_nameController.text.trim(), url),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
         setState(() => _saving = false);
       }
     }
@@ -257,7 +402,12 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -270,9 +420,11 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
                   backgroundImage: _pickedImageBytes != null
                       ? MemoryImage(_pickedImageBytes!)
                       : (_photoUrl != null && _photoUrl!.isNotEmpty)
-                          ? NetworkImage(_photoUrl!) as ImageProvider
-                          : null,
-                  child: (_photoUrl == null || _photoUrl!.isEmpty) && _pickedImage == null
+                      ? NetworkImage(_photoUrl!) as ImageProvider
+                      : null,
+                  child:
+                      (_photoUrl == null || _photoUrl!.isEmpty) &&
+                          _pickedImage == null
                       ? const Icon(Icons.person, size: 48)
                       : null,
                 ),

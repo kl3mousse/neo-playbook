@@ -60,5 +60,9 @@
 				</array>
 			</dict>
 		</array>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>ComboFox needs photo library access so you can choose a profile picture.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>ComboFox needs camera access so you can take a profile picture.</string>
 	</dict>
 </plist>

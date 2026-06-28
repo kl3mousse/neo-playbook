@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'firebase_options.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
+import 'theme/combofox_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/games_list_screen.dart';
@@ -15,6 +16,7 @@ import 'screens/profile_screen.dart';
 import 'services/auth_service.dart';
 import 'services/prefs_service.dart';
 import 'widgets/offline_banner.dart';
+import 'widgets/arcade_background.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -23,8 +25,9 @@ void main() async {
   await PrefsService.init();
 
   // Enable Firestore offline persistence
-  FirebaseFirestore.instance.settings =
-      const Settings(persistenceEnabled: true);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
 
   runApp(const OtakuPlaybookApp());
 }
@@ -54,19 +57,19 @@ class _OtakuPlaybookAppState extends State<OtakuPlaybookApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Otaku Playbook',
+      title: 'ComboFox',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       routerConfig: _router,
       builder: (context, child) {
-        return ValueListenableBuilder<bool>(
-          valueListenable: splashFinished,
-          builder: (context, done, _) {
-            if (done) return child ?? const SizedBox.shrink();
-            return SplashScreen(
-              onReady: () => splashFinished.value = true,
-            );
-          },
+        return ArcadeBackground(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: splashFinished,
+            builder: (context, done, _) {
+              if (done) return child ?? const SizedBox.shrink();
+              return SplashScreen(onReady: () => splashFinished.value = true);
+            },
+          ),
         );
       },
     );
@@ -121,9 +124,7 @@ class _MainNavigationState extends State<MainNavigation> {
           CollectionScreen(key: ValueKey(snapshot.data?.uid)),
           isLoggedIn
               ? const ProfileScreen()
-              : LoginScreen(
-                  onSkip: () => selectedTabIndex.value = 0,
-                ),
+              : LoginScreen(onSkip: () => selectedTabIndex.value = 0),
         ];
 
         return Scaffold(
@@ -138,33 +139,50 @@ class _MainNavigationState extends State<MainNavigation> {
               ),
             ],
           ),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: selectedTabIndex.value,
-            onDestinationSelected: (i) => selectedTabIndex.value = i,
-            labelBehavior:
-                MediaQuery.sizeOf(context).width >= 600
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Neon top border glow
+              Container(
+                height: 1,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      ComboFoxColors.neonPurple.withValues(alpha: 0.6),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+              NavigationBar(
+                selectedIndex: selectedTabIndex.value,
+                onDestinationSelected: (i) => selectedTabIndex.value = i,
+                labelBehavior: MediaQuery.sizeOf(context).width >= 600
                     ? NavigationDestinationLabelBehavior.alwaysShow
                     : NavigationDestinationLabelBehavior.onlyShowSelected,
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.videogame_asset_outlined),
-                selectedIcon: Icon(Icons.videogame_asset),
-                label: 'Games',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.favorite_outline),
-                selectedIcon: Icon(Icons.favorite),
-                label: 'Favorites',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.collections_bookmark_outlined),
-                selectedIcon: Icon(Icons.collections_bookmark),
-                label: 'Collection',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
-                label: 'Profile',
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.videogame_asset_outlined),
+                    selectedIcon: Icon(Icons.videogame_asset),
+                    label: 'Games',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.favorite_outline),
+                    selectedIcon: Icon(Icons.favorite),
+                    label: 'Favorites',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.collections_bookmark_outlined),
+                    selectedIcon: Icon(Icons.collections_bookmark),
+                    label: 'Collection',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.person_outline),
+                    selectedIcon: Icon(Icons.person),
+                    label: 'Profile',
+                  ),
+                ],
               ),
             ],
           ),

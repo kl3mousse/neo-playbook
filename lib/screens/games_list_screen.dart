@@ -4,30 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/game.dart';
 import '../theme/app_theme.dart';
+import '../theme/combofox_theme.dart';
 import '../services/firestore_service.dart';
 import '../services/prefs_service.dart';
 import '../widgets/game_card.dart';
 import '../widgets/filter_panel.dart';
-
-/// Display-friendly labels for known platform keys.
-/// Falls back to title-cased key for unknown platforms.
-String _platformLabel(String key) {
-  const labels = {
-    'neogeo': 'Neo Geo',
-    'neo geo': 'Neo Geo',
-    'cps1': 'CPS-1',
-    'cps2': 'CPS-2',
-    'cps3': 'CPS-3',
-    'neogeocd': 'Neo Geo CD',
-    'atomiswave': 'Atomiswave',
-    'taitof3': 'Taito F3',
-    'hng64': 'Hyper Neo Geo 64',
-    'stv': 'ST-V',
-    'zn': 'ZN',
-  };
-  return labels[key] ??
-      key.split(' ').map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
-}
+import '../widgets/system_chip.dart' show SystemChip;
 
 class GamesListScreen extends StatefulWidget {
   const GamesListScreen({super.key});
@@ -190,17 +172,17 @@ class _GamesListScreenState extends State<GamesListScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: SizedBox(
-                    height: 40,
+                    height: 42,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       children: availablePlatforms
                           .map((p) => Padding(
-                                padding: const EdgeInsets.only(right: 6),
-                                child: FilterChip(
-                                  label: Text(_platformLabel(p)),
-                                  selected: effectivePlatform == p,
-                                  onSelected: (_) {
+                                padding: const EdgeInsets.only(right: 8),
+                                child: SystemChip(
+                                  platformKey: p,
+                                  isSelected: effectivePlatform == p,
+                                  onTap: () {
                                     setState(() {
                                       _selectedPlatform = p;
                                       _filters = GameFilters.empty();
@@ -226,7 +208,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
                     boxShadow: _searchFocused
                         ? [
                             BoxShadow(
-                              color: AppColors.secondary.withValues(alpha: 0.15),
+                              color: ComboFoxColors.neonBlue.withValues(alpha: 0.20),
                               blurRadius: 16,
                               spreadRadius: 1,
                             ),
@@ -240,7 +222,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
                       prefixIcon: Icon(
                         Icons.search,
                         color: _searchFocused
-                            ? AppColors.secondary
+                            ? ComboFoxColors.neonBlue
                             : AppColors.textSecondary,
                       ),
                       suffixIcon: IconButton(

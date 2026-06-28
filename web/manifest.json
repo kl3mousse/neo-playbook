@@ -1,11 +1,11 @@
 {
-    "name": "Otaku PB",
-    "short_name": "Otaku PB",
+    "name": "ComboFox",
+    "short_name": "ComboFox",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "ComboFox for arcade fighting-game fans.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

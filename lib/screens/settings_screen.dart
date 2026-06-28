@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../services/prefs_service.dart';
 
@@ -35,18 +36,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     PaintingBinding.instance.imageCache.clear();
     PaintingBinding.instance.imageCache.clearLiveImages();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Image cache cleared')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Image cache cleared')));
   }
 
   Future<void> _clearRecent() async {
     await PrefsService.clearRecentGames();
     if (!mounted) return;
     setState(() => _recentCount = 0);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Recent games cleared')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Recent games cleared')));
   }
 
   @override
@@ -67,17 +68,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             stream: Connectivity().onConnectivityChanged,
             builder: (context, snapshot) {
               final results = snapshot.data;
-              final online = results != null &&
+              final online =
+                  results != null &&
                   results.any((r) => r != ConnectivityResult.none);
               return ListTile(
                 leading: Icon(
                   online ? Icons.wifi : Icons.wifi_off,
-                  color: online ? Colors.green : Theme.of(context).colorScheme.error,
+                  color: online
+                      ? Colors.green
+                      : Theme.of(context).colorScheme.error,
                 ),
                 title: Text(online ? 'Online' : 'Offline'),
-                subtitle: Text(online
-                    ? 'Connected'
-                    : 'Showing cached data where available'),
+                subtitle: Text(
+                  online ? 'Connected' : 'Showing cached data where available',
+                ),
               );
             },
           ),
@@ -101,17 +105,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // ── About ───────────────────────────────────────────────────
           const _SectionHeader('About'),
           ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text('Privacy Policy'),
+            subtitle: const Text('Legal terms and data handling'),
+            onTap: () => context.push('/privacy'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.feedback_outlined),
+            title: const Text('Send Feedback'),
+            subtitle: const Text('Contact support or report an issue'),
+            onTap: () => context.push('/feedback'),
+          ),
+          ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('Version'),
-            subtitle: Text(info == null
-                ? '…'
-                : '${info.version}+${info.buildNumber}'),
+            subtitle: Text(
+              info == null ? '…' : '${info.version}+${info.buildNumber}',
+            ),
             onLongPress: info == null
                 ? null
                 : () {
-                    Clipboard.setData(ClipboardData(
-                      text: '${info.version}+${info.buildNumber}',
-                    ));
+                    Clipboard.setData(
+                      ClipboardData(
+                        text: '${info.version}+${info.buildNumber}',
+                      ),
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Version copied')),
                     );
@@ -134,9 +152,9 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              letterSpacing: 1.2,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          letterSpacing: 1.2,
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
     );
   }

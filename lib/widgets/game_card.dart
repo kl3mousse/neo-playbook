@@ -74,6 +74,7 @@ class _GameCardState extends State<GameCard>
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
         setState(() => _isPressed = false);
+        HapticFeedback.lightImpact();
         widget.onTap?.call();
       },
       onTapCancel: () => setState(() => _isPressed = false),
@@ -92,9 +93,9 @@ class _GameCardState extends State<GameCard>
             boxShadow: _isPressed
                 ? [
                     BoxShadow(
-                      color: baseColor.withValues(alpha: 0.4),
-                      blurRadius: 16,
-                      spreadRadius: 1,
+                      color: baseColor.withValues(alpha: 0.65),
+                      blurRadius: 20,
+                      spreadRadius: 2,
                     ),
                   ]
                 : [
