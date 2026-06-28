@@ -1,4 +1,4 @@
-package com.otakuplaybook.otaku_playbook
+package net.combofox.androidapp
 
 import io.flutter.embedding.android.FlutterActivity
 

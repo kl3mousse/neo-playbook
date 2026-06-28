@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/collection_item.dart';
 import '../services/user_service.dart';
 
@@ -6,11 +7,13 @@ class AddToCollectionSheet extends StatefulWidget {
   final String gameId;
   final String gameTitle;
   final CollectionItem? existingItem;
+  final String? initialPlatform;
   const AddToCollectionSheet({
     super.key,
     required this.gameId,
     required this.gameTitle,
     this.existingItem,
+    this.initialPlatform,
   });
 
   bool get isEditing => existingItem != null;
@@ -33,7 +36,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
   void initState() {
     super.initState();
     final e = widget.existingItem;
-    _platform = e?.platform ?? 'mvs';
+    _platform = e?.platform ?? widget.initialPlatform ?? 'mvs';
     _format = e?.format ?? ItemFormat.cartridge;
     _condition = e?.condition ?? ItemCondition.good;
     _region = e?.region ?? 'jp';
@@ -65,19 +68,28 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
         notes: _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
+        isUnverified: widget.isEditing
+            ? false
+            : (widget.existingItem?.isUnverified ?? false),
+        scanJobId: widget.existingItem?.scanJobId,
+        recognitionConfidence: widget.existingItem?.recognitionConfidence,
+        importSource: widget.existingItem?.importSource,
+        verifiedAt:
+            widget.isEditing && (widget.existingItem?.isUnverified ?? false)
+            ? Timestamp.now()
+            : widget.existingItem?.verifiedAt,
       );
       if (widget.isEditing) {
-        await UserService.updateCollectionItem(
-            widget.existingItem!.id, item);
+        await UserService.updateCollectionItem(widget.existingItem!.id, item);
       } else {
         await UserService.addToCollection(item);
       }
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -105,10 +117,14 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.isEditing ? 'Edit Item' : 'Add to Collection',
-                style: Theme.of(context).textTheme.titleMedium),
-            Text(widget.gameTitle,
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              widget.isEditing ? 'Edit Item' : 'Add to Collection',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Text(
+              widget.gameTitle,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 16),
             // Platform
             DropdownButtonFormField<String>(
@@ -118,8 +134,12 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                 border: OutlineInputBorder(),
               ),
               items: _platformOptions
-                  .map((p) => DropdownMenuItem(
-                      value: p, child: Text(p.toUpperCase())))
+                  .map(
+                    (p) => DropdownMenuItem(
+                      value: p,
+                      child: Text(p.toUpperCase()),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) {
                 if (v != null) setState(() => _platform = v);
@@ -134,8 +154,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                 border: OutlineInputBorder(),
               ),
               items: ItemFormat.values
-                  .map((f) =>
-                      DropdownMenuItem(value: f, child: Text(f.label)))
+                  .map((f) => DropdownMenuItem(value: f, child: Text(f.label)))
                   .toList(),
               onChanged: (v) {
                 if (v != null) setState(() => _format = v);
@@ -150,8 +169,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                 border: OutlineInputBorder(),
               ),
               items: ItemCondition.values
-                  .map((c) =>
-                      DropdownMenuItem(value: c, child: Text(c.label)))
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
                   .toList(),
               onChanged: (v) {
                 if (v != null) setState(() => _condition = v);
@@ -166,8 +184,12 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                 border: OutlineInputBorder(),
               ),
               items: _regionOptions
-                  .map((r) => DropdownMenuItem(
-                      value: r, child: Text(r.toUpperCase())))
+                  .map(
+                    (r) => DropdownMenuItem(
+                      value: r,
+                      child: Text(r.toUpperCase()),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) {
                 if (v != null) setState(() => _region = v);
@@ -196,8 +218,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                       border: OutlineInputBorder(),
                     ),
                     items: _currencyOptions
-                        .map((c) =>
-                            DropdownMenuItem(value: c, child: Text(c)))
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                         .toList(),
                     onChanged: (v) {
                       if (v != null) setState(() => _currency = v);
@@ -227,7 +248,9 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(widget.isEditing ? 'Save Changes' : 'Add to Collection'),
+                    : Text(
+                        widget.isEditing ? 'Save Changes' : 'Add to Collection',
+                      ),
               ),
             ),
           ],

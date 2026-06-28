@@ -51,6 +51,11 @@ class CollectionItem {
   final Timestamp? purchaseDate;
   final String? notes;
   final Timestamp? addedAt;
+  final bool isUnverified;
+  final String? scanJobId;
+  final double? recognitionConfidence;
+  final String? importSource;
+  final Timestamp? verifiedAt;
 
   const CollectionItem({
     required this.id,
@@ -65,9 +70,16 @@ class CollectionItem {
     this.purchaseDate,
     this.notes,
     this.addedAt,
+    this.isUnverified = false,
+    this.scanJobId,
+    this.recognitionConfidence,
+    this.importSource,
+    this.verifiedAt,
   });
 
-  factory CollectionItem.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory CollectionItem.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? {};
     return CollectionItem(
       id: doc.id,
@@ -82,31 +94,48 @@ class CollectionItem {
       purchaseDate: parseTimestamp(data['purchase_date']),
       notes: data['notes'] as String?,
       addedAt: parseTimestamp(data['added_at']),
+      isUnverified: data['is_unverified'] as bool? ?? false,
+      scanJobId: data['scan_job_id'] as String?,
+      recognitionConfidence: (data['recognition_confidence'] as num?)
+          ?.toDouble(),
+      importSource: data['import_source'] as String?,
+      verifiedAt: parseTimestamp(data['verified_at']),
     );
   }
 
   Map<String, dynamic> toFirestoreCreate() => {
-        'game_id': gameId,
-        'game_title': gameTitle,
-        'platform': platform,
-        'format': format.value,
-        'condition': condition.value,
-        'region': region,
-        if (purchasePrice != null) 'purchase_price': purchasePrice,
-        if (purchaseCurrency != null) 'purchase_currency': purchaseCurrency,
-        if (purchaseDate != null) 'purchase_date': purchaseDate,
-        if (notes != null) 'notes': notes,
-        'added_at': FieldValue.serverTimestamp(),
-      };
+    'game_id': gameId,
+    'game_title': gameTitle,
+    'platform': platform,
+    'format': format.value,
+    'condition': condition.value,
+    'region': region,
+    if (purchasePrice != null) 'purchase_price': purchasePrice,
+    if (purchaseCurrency != null) 'purchase_currency': purchaseCurrency,
+    if (purchaseDate != null) 'purchase_date': purchaseDate,
+    if (notes != null) 'notes': notes,
+    'is_unverified': isUnverified,
+    if (scanJobId != null) 'scan_job_id': scanJobId,
+    if (recognitionConfidence != null)
+      'recognition_confidence': recognitionConfidence,
+    if (importSource != null) 'import_source': importSource,
+    if (verifiedAt != null) 'verified_at': verifiedAt,
+    'added_at': FieldValue.serverTimestamp(),
+  };
 
   Map<String, dynamic> toFirestoreUpdate() => {
-        'platform': platform,
-        'format': format.value,
-        'condition': condition.value,
-        'region': region,
-        'purchase_price': purchasePrice,
-        'purchase_currency': purchaseCurrency,
-        'purchase_date': purchaseDate,
-        'notes': notes,
-      };
+    'platform': platform,
+    'format': format.value,
+    'condition': condition.value,
+    'region': region,
+    'purchase_price': purchasePrice,
+    'purchase_currency': purchaseCurrency,
+    'purchase_date': purchaseDate,
+    'notes': notes,
+    'is_unverified': isUnverified,
+    'scan_job_id': scanJobId,
+    'recognition_confidence': recognitionConfidence,
+    'import_source': importSource,
+    'verified_at': verifiedAt,
+  };
 }

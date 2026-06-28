@@ -49,6 +49,35 @@ firebase deploy --only firestore
 firebase deploy --only storage
 ```
 
+## Android Release Signing (AAB)
+
+This project is configured to sign release bundles from `android/key.properties`.
+
+1. Generate an upload keystore (run once):
+
+```bash
+keytool -genkeypair -v \
+	-keystore android/upload-keystore.jks \
+	-keyalg RSA -keysize 2048 -validity 10000 \
+	-alias upload
+```
+
+2. Create your local signing config file from the template:
+
+```bash
+cp android/key.properties.example android/key.properties
+```
+
+3. Edit `android/key.properties` with your real passwords and alias.
+
+4. Build a release-signed Android App Bundle:
+
+```bash
+flutter build appbundle --release
+```
+
+If Google Play App Signing is enabled, this keystore is your upload key.
+
 ## Project Structure
 
 ```
@@ -88,10 +117,9 @@ combofox/
 | `android/app/google-services.json` | Android Firebase config | **No** — run `flutterfire configure` |
 | `ios/Runner/GoogleService-Info.plist` | iOS Firebase config | **No** — run `flutterfire configure` |
 
-> **Note:** The Android `applicationId` and iOS bundle identifier still read
-> `com.otakuplaybook.otaku_playbook` to preserve the existing Firebase app
-> registrations and Play Store identity. A future migration PR will rename
-> them alongside a Firebase re-registration.
+> **Note:** Android now uses `net.combofox.androidapp` as the package name.
+> If you change it again, rerun `flutterfire configure` so Firebase service
+> files match the new identifier.
 
 ## Legacy
 

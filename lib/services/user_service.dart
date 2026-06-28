@@ -29,6 +29,9 @@ class UserService {
   static CollectionReference<Map<String, dynamic>> _collectionRef(String uid) =>
       _usersRef.doc(uid).collection('collection');
 
+  static CollectionReference<Map<String, dynamic>> _scanJobsRef(String uid) =>
+      _usersRef.doc(uid).collection('scan_jobs');
+
   static CollectionReference<Map<String, dynamic>> _faveMovesRef(String uid) =>
       _usersRef.doc(uid).collection('fave_moves');
 
@@ -240,6 +243,63 @@ class UserService {
     final user = AuthService.currentUser;
     if (user == null) return;
     await _collectionRef(user.uid).doc(itemId).update(item.toFirestoreUpdate());
+  }
+
+  static Future<bool> _collectionEntryExistsForScanJob(
+    String uid,
+    String scanJobId,
+  ) async {
+    final existing = await _collectionRef(
+      uid,
+    ).where('scan_job_id', isEqualTo: scanJobId).limit(1).get();
+    return existing.docs.isNotEmpty;
+  }
+
+  static Future<void> importRecognizedItem({
+    required String scanJobId,
+    required String gameId,
+    required String gameTitle,
+    required String platform,
+    required double confidence,
+    required bool unverified,
+    String? notes,
+  }) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+
+    if (await _collectionEntryExistsForScanJob(user.uid, scanJobId)) {
+      return;
+    }
+
+    final item = CollectionItem(
+      id: '',
+      gameId: gameId,
+      gameTitle: gameTitle,
+      platform: platform.isNotEmpty ? platform.toLowerCase() : 'mvs',
+      format: ItemFormat.cartridge,
+      condition: ItemCondition.good,
+      region: 'jp',
+      notes: notes,
+      isUnverified: unverified,
+      scanJobId: scanJobId,
+      recognitionConfidence: confidence,
+      importSource: 'scan',
+      verifiedAt: unverified ? null : Timestamp.now(),
+    );
+
+    await _collectionRef(user.uid).add(item.toFirestoreCreate());
+  }
+
+  static Future<void> markScanJobImported(
+    String scanJobId,
+    String importStatus,
+  ) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    await _scanJobsRef(user.uid).doc(scanJobId).set({
+      'import_status': importStatus,
+      'imported_at': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   /// Stream all collection items.

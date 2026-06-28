@@ -54,6 +54,19 @@ service cloud.firestore {
         allow read, write: if request.auth != null
                            && request.auth.uid == userId;
       }
+
+      // Collection scan recognition jobs: owner only
+      match /scan_jobs/{jobId} {
+        allow read: if request.auth != null
+                    && request.auth.uid == userId;
+        allow create: if request.auth != null
+                      && request.auth.uid == userId
+                      && request.resource.data.uid == request.auth.uid
+                      && request.resource.data.status == 'queued';
+        allow update, delete: if request.auth != null
+                              && request.auth.uid == userId
+                              && resource.data.uid == request.auth.uid;
+      }
     }
 
     // Community notes: anyone can read, auth can create, owner can update/delete
