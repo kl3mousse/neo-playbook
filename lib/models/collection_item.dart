@@ -51,8 +51,10 @@ class CollectionItem {
   final Timestamp? purchaseDate;
   final String? notes;
   final Timestamp? addedAt;
+  final List<String> imagePaths;
   final bool isUnverified;
   final String? scanJobId;
+  final String? scanCandidateId;
   final double? recognitionConfidence;
   final String? importSource;
   final Timestamp? verifiedAt;
@@ -70,8 +72,10 @@ class CollectionItem {
     this.purchaseDate,
     this.notes,
     this.addedAt,
+    this.imagePaths = const [],
     this.isUnverified = false,
     this.scanJobId,
+    this.scanCandidateId,
     this.recognitionConfidence,
     this.importSource,
     this.verifiedAt,
@@ -94,8 +98,12 @@ class CollectionItem {
       purchaseDate: parseTimestamp(data['purchase_date']),
       notes: data['notes'] as String?,
       addedAt: parseTimestamp(data['added_at']),
+        imagePaths: (data['image_paths'] as List<dynamic>? ?? [])
+          .map((v) => v.toString())
+          .toList(),
       isUnverified: data['is_unverified'] as bool? ?? false,
       scanJobId: data['scan_job_id'] as String?,
+      scanCandidateId: data['scan_candidate_id'] as String?,
       recognitionConfidence: (data['recognition_confidence'] as num?)
           ?.toDouble(),
       importSource: data['import_source'] as String?,
@@ -114,8 +122,10 @@ class CollectionItem {
     if (purchaseCurrency != null) 'purchase_currency': purchaseCurrency,
     if (purchaseDate != null) 'purchase_date': purchaseDate,
     if (notes != null) 'notes': notes,
+    if (imagePaths.isNotEmpty) 'image_paths': imagePaths,
     'is_unverified': isUnverified,
     if (scanJobId != null) 'scan_job_id': scanJobId,
+    if (scanCandidateId != null) 'scan_candidate_id': scanCandidateId,
     if (recognitionConfidence != null)
       'recognition_confidence': recognitionConfidence,
     if (importSource != null) 'import_source': importSource,
@@ -124,6 +134,8 @@ class CollectionItem {
   };
 
   Map<String, dynamic> toFirestoreUpdate() => {
+    'game_id': gameId,
+    'game_title': gameTitle,
     'platform': platform,
     'format': format.value,
     'condition': condition.value,
@@ -132,8 +144,10 @@ class CollectionItem {
     'purchase_currency': purchaseCurrency,
     'purchase_date': purchaseDate,
     'notes': notes,
+    'image_paths': imagePaths,
     'is_unverified': isUnverified,
     'scan_job_id': scanJobId,
+    'scan_candidate_id': scanCandidateId,
     'recognition_confidence': recognitionConfidence,
     'import_source': importSource,
     'verified_at': verifiedAt,

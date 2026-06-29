@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -222,10 +223,12 @@ class UserService {
   // ── Collection ────────────────────────────────────────────────────────
 
   /// Add an item to the user's collection.
-  static Future<void> addToCollection(CollectionItem item) async {
+  /// Returns the new document id, or null if not authenticated.
+  static Future<String?> addToCollection(CollectionItem item) async {
     final user = AuthService.currentUser;
-    if (user == null) return;
-    await _collectionRef(user.uid).add(item.toFirestoreCreate());
+    if (user == null) return null;
+    final ref = await _collectionRef(user.uid).add(item.toFirestoreCreate());
+    return ref.id;
   }
 
   /// Remove an item from the collection.
@@ -245,29 +248,38 @@ class UserService {
     await _collectionRef(user.uid).doc(itemId).update(item.toFirestoreUpdate());
   }
 
-  static Future<bool> _collectionEntryExistsForScanJob(
+  static Future<bool> _collectionEntryExistsForScanCandidate(
     String uid,
     String scanJobId,
+    String scanCandidateId,
   ) async {
-    final existing = await _collectionRef(
-      uid,
-    ).where('scan_job_id', isEqualTo: scanJobId).limit(1).get();
+    final existing = await _collectionRef(uid)
+        .where('scan_job_id', isEqualTo: scanJobId)
+        .where('scan_candidate_id', isEqualTo: scanCandidateId)
+        .limit(1)
+        .get();
     return existing.docs.isNotEmpty;
   }
 
   static Future<void> importRecognizedItem({
     required String scanJobId,
+    required String scanCandidateId,
     required String gameId,
     required String gameTitle,
     required String platform,
     required double confidence,
     required bool unverified,
     String? notes,
+    String? imagePath,
   }) async {
     final user = AuthService.currentUser;
     if (user == null) return;
 
-    if (await _collectionEntryExistsForScanJob(user.uid, scanJobId)) {
+    if (await _collectionEntryExistsForScanCandidate(
+      user.uid,
+      scanJobId,
+      scanCandidateId,
+    )) {
       return;
     }
 
@@ -280,8 +292,10 @@ class UserService {
       condition: ItemCondition.good,
       region: 'jp',
       notes: notes,
+      imagePaths: imagePath != null ? [imagePath] : const [],
       isUnverified: unverified,
       scanJobId: scanJobId,
+      scanCandidateId: scanCandidateId,
       recognitionConfidence: confidence,
       importSource: 'scan',
       verifiedAt: unverified ? null : Timestamp.now(),
@@ -300,6 +314,94 @@ class UserService {
       'import_status': importStatus,
       'imported_at': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+  }
+
+  static Future<CollectionItem?> getCollectionItemForScanCandidate({
+    required String scanJobId,
+    required String scanCandidateId,
+  }) async {
+    final user = AuthService.currentUser;
+    if (user == null) return null;
+
+    final snap = await _collectionRef(user.uid)
+        .where('scan_job_id', isEqualTo: scanJobId)
+        .where('scan_candidate_id', isEqualTo: scanCandidateId)
+        .limit(1)
+        .get();
+
+    if (snap.docs.isEmpty) {
+      return null;
+    }
+    return CollectionItem.fromFirestore(snap.docs.first);
+  }
+
+  // ── Collection Item Photos ──────────────────────────────────────────
+
+  static Future<String> uploadCollectionItemPhoto({
+    required String itemId,
+    required Uint8List bytes,
+    String contentType = 'image/jpeg',
+    String? fileName,
+  }) async {
+    final user = AuthService.currentUser;
+    if (user == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final extension = contentType.contains('png')
+        ? 'png'
+        : contentType.contains('webp')
+            ? 'webp'
+            : 'jpg';
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final safeName = (fileName ?? 'photo').replaceAll(
+      RegExp(r'[^A-Za-z0-9_-]'),
+      '_',
+    );
+    final storagePath =
+        'collection_items/${user.uid}/$itemId/${timestamp}_$safeName.$extension';
+    await FirebaseStorage.instance.ref().child(storagePath).putData(
+      bytes,
+      SettableMetadata(contentType: contentType),
+    );
+    return storagePath;
+  }
+
+  static Future<void> attachPhotoToCollectionItem({
+    required String itemId,
+    required String storagePath,
+  }) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    await _collectionRef(user.uid).doc(itemId).update({
+      'image_paths': FieldValue.arrayUnion([storagePath]),
+    });
+  }
+
+  static Future<void> removePhotoFromCollectionItem({
+    required String itemId,
+    required String storagePath,
+  }) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+
+    await _collectionRef(user.uid).doc(itemId).update({
+      'image_paths': FieldValue.arrayRemove([storagePath]),
+    });
+
+    try {
+      await FirebaseStorage.instance.ref().child(storagePath).delete();
+    } on FirebaseException catch (e) {
+      if (e.code != 'object-not-found') {
+        rethrow;
+      }
+    }
+  }
+
+  static Future<String> resolveCollectionItemPhotoUrl(
+    String storagePath,
+  ) async {
+    return FirebaseStorage.instance.ref().child(storagePath).getDownloadURL();
   }
 
   /// Stream all collection items.

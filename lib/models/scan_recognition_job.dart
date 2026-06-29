@@ -46,6 +46,7 @@ class ScanGameMatch {
 }
 
 class ScanDetectedGame {
+  final String candidateId;
   final String rawTitle;
   final String rawPlatform;
   final String normalizedPlatform;
@@ -53,6 +54,7 @@ class ScanDetectedGame {
   final List<ScanGameMatch> matches;
 
   const ScanDetectedGame({
+    required this.candidateId,
     required this.rawTitle,
     required this.rawPlatform,
     required this.normalizedPlatform,
@@ -63,6 +65,7 @@ class ScanDetectedGame {
   factory ScanDetectedGame.fromMap(Map<String, dynamic> data) {
     final matchesRaw = data['matches'] as List<dynamic>? ?? [];
     return ScanDetectedGame(
+      candidateId: data['candidate_id'] as String? ?? '',
       rawTitle: data['raw_title'] as String? ?? '',
       rawPlatform: data['raw_platform'] as String? ?? '',
       normalizedPlatform: data['normalized_platform'] as String? ?? '',

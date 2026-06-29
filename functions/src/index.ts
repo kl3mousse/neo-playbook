@@ -31,6 +31,7 @@ type RankedGameMatch = {
 };
 
 type ProcessedDetectedGame = {
+  candidate_id: string;
   raw_title: string;
   raw_platform: string;
   normalized_platform: string;
@@ -208,7 +209,7 @@ async function requestImageRecognition(
             type: "text",
             text: [
               "Return JSON as {\"games\":[{\"title\":string,\"platform\":string,\"confidence\":number}]}",
-              "- Include up to 4 most likely games visible in the image.",
+              "- Include up to 20 likely games visible in the image.",
               "- confidence must be between 0 and 1.",
               "- platform should use arcade-style labels like MVS, AES, NGCD, CPS1, CPS2 when possible.",
               "- If uncertain, still provide best guesses with lower confidence.",
@@ -246,7 +247,7 @@ async function requestImageRecognition(
       return { title, platform, confidence };
     })
     .filter((entry): entry is RecognitionCandidate => entry !== null)
-    .slice(0, 8);
+    .slice(0, 20);
 }
 
 async function loadGameCandidates(platformHint: string): Promise<GameCandidate[]> {
@@ -352,6 +353,17 @@ export const processAccountDeletionRequest = onDocumentCreated(
       try {
         await getStorage().bucket().deleteFiles({
           prefix: `collection_scans/${userId}/`,
+        });
+      } catch (err: unknown) {
+        const code = (err as { code?: number | string } | undefined)?.code;
+        if (code !== 404 && code !== "storage/object-not-found") {
+          throw err;
+        }
+      }
+
+      try {
+        await getStorage().bucket().deleteFiles({
+          prefix: `collection_items/${userId}/`,
         });
       } catch (err: unknown) {
         const code = (err as { code?: number | string } | undefined)?.code;
@@ -489,7 +501,7 @@ export const processCollectionScanJob = onDocumentCreated(
       }
 
       const processedDetectedGames: ProcessedDetectedGame[] = [];
-      for (const candidate of recognized) {
+      for (const [index, candidate] of recognized.entries()) {
         const normalizedPlatform = normalizePlatform(candidate.platform);
         const games = await loadGameCandidates(normalizedPlatform);
         const matches = rankMatches(candidate, games);
@@ -499,6 +511,7 @@ export const processCollectionScanJob = onDocumentCreated(
         }
 
         processedDetectedGames.push({
+          candidate_id: `candidate_${index}`,
           raw_title: candidate.title,
           raw_platform: candidate.platform,
           normalized_platform: normalizedPlatform,

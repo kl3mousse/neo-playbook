@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/collection_item.dart';
+import '../models/game.dart';
 import '../models/scan_recognition_job.dart';
 import '../services/collection_scan_service.dart';
+import '../services/firestore_service.dart';
 import '../services/user_service.dart';
 import 'add_to_collection_sheet.dart';
 
@@ -91,7 +94,8 @@ class _ModeChooser extends StatelessWidget {
         _ModeCard(
           icon: Icons.library_add_check,
           title: 'Bulk Import',
-          subtitle: 'Capture up to 10 photos and import recognized matches.',
+          subtitle:
+              'Take one photo that may include many arcade games to import.',
           actionLabel: 'Start Import',
           onTap: onSelectBulk,
         ),
@@ -366,29 +370,23 @@ class _BulkImportView extends StatefulWidget {
 
 class _BulkImportViewState extends State<_BulkImportView> {
   final _picker = ImagePicker();
-  final List<String> _jobIds = [];
-  final Set<String> _autoDraftedJobIds = {};
-  final Set<String> _manuallyImportedJobIds = {};
-  final Map<String, StreamSubscription<ScanRecognitionJob?>> _subscriptions =
-      {};
+  String? _jobId;
+  ScanRecognitionJob? _job;
+  Uint8List? _capturedBytes;
+  String? _capturedFileName;
+  StreamSubscription<ScanRecognitionJob?>? _jobSubscription;
+  final Set<String> _autoDraftedCandidateIds = {};
+  final Set<String> _manuallyImportedCandidateIds = {};
   bool _capturing = false;
+  bool _creatingDrafts = false;
 
   @override
   void dispose() {
-    for (final sub in _subscriptions.values) {
-      sub.cancel();
-    }
+    _jobSubscription?.cancel();
     super.dispose();
   }
 
-  Future<void> _captureAndQueue() async {
-    if (_jobIds.length >= 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Batch limit reached (10 photos)')),
-      );
-      return;
-    }
-
+  Future<void> _captureSingleImage() async {
     setState(() => _capturing = true);
     try {
       final image = await _picker.pickImage(
@@ -411,8 +409,15 @@ class _BulkImportViewState extends State<_BulkImportView> {
         return;
       }
 
-      setState(() => _jobIds.insert(0, jobId));
       _attachJobListener(jobId);
+      setState(() {
+        _jobId = jobId;
+        _job = null;
+        _capturedBytes = bytes;
+        _capturedFileName = image.name;
+        _autoDraftedCandidateIds.clear();
+        _manuallyImportedCandidateIds.clear();
+      });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -426,100 +431,233 @@ class _BulkImportViewState extends State<_BulkImportView> {
     }
   }
 
-  void _attachJobListener(String jobId) {
-    if (_subscriptions.containsKey(jobId)) {
-      return;
+  Future<String?> _uploadScanCopyForCandidate(String candidateId) async {
+    final bytes = _capturedBytes;
+    if (bytes == null) {
+      return null;
     }
+    try {
+      return await UserService.uploadCollectionItemPhoto(
+        itemId: 'scan_$candidateId',
+        bytes: bytes,
+        contentType: 'image/jpeg',
+        fileName: _capturedFileName,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 
-    _subscriptions[jobId] = CollectionScanService.watchJob(jobId).listen((
+  String _candidateId(ScanDetectedGame detected, int index) {
+    if (detected.candidateId.trim().isNotEmpty) {
+      return detected.candidateId.trim();
+    }
+    return 'candidate_$index';
+  }
+
+  void _attachJobListener(String jobId) {
+    _jobSubscription?.cancel();
+    _jobSubscription = CollectionScanService.watchJob(jobId).listen((
       job,
     ) async {
-      if (job == null ||
-          !job.isCompleted ||
-          _autoDraftedJobIds.contains(job.id)) {
+      if (!mounted || job == null) {
+        return;
+      }
+      setState(() => _job = job);
+
+      if (!job.isCompleted) {
         return;
       }
 
-      final best = job.bestMatch;
-      final shouldAutoDraft = best == null || best.combinedConfidence < 0.45;
-      if (!shouldAutoDraft) {
-        return;
-      }
-
-      _autoDraftedJobIds.add(job.id);
-      if (mounted) {
-        setState(() {});
-      }
-
-      if (best == null) {
-        final fallbackTitle = job.detectedGames.isNotEmpty
-            ? job.detectedGames.first.rawTitle
-            : 'Unidentified Game';
-        final fallbackPlatform = job.detectedGames.isNotEmpty
-            ? (job.detectedGames.first.normalizedPlatform.isNotEmpty
-                  ? job.detectedGames.first.normalizedPlatform
-                  : 'mvs')
-            : 'mvs';
-
-        await UserService.importRecognizedItem(
-          scanJobId: job.id,
-          gameId: '',
-          gameTitle: fallbackTitle.isNotEmpty
-              ? fallbackTitle
-              : 'Unidentified Game',
-          platform: fallbackPlatform,
-          confidence: job.bestModelConfidence,
-          unverified: true,
-          notes:
-              'Auto-created from low-confidence scan. Please review details.',
-        );
-      } else {
-        await UserService.importRecognizedItem(
-          scanJobId: job.id,
-          gameId: best.gameId,
-          gameTitle: best.gameTitle,
-          platform: best.platform,
-          confidence: best.combinedConfidence,
-          unverified: true,
-          notes:
-              'Auto-created from low-confidence scan. Please review details.',
-        );
-      }
-
-      await UserService.markScanJobImported(job.id, 'draft_auto_created');
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unverified draft created from scan')),
-        );
-      }
+      await _autoDraftLowConfidenceCandidates(job);
     });
   }
 
-  Future<void> _importMatch(ScanRecognitionJob job) async {
-    final best = job.bestMatch;
-    if (best == null || _manuallyImportedJobIds.contains(job.id)) {
+  Future<void> _autoDraftLowConfidenceCandidates(ScanRecognitionJob job) async {
+    if (_creatingDrafts) {
+      return;
+    }
+    _creatingDrafts = true;
+
+    try {
+      int createdDrafts = 0;
+      for (var index = 0; index < job.detectedGames.length; index++) {
+        final detected = job.detectedGames[index];
+        final candidateId = _candidateId(detected, index);
+
+        if (_autoDraftedCandidateIds.contains(candidateId) ||
+            _manuallyImportedCandidateIds.contains(candidateId)) {
+          continue;
+        }
+
+        if (await UserService.getCollectionItemForScanCandidate(
+              scanJobId: job.id,
+              scanCandidateId: candidateId,
+            ) !=
+            null) {
+          _autoDraftedCandidateIds.add(candidateId);
+          continue;
+        }
+
+        final best = detected.topMatch;
+        final shouldAutoDraft = best == null ||
+            best.combinedConfidence < 0.45;
+
+        if (!shouldAutoDraft) {
+          continue;
+        }
+
+        final fallbackTitle = detected.rawTitle.trim().isNotEmpty
+            ? detected.rawTitle.trim()
+            : 'Unidentified Game';
+        final fallbackPlatform = detected.normalizedPlatform.trim().isNotEmpty
+            ? detected.normalizedPlatform.trim()
+            : 'mvs';
+
+        final photoPath = await _uploadScanCopyForCandidate(candidateId);
+
+        await UserService.importRecognizedItem(
+          scanJobId: job.id,
+          scanCandidateId: candidateId,
+          gameId: best?.gameId ?? '',
+          gameTitle: best?.gameTitle ?? fallbackTitle,
+          platform: best?.platform ?? fallbackPlatform,
+          confidence: best?.combinedConfidence ?? detected.modelConfidence,
+          unverified: true,
+          notes:
+              'Auto-created from low-confidence scan. Please review details.',
+          imagePath: photoPath,
+        );
+
+        _autoDraftedCandidateIds.add(candidateId);
+        createdDrafts += 1;
+      }
+
+      if (createdDrafts > 0) {
+        await UserService.markScanJobImported(job.id, 'draft_auto_created');
+        if (mounted) {
+          setState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                createdDrafts == 1
+                    ? '1 unverified draft created from scan'
+                    : '$createdDrafts unverified drafts created from scan',
+              ),
+            ),
+          );
+        }
+      }
+    } finally {
+      _creatingDrafts = false;
+    }
+  }
+
+  Future<void> _importDetectedMatch(
+    ScanRecognitionJob job,
+    ScanDetectedGame detected,
+    int index,
+  ) async {
+    final best = detected.topMatch;
+    if (best == null) {
       return;
     }
 
+    final candidateId = _candidateId(detected, index);
+    if (_manuallyImportedCandidateIds.contains(candidateId)) {
+      return;
+    }
+
+    final photoPath = await _uploadScanCopyForCandidate(candidateId);
+
     await UserService.importRecognizedItem(
       scanJobId: job.id,
+      scanCandidateId: candidateId,
       gameId: best.gameId,
       gameTitle: best.gameTitle,
       platform: best.platform,
       confidence: best.combinedConfidence,
       unverified: false,
       notes: 'Imported from camera scan.',
+      imagePath: photoPath,
     );
     await UserService.markScanJobImported(job.id, 'imported');
     if (!mounted) {
       return;
     }
 
-    setState(() => _manuallyImportedJobIds.add(job.id));
+    setState(() => _manuallyImportedCandidateIds.add(candidateId));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Imported ${best.gameTitle} to collection')),
     );
+  }
+
+  Future<void> _changeImportedGame(
+    ScanRecognitionJob job,
+    ScanDetectedGame detected,
+    int index,
+  ) async {
+    final candidateId = _candidateId(detected, index);
+    final existing = await UserService.getCollectionItemForScanCandidate(
+      scanJobId: job.id,
+      scanCandidateId: candidateId,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (existing == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Import this candidate first to modify it'),
+        ),
+      );
+      return;
+    }
+
+    final selectedGame = await showModalBottomSheet<Game>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _ChangeImportedGameSheet(initialQuery: detected.rawTitle),
+    );
+
+    if (!mounted || selectedGame == null) {
+      return;
+    }
+
+    final updated = CollectionItem(
+      id: existing.id,
+      gameId: selectedGame.id,
+      gameTitle: selectedGame.title,
+      platform: selectedGame.platform.isNotEmpty
+          ? selectedGame.platform
+          : existing.platform,
+      format: existing.format,
+      condition: existing.condition,
+      region: existing.region,
+      purchasePrice: existing.purchasePrice,
+      purchaseCurrency: existing.purchaseCurrency,
+      purchaseDate: existing.purchaseDate,
+      notes: existing.notes,
+      addedAt: existing.addedAt,
+      isUnverified: false,
+      scanJobId: existing.scanJobId,
+      scanCandidateId: existing.scanCandidateId,
+      recognitionConfidence: existing.recognitionConfidence,
+      importSource: existing.importSource,
+      verifiedAt: Timestamp.now(),
+    );
+
+    await UserService.updateCollectionItem(existing.id, updated);
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Updated to ${selectedGame.title}')));
   }
 
   @override
@@ -541,83 +679,106 @@ class _BulkImportViewState extends State<_BulkImportView> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Capture up to 10 photos. Low-confidence results are auto-saved as unverified drafts.',
+          'Use one photo only. Include as many arcade games as possible in the shot. Low-confidence detections are auto-saved as unverified drafts.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
         FilledButton.icon(
-          onPressed: _capturing ? null : _captureAndQueue,
+          onPressed: _capturing ? null : _captureSingleImage,
           icon: const Icon(Icons.camera_alt),
           label: Text(
             _capturing
                 ? 'Capturing...'
-                : 'Capture Photo (${_jobIds.length}/10)',
+                : (_jobId == null ? 'Capture Photo' : 'Retake Photo'),
           ),
         ),
         const SizedBox(height: 12),
-        if (_jobIds.isEmpty)
-          const Text('No scans in this batch yet.')
-        else
+        if (_jobId == null)
+          const Text('No scan captured yet.')
+        else if (_job == null ||
+            _job!.status == ScanJobStatus.queued ||
+            _job!.status == ScanJobStatus.processing)
+          const _StatusCard(
+            icon: Icons.timelapse,
+            title: 'Analyzing image...',
+            subtitle: 'Recognition in progress',
+          )
+        else if (_job!.isFailed)
+          _StatusCard(
+            icon: Icons.error_outline,
+            title: 'Recognition failed',
+            subtitle: _job!.errorMessage ?? 'Please retake the photo',
+          )
+        else ...[
+          Text(
+            '${_job!.detectedGames.length} candidate(s) detected from this image.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          if (_job!.parseWarnings.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                _job!.parseWarnings.first,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          const SizedBox(height: 8),
           SizedBox(
             height: 320,
             child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: _jobIds.length,
+              itemCount: _job!.detectedGames.length,
               separatorBuilder: (_, index) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final jobId = _jobIds[index];
-                return StreamBuilder<ScanRecognitionJob?>(
-                  stream: CollectionScanService.watchJob(jobId),
-                  builder: (context, snapshot) {
-                    final job = snapshot.data;
-                    if (job == null) {
-                      return const _StatusCard(
-                        icon: Icons.hourglass_empty,
-                        title: 'Queued',
-                        subtitle: 'Waiting for job details...',
-                      );
-                    }
-
-                    return _BulkJobCard(
-                      job: job,
-                      manuallyImported: _manuallyImportedJobIds.contains(
-                        job.id,
-                      ),
-                      autoDrafted: _autoDraftedJobIds.contains(job.id),
-                      onImport: () => _importMatch(job),
-                    );
-                  },
+                final detected = _job!.detectedGames[index];
+                final candidateId = _candidateId(detected, index);
+                return _DetectedCandidateCard(
+                  detected: detected,
+                  manuallyImported: _manuallyImportedCandidateIds.contains(
+                    candidateId,
+                  ),
+                  autoDrafted: _autoDraftedCandidateIds.contains(candidateId),
+                  onImport: () => _importDetectedMatch(_job!, detected, index),
+                  onModifyImported: () =>
+                      _changeImportedGame(_job!, detected, index),
                 );
               },
             ),
           ),
+        ],
       ],
     );
   }
 }
 
-class _BulkJobCard extends StatelessWidget {
-  final ScanRecognitionJob job;
+class _DetectedCandidateCard extends StatelessWidget {
+  final ScanDetectedGame detected;
   final bool manuallyImported;
   final bool autoDrafted;
   final VoidCallback onImport;
+  final VoidCallback onModifyImported;
 
-  const _BulkJobCard({
-    required this.job,
+  const _DetectedCandidateCard({
+    required this.detected,
     required this.manuallyImported,
     required this.autoDrafted,
     required this.onImport,
+    required this.onModifyImported,
   });
 
   @override
   Widget build(BuildContext context) {
-    final best = job.bestMatch;
-    final statusText = switch (job.status) {
-      ScanJobStatus.queued => 'Queued',
-      ScanJobStatus.processing => 'Processing',
-      ScanJobStatus.completed => 'Completed',
-      ScanJobStatus.failed => 'Failed',
-    };
+    final best = detected.topMatch;
+    final title =
+        best?.gameTitle ??
+        (detected.rawTitle.trim().isNotEmpty
+            ? detected.rawTitle.trim()
+            : 'Unidentified Game');
+    final platform =
+        best?.platform ??
+        (detected.normalizedPlatform.trim().isNotEmpty
+            ? detected.normalizedPlatform.trim()
+            : 'unknown');
+    final confidence = best?.combinedConfidence ?? detected.modelConfidence;
 
     return Card(
       margin: EdgeInsets.zero,
@@ -626,42 +787,151 @@ class _BulkJobCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Scan ${job.id.substring(0, 6)} · $statusText'),
-            if (job.status == ScanJobStatus.failed && job.errorMessage != null)
-              Text(
-                job.errorMessage!,
-                style: Theme.of(context).textTheme.bodySmall,
+            Text(title),
+            const SizedBox(height: 4),
+            Text(
+              '${platform.toUpperCase()} · ${(confidence * 100).toStringAsFixed(0)}%',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (best == null)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('No reliable catalog match for this detection.'),
               ),
-            if (job.status == ScanJobStatus.completed) ...[
-              const SizedBox(height: 8),
-              if (best == null)
-                const Text('No reliable match')
-              else
-                Text(
-                  '${best.gameTitle} (${best.platform.toUpperCase()}) · ${(best.combinedConfidence * 100).toStringAsFixed(0)}%',
+            if (autoDrafted)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Unverified draft auto-created.'),
+              ),
+            if (best != null && confidence >= 0.45 && !manuallyImported)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: FilledButton.tonalIcon(
+                  onPressed: onImport,
+                  icon: const Icon(Icons.playlist_add_check),
+                  label: const Text('Import Match'),
                 ),
-              if (autoDrafted)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text('Unverified draft auto-created.'),
+              ),
+            if (manuallyImported)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Imported to collection.'),
+              ),
+            if (manuallyImported || autoDrafted)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: OutlinedButton.icon(
+                  onPressed: onModifyImported,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Change Game'),
                 ),
-              if (best != null &&
-                  best.combinedConfidence >= 0.45 &&
-                  !manuallyImported)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: FilledButton.tonalIcon(
-                    onPressed: onImport,
-                    icon: const Icon(Icons.playlist_add_check),
-                    label: const Text('Import Match'),
-                  ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChangeImportedGameSheet extends StatefulWidget {
+  final String initialQuery;
+
+  const _ChangeImportedGameSheet({required this.initialQuery});
+
+  @override
+  State<_ChangeImportedGameSheet> createState() =>
+      _ChangeImportedGameSheetState();
+}
+
+class _ChangeImportedGameSheetState extends State<_ChangeImportedGameSheet> {
+  late final TextEditingController _searchController;
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.initialQuery);
+    _query = widget.initialQuery;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final normalized = _query.trim();
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          12,
+          16,
+          MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Change Imported Game',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                labelText: 'Search game title',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) => setState(() => _query = value),
+            ),
+            const SizedBox(height: 12),
+            if (normalized.length < 2)
+              const Text('Type at least 2 characters to search')
+            else
+              SizedBox(
+                height: 360,
+                child: StreamBuilder<List<Game>>(
+                  stream: FirestoreService.searchGames(normalized),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final results = snapshot.data!.take(30).toList();
+                    if (results.isEmpty) {
+                      return const Center(
+                        child: Text('No game found for this query'),
+                      );
+                    }
+
+                    return ListView.separated(
+                      itemCount: results.length,
+                      separatorBuilder: (_, index) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final game = results[index];
+                        final subtitle = [
+                          game.platform.toUpperCase(),
+                          if (game.year != null) game.year.toString(),
+                          if (game.publisher != null &&
+                              game.publisher!.trim().isNotEmpty)
+                            game.publisher!.trim(),
+                        ].join(' · ');
+
+                        return ListTile(
+                          title: Text(game.title),
+                          subtitle: Text(subtitle),
+                          onTap: () => Navigator.pop(context, game),
+                        );
+                      },
+                    );
+                  },
                 ),
-              if (manuallyImported)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text('Imported to collection.'),
-                ),
-            ],
+              ),
           ],
         ),
       ),
