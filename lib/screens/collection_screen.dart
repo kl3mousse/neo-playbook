@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/collection_item.dart';
 import '../services/user_service.dart';
 import '../services/auth_service.dart';
-import '../widgets/add_to_collection_sheet.dart';
 import '../widgets/collection_scan_sheet.dart';
+import '../widgets/collection_tile.dart';
 import '../widgets/sign_in_prompt.dart';
 
 class CollectionScreen extends StatelessWidget {
@@ -129,39 +129,7 @@ class CollectionScreen extends StatelessWidget {
                           ),
                         ),
                         ...platformItems.map(
-                          (item) => _CollectionTile(
-                            item: item,
-                            onDelete: () async {
-                              final scheme = Theme.of(context).colorScheme;
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text('Remove Item'),
-                                  content: Text(
-                                    'Remove ${item.gameTitle} from collection?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(ctx, false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    FilledButton(
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: scheme.error,
-                                        foregroundColor: scheme.onError,
-                                      ),
-                                      onPressed: () => Navigator.pop(ctx, true),
-                                      child: const Text('Remove'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              if (confirm == true) {
-                                await UserService.removeFromCollection(item.id);
-                              }
-                            },
-                          ),
+                          (item) => CollectionTile(item: item),
                         ),
                       ],
                     );
@@ -197,97 +165,4 @@ class _SummaryTile extends StatelessWidget {
   }
 }
 
-class _CollectionTile extends StatelessWidget {
-  final CollectionItem item;
-  final VoidCallback onDelete;
-  const _CollectionTile({required this.item, required this.onDelete});
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ListTile(
-        leading: _CollectionTileThumbnail(item: item),
-        title: Text(item.gameTitle),
-        subtitle: Text(
-          [
-            item.format.label,
-            item.condition.label,
-            item.region.toUpperCase(),
-            if (item.purchasePrice != null)
-              '${item.purchasePrice!.toStringAsFixed(0)} ${item.purchaseCurrency ?? ''}',
-            if (item.notes != null && item.notes!.isNotEmpty) item.notes!,
-          ].join(' · '),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (item.isUnverified)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Chip(
-                  avatar: const Icon(Icons.flag_outlined, size: 16),
-                  label: const Text('Draft · Unverified'),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: () => showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                builder: (_) => AddToCollectionSheet(
-                  gameId: item.gameId,
-                  gameTitle: item.gameTitle,
-                  existingItem: item,
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: onDelete,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CollectionTileThumbnail extends StatelessWidget {
-  final CollectionItem item;
-  const _CollectionTileThumbnail({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    if (item.imagePaths.isEmpty) {
-      return CircleAvatar(
-        backgroundColor:
-            Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: const Icon(Icons.videogame_asset_outlined),
-      );
-    }
-    final path = item.imagePaths.first;
-    return FutureBuilder<String>(
-      future: UserService.resolveCollectionItemPhotoUrl(path),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const CircleAvatar(
-            child: SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          );
-        }
-        final url = snapshot.data;
-        if (url == null) {
-          return const CircleAvatar(
-            child: Icon(Icons.broken_image_outlined),
-          );
-        }
-        return CircleAvatar(backgroundImage: NetworkImage(url));
-      },
-    );
-  }
-}

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/collection_item.dart';
 import '../services/user_service.dart';
+import 'picture_source_sheet.dart';
 
 class AddToCollectionSheet extends StatefulWidget {
   final String gameId;
@@ -58,6 +59,12 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
   final _platformOptions = ['mvs', 'aes', 'ngcd', 'cps1', 'cps2'];
   final _regionOptions = ['jp', 'us', 'eu', 'kr'];
   final _currencyOptions = ['USD', 'EUR', 'JPY', 'GBP'];
+
+  Future<void> _addPhoto() async {
+    final source = await showPictureSourceSheet(context);
+    if (source == null) return;
+    await _pickPhoto(source);
+  }
 
   Future<void> _pickPhoto(ImageSource source) async {
     try {
@@ -220,8 +227,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
               pendingPhotos: _newPhotos,
               onRemoveExisting: _removeExistingPhoto,
               onRemovePending: _removePendingPhoto,
-              onPickCamera: () => _pickPhoto(ImageSource.camera),
-              onPickGallery: () => _pickPhoto(ImageSource.gallery),
+              onAddPhoto: _addPhoto,
             ),
             const SizedBox(height: 16),
             // Platform
@@ -370,16 +376,14 @@ class _PhotoGallerySection extends StatelessWidget {
   final List<_PendingPhoto> pendingPhotos;
   final ValueChanged<String> onRemoveExisting;
   final ValueChanged<_PendingPhoto> onRemovePending;
-  final VoidCallback onPickCamera;
-  final VoidCallback onPickGallery;
+  final VoidCallback onAddPhoto;
 
   const _PhotoGallerySection({
     required this.existingPaths,
     required this.pendingPhotos,
     required this.onRemoveExisting,
     required this.onRemovePending,
-    required this.onPickCamera,
-    required this.onPickGallery,
+    required this.onAddPhoto,
   });
 
   @override
@@ -416,24 +420,13 @@ class _PhotoGallerySection extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: onPickCamera,
-                icon: const Icon(Icons.photo_camera_outlined),
-                label: const Text('Camera'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: onPickGallery,
-                icon: const Icon(Icons.photo_library_outlined),
-                label: const Text('Gallery'),
-              ),
-            ),
-          ],
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: onAddPhoto,
+            icon: const Icon(Icons.add_a_photo_outlined),
+            label: const Text('Picture'),
+          ),
         ),
       ],
     );

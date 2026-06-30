@@ -12,8 +12,7 @@ import '../models/dip_settings.dart';
 import '../models/community_note.dart';
 import '../models/game_score.dart';
 import '../models/user_favorite.dart';
-import '../models/collection_item.dart';
-import '../router.dart' show canonicalGameUrl;
+import '../models/collection_item.dart';import '../router.dart' show canonicalGameUrl;
 import '../theme/app_theme.dart';
 import '../theme/combofox_theme.dart';
 import '../theme/platform_palette.dart';
@@ -27,6 +26,7 @@ import '../widgets/dip_settings_widget.dart';
 import '../widgets/add_note_sheet.dart';
 import '../widgets/submit_score_sheet.dart';
 import '../widgets/add_to_collection_sheet.dart';
+import '../widgets/collection_tile.dart';
 import '../widgets/game_card.dart' show genreColor;
 import '../widgets/arcade_panel.dart';
 import '../widgets/foxxy_assistant.dart';
@@ -707,41 +707,7 @@ class _CollectionStatusSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            ...items.map((item) => Card(
-                  child: ListTile(
-                    title: Text(
-                        '${item.platform.toUpperCase()} · ${item.format.label}'),
-                    subtitle: Text([
-                      item.condition.label,
-                      item.region.toUpperCase(),
-                      if (item.purchasePrice != null)
-                        '${item.purchasePrice!.toStringAsFixed(0)} ${item.purchaseCurrency ?? ''}',
-                    ].join(' · ')),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 18),
-                          onPressed: () => showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (_) => AddToCollectionSheet(
-                              gameId: item.gameId,
-                              gameTitle: item.gameTitle,
-                              existingItem: item,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18),
-                          onPressed: () async {
-                            await UserService.removeFromCollection(item.id);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                )),
+            ...items.map((item) => CollectionTile(item: item)),
           ],
         );
       },

@@ -404,6 +404,16 @@ class UserService {
     return FirebaseStorage.instance.ref().child(storagePath).getDownloadURL();
   }
 
+  /// Stream a single collection item by id (live updates after edits).
+  static Stream<CollectionItem?> collectionItemStream(String itemId) {
+    final user = AuthService.currentUser;
+    if (user == null) return Stream.value(null);
+    return _collectionRef(user.uid)
+        .doc(itemId)
+        .snapshots()
+        .map((doc) => doc.exists ? CollectionItem.fromFirestore(doc) : null);
+  }
+
   /// Stream all collection items.
   static Stream<List<CollectionItem>> collectionStream() {
     final user = AuthService.currentUser;
