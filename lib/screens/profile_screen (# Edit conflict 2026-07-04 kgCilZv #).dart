@@ -6,7 +6,6 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../models/user_profile.dart';
 import '../models/social_link.dart';
-import '../models/app_language.dart';
 import '../widgets/social_link_icons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -137,8 +136,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             initialBio: _profile?.bio ?? '',
                             initialSocialLinks:
                                 _profile?.socialLinks ?? const <SocialLink>[],
-                            initialLanguageCode:
-                                _profile?.preferredLanguage ?? '',
                           ),
                         );
                     if (updated != null) {
@@ -148,7 +145,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         photoUrl: updated.photoUrl,
                         bio: updated.bio,
                         socialLinks: updated.socialLinks,
-                        preferredLanguage: updated.preferredLanguage,
                       );
                       await _loadProfile();
                     }
@@ -188,10 +184,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           _SocialLinksSection(
             links: _profile?.socialLinks ?? const <SocialLink>[],
-          ),
-          const SizedBox(height: 16),
-          _LanguageSection(
-            languageCode: _profile?.preferredLanguage ?? '',
           ),
         ],
       ),
@@ -312,57 +304,16 @@ class _SocialLinksSection extends StatelessWidget {
   }
 }
 
-class _LanguageSection extends StatelessWidget {
-  final String languageCode;
-  const _LanguageSection({required this.languageCode});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final lang = AppLanguage.fromCode(languageCode);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Language',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 4),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            Icons.translate,
-            color: theme.colorScheme.primary,
-          ),
-          title: Text(lang.label),
-          subtitle: Text(
-            lang.isDefault
-                ? 'Preferred language not set'
-                : 'Preferred language',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ProfileEditResult {
   final String displayName;
   final String? photoUrl;
   final String bio;
   final List<SocialLink> socialLinks;
-  final String preferredLanguage;
   _ProfileEditResult({
     required this.displayName,
     required this.photoUrl,
     required this.bio,
     required this.socialLinks,
-    required this.preferredLanguage,
   });
 }
 
@@ -371,13 +322,11 @@ class _EditProfileSheet extends StatefulWidget {
   final String? initialPhotoUrl;
   final String initialBio;
   final List<SocialLink> initialSocialLinks;
-  final String initialLanguageCode;
   const _EditProfileSheet({
     required this.initialName,
     this.initialPhotoUrl,
     required this.initialBio,
     required this.initialSocialLinks,
-    required this.initialLanguageCode,
   });
 
   @override
@@ -392,7 +341,6 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
   Uint8List? _pickedImageBytes;
   bool _saving = false;
   late List<_SocialLinkDraft> _linkDrafts;
-  late String _languageCode;
 
   @override
   void initState() {
@@ -403,7 +351,6 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
     _linkDrafts = widget.initialSocialLinks
         .map((l) => _SocialLinkDraft.fromLink(l))
         .toList();
-    _languageCode = AppLanguage.fromCode(widget.initialLanguageCode).code;
   }
 
   @override
@@ -492,7 +439,6 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
             photoUrl: url,
             bio: bio,
             socialLinks: links,
-            preferredLanguage: _languageCode,
           ),
         );
       }
@@ -529,31 +475,28 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  CircleAvatar(
-                    radius: 48,
-                    backgroundImage: _pickedImageBytes != null
-                        ? MemoryImage(_pickedImageBytes!)
-                        : (_photoUrl != null && _photoUrl!.isNotEmpty)
-                        ? NetworkImage(_photoUrl!) as ImageProvider
-                        : null,
-                    child:
-                        (_photoUrl == null || _photoUrl!.isEmpty) &&
-                            _pickedImage == null
-                        ? const Icon(Icons.person, size: 48)
-                        : null,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.photo_camera),
-                    onPressed: _pickImage,
-                  ),
-                ],
-              ),
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                CircleAvatar(
+                  radius: 48,
+                  backgroundImage: _pickedImageBytes != null
+                      ? MemoryImage(_pickedImageBytes!)
+                      : (_photoUrl != null && _photoUrl!.isNotEmpty)
+                      ? NetworkImage(_photoUrl!) as ImageProvider
+                      : null,
+                  child:
+                      (_photoUrl == null || _photoUrl!.isEmpty) &&
+                          _pickedImage == null
+                      ? const Icon(Icons.person, size: 48)
+                      : null,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.photo_camera),
+                  onPressed: _pickImage,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             TextField(
@@ -564,78 +507,6 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
               ),
               textCapitalization: TextCapitalization.words,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _bioController,
-              decoration: const InputDecoration(
-                labelText: 'Bio (required)',
-                hintText: 'Tell the community who you are',
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-              maxLines: 4,
-              minLines: 3,
-              maxLength: 500,
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              initialValue: _languageCode,
-              decoration: const InputDecoration(
-                labelText: 'Preferred language',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.translate),
-              ),
-              items: [
-                for (final lang in AppLanguage.all)
-                  DropdownMenuItem<String>(
-                    value: lang.code,
-                    child: Text(lang.label),
-                  ),
-              ],
-              onChanged: _saving
-                  ? null
-                  : (value) {
-                      if (value == null) return;
-                      setState(() => _languageCode = value);
-                    },
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Links',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: _saving ? null : _addLink,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add link'),
-                ),
-              ],
-            ),
-            if (_linkDrafts.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'Add profiles from forums (neo-geo.com, hfsplay.fr…) '
-                  'or social networks. Known sites get an icon automatically.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            for (var i = 0; i < _linkDrafts.length; i++) ...[
-              _SocialLinkEditor(
-                draft: _linkDrafts[i],
-                onRemove: _saving ? null : () => _removeLink(i),
-              ),
-              const SizedBox(height: 8),
-            ],
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -652,110 +523,6 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SocialLinkDraft {
-  final TextEditingController url;
-  final TextEditingController username;
-
-  _SocialLinkDraft.empty()
-      : url = TextEditingController(),
-        username = TextEditingController();
-
-  _SocialLinkDraft.fromLink(SocialLink link)
-      : url = TextEditingController(text: link.url),
-        username = TextEditingController(text: link.username);
-
-  void dispose() {
-    url.dispose();
-    username.dispose();
-  }
-}
-
-class _SocialLinkEditor extends StatefulWidget {
-  final _SocialLinkDraft draft;
-  final VoidCallback? onRemove;
-  const _SocialLinkEditor({required this.draft, this.onRemove});
-
-  @override
-  State<_SocialLinkEditor> createState() => _SocialLinkEditorState();
-}
-
-class _SocialLinkEditorState extends State<_SocialLinkEditor> {
-  @override
-  void initState() {
-    super.initState();
-    widget.draft.url.addListener(_onChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.draft.url.removeListener(_onChanged);
-    super.dispose();
-  }
-
-  void _onChanged() => setState(() {});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final site = recognizeSocialSite(widget.draft.url.text);
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                site.icon,
-                color: site.brandColor ?? theme.colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  site.label,
-                  style: theme.textTheme.labelLarge,
-                ),
-              ),
-              if (widget.onRemove != null)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: 'Remove link',
-                  onPressed: widget.onRemove,
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: widget.draft.url,
-            decoration: const InputDecoration(
-              labelText: 'Profile URL or website',
-              hintText: 'https://…',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-            keyboardType: TextInputType.url,
-            autocorrect: false,
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: widget.draft.username,
-            decoration: const InputDecoration(
-              labelText: 'Username on that site',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-            autocorrect: false,
-          ),
-        ],
       ),
     );
   }

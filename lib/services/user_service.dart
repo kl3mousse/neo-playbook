@@ -6,7 +6,9 @@ import '../models/user_profile.dart';
 import '../models/user_favorite.dart';
 import '../models/fave_move_list.dart';
 import '../models/collection_item.dart';
+import '../models/social_link.dart';
 import 'auth_service.dart';
+import 'prefs_service.dart';
 
 class UserService {
   static final _db = FirebaseFirestore.instance;
@@ -58,13 +60,16 @@ class UserService {
 
     final doc = await _usersRef.doc(user.uid).get();
     if (doc.exists) {
-      return UserProfile.fromFirestore(doc);
+      final profile = UserProfile.fromFirestore(doc);
+      await PrefsService.setPreferredLanguage(profile.preferredLanguage);
+      return profile;
     }
 
     final profile = UserProfile(
       uid: user.uid,
       displayName: user.displayName ?? '',
       email: user.email ?? '',
+      preferredLanguage: PrefsService.getPreferredLanguage() ?? '',
     );
     await _usersRef.doc(user.uid).set(profile.toFirestoreCreate());
     final created = await _usersRef.doc(user.uid).get();
@@ -75,6 +80,9 @@ class UserService {
   static Future<void> updateProfile({
     required String displayName,
     String? photoUrl,
+    String? bio,
+    List<SocialLink>? socialLinks,
+    String? preferredLanguage,
   }) async {
     final user = AuthService.currentUser;
     if (user == null) return;
@@ -84,6 +92,19 @@ class UserService {
     };
     if (photoUrl != null) {
       data['photo_url'] = photoUrl;
+    }
+    if (bio != null) {
+      data['bio'] = bio.trim();
+    }
+    if (socialLinks != null) {
+      data['social_links'] = socialLinks
+          .where((l) => l.isValid)
+          .map((l) => l.toMap())
+          .toList();
+    }
+    if (preferredLanguage != null) {
+      data['preferred_language'] = preferredLanguage;
+      await PrefsService.setPreferredLanguage(preferredLanguage);
     }
     await _usersRef.doc(user.uid).update(data);
   }

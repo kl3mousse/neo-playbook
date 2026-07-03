@@ -107,4 +107,18 @@ class PrefsService {
 
   static Future<void> markNoteSubmitted() =>
       _p.setInt(_kLastNoteAt, DateTime.now().millisecondsSinceEpoch);
+
+  // ── User preferences ──────────────────────────────────────────────
+
+  static const _kPreferredLanguage = 'user.preferredLanguage';
+
+  /// Returns the user's preferred language code (e.g. `'en'`), or `null`
+  /// / empty string if no explicit preference is set ("Default").
+  static String? getPreferredLanguage() => _p.getString(_kPreferredLanguage);
+
+  /// Persist the user's preferred language code. Pass an empty string to
+  /// clear the preference (meaning "Default").
+  static Future<void> setPreferredLanguage(String code) => code.isEmpty
+      ? _p.remove(_kPreferredLanguage)
+      : _p.setString(_kPreferredLanguage, code);
 }
