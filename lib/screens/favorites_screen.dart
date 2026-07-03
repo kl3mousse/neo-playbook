@@ -20,7 +20,7 @@ class FavoritesScreen extends StatelessWidget {
     paragraphs: [
       "Bookmark the games you love and I'll keep them right here for you!",
       "From any game's detail page, tap the heart to save a game — it'll land in the Games section below.",
-      "You can also bookmark specific move lists from the character screens. They live in their own section, collapsed by default so the list stays tidy.",
+      "You can also bookmark specific move lists from the character screens. They'll show up in their own section right below your games.",
     ],
   );
 
@@ -183,7 +183,7 @@ class _FaveMoveListsSection extends StatelessWidget {
             emoji: '🥊',
             title: 'Move Lists',
             count: null,
-            initiallyExpanded: false,
+            initiallyExpanded: true,
             child: SizedBox.shrink(),
           );
         }
@@ -195,7 +195,7 @@ class _FaveMoveListsSection extends StatelessWidget {
             emoji: '🥊',
             title: 'Move Lists',
             count: 0,
-            initiallyExpanded: false,
+            initiallyExpanded: true,
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 20),
               child: Column(
@@ -218,7 +218,7 @@ class _FaveMoveListsSection extends StatelessWidget {
           emoji: '🥊',
           title: 'Move Lists',
           count: faveMoves.length,
-          initiallyExpanded: false,
+          initiallyExpanded: true,
           child: Column(
             children: faveMoves.map((fave) {
               return ListTile(
