@@ -29,7 +29,6 @@ import '../widgets/add_to_collection_sheet.dart';
 import '../widgets/collection_tile.dart';
 import '../widgets/game_card.dart' show genreColor;
 import '../widgets/arcade_panel.dart';
-import '../widgets/foxxy_assistant.dart';
 
 class GameDetailScreen extends StatelessWidget {
   final Game game;
@@ -81,9 +80,7 @@ class GameDetailScreen extends StatelessWidget {
           ],
         ],
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -106,10 +103,6 @@ class GameDetailScreen extends StatelessWidget {
                     children: [
                       ...game.genre.map((g) => _InfoChip(label: g, filled: true)),
                       _InfoChip(label: game.playersLabel),
-                      if (game.hfsdbId != null)
-                        _HfsdbChip(hfsdbId: game.hfsdbId!),
-                      if (game.igdbUrl != null && game.igdbUrl!.isNotEmpty)
-                        _IgdbChip(igdbUrl: game.igdbUrl!),
                       if (game.ngmId != null)
                         _NgmChip(ngmId: game.ngmId!),
                     ],
@@ -121,8 +114,8 @@ class GameDetailScreen extends StatelessWidget {
                   if (game.description != null && game.description!.isNotEmpty)
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 600),
-                      child: Text(
-                        game.description!,
+                      child: _DescriptionWithFoxxy(
+                        text: game.description!,
                         style: const TextStyle(
                           height: 1.6,
                           color: AppColors.textSecondary,
@@ -162,6 +155,13 @@ class GameDetailScreen extends StatelessWidget {
                     ),
 
                   const SizedBox(height: 24),
+
+                  // External Links
+                  if (game.hfsdbId != null ||
+                      (game.igdbUrl != null && game.igdbUrl!.isNotEmpty)) ...[
+                    _ExternalLinksSection(game: game),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Community Notes
                   _CommunityNotesSection(gameId: game.id),
@@ -212,14 +212,6 @@ class GameDetailScreen extends StatelessWidget {
             ),
           ],
         ),
-          ),
-          // FoxxyAssistant floating overlay (bottom-left)
-          const Positioned(
-            bottom: 80,
-            left: 12,
-            child: FoxxyAssistant(),
-          ),
-        ],
       ),
       bottomNavigationBar: showRootNav ? const _DeepLinkBottomNav() : null,
     );
@@ -281,6 +273,155 @@ class _DeepLinkBottomNav extends StatelessWidget {
           label: 'Profile',
         ),
       ],
+    );
+  }
+}
+
+// ── Description with Foxxy icon (text wraps around image) ───────────────
+
+/// Renders the game description with a small Foxxy icon floated on the
+/// left. Text lays out to the right of the icon and, once the vertical
+/// space beside the icon is exhausted, continues at full width beneath
+/// it — mimicking a CSS `float: left` behavior which Flutter does not
+/// provide natively.
+class _DescriptionWithFoxxy extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+
+  const _DescriptionWithFoxxy({required this.text, required this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    const desiredImageSize = 72.0;
+    const gap = 12.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.of(context).size.width;
+        final besideWidth = maxWidth - desiredImageSize - gap;
+
+        // If there isn't enough horizontal room for meaningful text
+        // beside the icon, stack vertically.
+        if (besideWidth < 80) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset(
+                'assets/foxxy/sd/foxxy-sd-icon-01.png',
+                width: desiredImageSize,
+                height: desiredImageSize,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
+              ),
+              const SizedBox(height: gap),
+              Text(text, style: style),
+            ],
+          );
+        }
+
+        final textScaler = MediaQuery.of(context).textScaler;
+        final painter = TextPainter(
+          text: TextSpan(text: text, style: style),
+          textDirection: Directionality.of(context),
+          textScaler: textScaler,
+          maxLines: null,
+        )..layout(maxWidth: besideWidth);
+
+        final metrics = painter.computeLineMetrics();
+        // Fallback image sized to the desired square.
+        final defaultImage = Image.asset(
+          'assets/foxxy/sd/foxxy-sd-icon-01.png',
+          width: desiredImageSize,
+          height: desiredImageSize,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.medium,
+        );
+        if (metrics.isEmpty) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              defaultImage,
+              const SizedBox(width: gap),
+              Expanded(child: Text(text, style: style)),
+            ],
+          );
+        }
+
+        final lineHeight = metrics.first.height;
+        final linesFitBesideImage =
+            (desiredImageSize / lineHeight).round().clamp(1, metrics.length);
+        // Snap the image height to an integer number of text lines so
+        // the Row's height matches the beside-text height exactly. This
+        // preserves a continuous line rhythm with the "below" text.
+        final snappedImageSize = linesFitBesideImage * lineHeight;
+        final image = Image.asset(
+          'assets/foxxy/sd/foxxy-sd-icon-01.png',
+          width: snappedImageSize,
+          height: snappedImageSize,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.medium,
+        );
+
+        // Case: all text fits beside the icon — no wrapping needed.
+        if (metrics.length <= linesFitBesideImage) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              image,
+              const SizedBox(width: gap),
+              Expanded(child: Text(text, style: style)),
+            ],
+          );
+        }
+
+        // Find the character index at the end of the last line that
+        // still sits beside the image.
+        final yInLastBesideLine =
+            (linesFitBesideImage - 0.5) * lineHeight;
+        final splitPos = painter.getPositionForOffset(
+          Offset(besideWidth, yInLastBesideLine),
+        );
+        var splitIndex = splitPos.offset.clamp(0, text.length);
+
+        // Skip a soft-wrapped space or a hard newline at the split so
+        // the "below" portion doesn't start with whitespace.
+        while (splitIndex < text.length &&
+            (text.codeUnitAt(splitIndex) == 0x20 ||
+                text.codeUnitAt(splitIndex) == 0x0A)) {
+          splitIndex++;
+        }
+
+        final beside = text.substring(0, splitIndex).trimRight();
+        final below = text.substring(splitIndex);
+
+        if (below.isEmpty) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              image,
+              const SizedBox(width: gap),
+              Expanded(child: Text(text, style: style)),
+            ],
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                image,
+                const SizedBox(width: gap),
+                Expanded(child: Text(beside, style: style)),
+              ],
+            ),
+            Text(below, style: style),
+          ],
+        );
+      },
     );
   }
 }
@@ -711,6 +852,42 @@ class _CollectionStatusSection extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+// ── External Links Section ──────────────────────────────────────────────
+
+class _ExternalLinksSection extends StatelessWidget {
+  final Game game;
+  const _ExternalLinksSection({required this.game});
+
+  @override
+  Widget build(BuildContext context) {
+    final chips = <Widget>[
+      if (game.hfsdbId != null) _HfsdbChip(hfsdbId: game.hfsdbId!),
+      if (game.igdbUrl != null && game.igdbUrl!.isNotEmpty)
+        _IgdbChip(igdbUrl: game.igdbUrl!),
+    ];
+    if (chips.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: const [
+            Icon(Icons.link, size: 20),
+            SizedBox(width: 8),
+            Expanded(child: NeonSectionHeader('External Links')),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 6,
+          children: chips,
+        ),
+      ],
     );
   }
 }

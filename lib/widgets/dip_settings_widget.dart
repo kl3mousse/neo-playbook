@@ -33,7 +33,9 @@ class DipSettingsView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ExpansionTile(
-          tilePadding: EdgeInsets.zero,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+          childrenPadding:
+              const EdgeInsets.fromLTRB(12, 0, 12, 12),
           initiallyExpanded: false,
           title: Row(
             children: [
@@ -281,7 +283,8 @@ class _DebugDipsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      tilePadding: EdgeInsets.zero,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+      childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       initiallyExpanded: false,
       title: Row(
         children: [

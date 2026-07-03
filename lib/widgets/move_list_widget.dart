@@ -292,44 +292,62 @@ class MoveListView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header
-        Row(
-          children: [
-            const Icon(Icons.sports_martial_arts, size: 20),
-            const SizedBox(width: 6),
-            Expanded(child: NeonSectionHeader('Move List')),
-          ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+          child: Row(
+            children: [
+              const Icon(Icons.sports_martial_arts, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: NeonSectionHeader('Move List')),
+            ],
+          ),
         ),
         const SizedBox(height: 2),
-        Text(
-          commandData.title,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(fontStyle: FontStyle.italic),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            commandData.title,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(fontStyle: FontStyle.italic),
+          ),
         ),
         const SizedBox(height: 8),
 
         // Common sections (controls, how-to-play, common commands)
         for (final s in commonSections)
-          SectionBlock(section: s),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: SectionBlock(section: s),
+          ),
 
         // Character sections – one card per character
         if (charSections.isNotEmpty) ...[
           const SizedBox(height: 8),
           for (final s in charSections)
-            SectionBlock(
-              section: s,
-              gameId: gameId,
-              gameTitle: gameTitle,
-              romName: romName,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: SectionBlock(
+                section: s,
+                gameId: gameId,
+                gameTitle: gameTitle,
+                romName: romName,
+              ),
             ),
         ],
 
         // Legend footer
         const SizedBox(height: 12),
-        const ArcadeControlsView(),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: ArcadeControlsView(),
+        ),
         const SizedBox(height: 4),
-        const MoveLegend(),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: MoveLegend(),
+        ),
       ],
     );
   }
