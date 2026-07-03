@@ -84,6 +84,10 @@ flutter_launcher_icons:
   ios: true
   remove_alpha_ios: true
   image_path: "assets/images/combofox-icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#0B0F1A"
+  adaptive_icon_foreground: "assets/images/combofox-icon.png"
+  adaptive_icon_foreground_inset: 20
   web:
     generate: true
     image_path: "assets/images/combofox-icon.png"
