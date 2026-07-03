@@ -180,32 +180,17 @@ class _GamesListScreenState extends State<GamesListScreen> {
             children: [
               // Platform selector (dynamic from data)
               if (availablePlatforms.length > 1)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: SizedBox(
-                    height: 42,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      children: availablePlatforms
-                          .map((p) => Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: SystemChip(
-                                  platformKey: p,
-                                  isSelected: effectivePlatform == p,
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedPlatform = p;
-                                      _filters = GameFilters.empty();
-                                    });
-                                    PrefsService.setPlatform(p);
-                                    _persistFilters(GameFilters.empty());
-                                  },
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
+                _PlatformStrip(
+                  platforms: availablePlatforms,
+                  selected: effectivePlatform,
+                  onChanged: (p) {
+                    setState(() {
+                      _selectedPlatform = p;
+                      _filters = GameFilters.empty();
+                    });
+                    PrefsService.setPlatform(p);
+                    _persistFilters(GameFilters.empty());
+                  },
                 ),
 
               // Search bar
@@ -310,45 +295,47 @@ class _GamesListScreenState extends State<GamesListScreen> {
                     else
                       // Games grid
                       Expanded(
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final crossAxisCount =
-                                constraints.maxWidth > 900
-                                    ? 4
-                                    : constraints.maxWidth > 600
-                                        ? 3
-                                        : 2;
-                            return RefreshIndicator(
-                              onRefresh: () async {
-                                setState(() => _streamAttempt++);
-                                // Give the new stream a moment to emit
-                                // before dismissing the indicator.
-                                await Future<void>.delayed(
-                                    const Duration(milliseconds: 350));
-                              },
-                              child: GridView.builder(
-                                padding: const EdgeInsets.all(12),
-                                physics:
-                                    const AlwaysScrollableScrollPhysics(),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: crossAxisCount,
-                                  childAspectRatio: 1.1,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                ),
-                                itemCount: filteredGames.length,
-                                itemBuilder: (context, index) {
-                                  final game = filteredGames[index];
-                                  return GameCard(
-                                    game: game,
-                                    onTap: () =>
-                                        context.push('/game/${game.id}'),
-                                  );
+                        child: RepaintBoundary(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final crossAxisCount =
+                                  constraints.maxWidth > 900
+                                      ? 4
+                                      : constraints.maxWidth > 600
+                                          ? 3
+                                          : 2;
+                              return RefreshIndicator(
+                                onRefresh: () async {
+                                  setState(() => _streamAttempt++);
+                                  // Give the new stream a moment to emit
+                                  // before dismissing the indicator.
+                                  await Future<void>.delayed(
+                                      const Duration(milliseconds: 350));
                                 },
-                              ),
-                            );
-                          },
+                                child: GridView.builder(
+                                  padding: const EdgeInsets.all(12),
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: crossAxisCount,
+                                    childAspectRatio: 1.1,
+                                    crossAxisSpacing: 10,
+                                    mainAxisSpacing: 10,
+                                  ),
+                                  itemCount: filteredGames.length,
+                                  itemBuilder: (context, index) {
+                                    final game = filteredGames[index];
+                                    return GameCard(
+                                      game: game,
+                                      onTap: () =>
+                                          context.push('/game/${game.id}'),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                   ],
@@ -357,6 +344,76 @@ class _GamesListScreenState extends State<GamesListScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Horizontal strip of platform chips. Owns a local "pending" selection
+/// so the tapped chip's own animation renders instantly, decoupled from
+/// the expensive parent rebuild (filter pipeline + grid).
+class _PlatformStrip extends StatefulWidget {
+  final List<String> platforms;
+  final String selected;
+  final ValueChanged<String> onChanged;
+
+  const _PlatformStrip({
+    required this.platforms,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  State<_PlatformStrip> createState() => _PlatformStripState();
+}
+
+class _PlatformStripState extends State<_PlatformStrip> {
+  String? _pending;
+
+  String get _effective => _pending ?? widget.selected;
+
+  @override
+  void didUpdateWidget(covariant _PlatformStrip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Parent caught up with our pending selection — drop it.
+    if (_pending != null && widget.selected == _pending) {
+      _pending = null;
+    }
+  }
+
+  void _handleTap(String p) {
+    if (p == _effective) return;
+    setState(() => _pending = p);
+    // Defer the heavy parent rebuild (filter + grid) until after the
+    // chip's own animation has had a couple of frames to render.
+    Future.delayed(const Duration(milliseconds: 180), () {
+      if (!mounted) return;
+      widget.onChanged(p);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: SizedBox(
+        height: 48,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          children: widget.platforms
+              .map((p) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Center(
+                      child: SystemChip(
+                        platformKey: p,
+                        isSelected: _effective == p,
+                        onTap: () => _handleTap(p),
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
