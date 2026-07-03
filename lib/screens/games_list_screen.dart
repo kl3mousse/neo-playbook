@@ -9,6 +9,7 @@ import '../services/firestore_service.dart';
 import '../services/prefs_service.dart';
 import '../widgets/game_card.dart';
 import '../widgets/filter_panel.dart';
+import '../widgets/info_fab.dart';
 import '../widgets/system_chip.dart' show SystemChip;
 
 class GamesListScreen extends StatefulWidget {
@@ -117,6 +118,16 @@ class _GamesListScreenState extends State<GamesListScreen> {
             tooltip: 'Pick a random game',
             onPressed: _lastGames.isEmpty ? null : _shuffle,
           ),
+        ],
+      ),
+      floatingActionButton: const InfoFab(
+        foxxyAsset: 'assets/foxxy/sd/foxxy-sd-r1-c2.png',
+        title: 'GAMES LIST',
+        paragraphs: [
+          "This is ComboFox's main library — the games I know about!",
+          "By default it's filtered on games that ship with move lists and combos, so you can jump straight into training.",
+          "Pick another system in the top strip to browse the rest — info sheets are available for many more titles too.",
+          "Tap the search bar or the filter icon to narrow things down, or hit the shuffle button up top for a surprise pick.",
         ],
       ),
       body: StreamBuilder<List<Game>>(

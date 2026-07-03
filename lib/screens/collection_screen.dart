@@ -4,10 +4,21 @@ import '../services/user_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/collection_scan_sheet.dart';
 import '../widgets/collection_tile.dart';
+import '../widgets/info_fab.dart';
 import '../widgets/sign_in_prompt.dart';
 
 class CollectionScreen extends StatelessWidget {
   const CollectionScreen({super.key});
+
+  static const InfoFab _infoFab = InfoFab(
+    foxxyAsset: 'assets/foxxy/sd/foxxy-sd-r2-c2.png',
+    title: 'MY COLLECTION',
+    paragraphs: [
+      "Hmm… what games do I actually own? And which ones am I still missing?",
+      "This is your personal shelf: log the cartridges, boards and discs you own, grouped by platform, with optional purchase price and condition.",
+      "Add an item from any game's detail page, or tap the camera icon up top to scan a whole batch at once.",
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +30,7 @@ class CollectionScreen extends StatelessWidget {
             style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
           ),
         ),
+        floatingActionButton: _infoFab,
         body: const SignInPrompt(
           icon: Icons.collections_bookmark_outlined,
           message: 'Sign in to manage your collection',
@@ -44,6 +56,7 @@ class CollectionScreen extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: _infoFab,
       body: StreamBuilder<List<CollectionItem>>(
         stream: UserService.collectionStream(),
         builder: (context, snapshot) {

@@ -7,6 +7,7 @@ import '../services/user_service.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/game_card.dart';
+import '../widgets/info_fab.dart';
 import '../widgets/sign_in_prompt.dart';
 import 'character_moves_screen.dart';
 
@@ -20,6 +21,16 @@ class FavoritesScreen extends StatefulWidget {
 class _FavoritesScreenState extends State<FavoritesScreen> {
   final Set<FavoriteStatus> _activeFilters = Set.of(FavoriteStatus.values);
 
+  static const InfoFab _infoFab = InfoFab(
+    foxxyAsset: 'assets/foxxy/sd/foxxy-sd-r2-c1.png',
+    title: 'FAVORITES',
+    paragraphs: [
+      "Bookmark the games you love and I'll keep them right here for you!",
+      "From any game's detail page, tap the heart to mark it as 'Loved', 'Playing', 'Backlog' or 'Beaten' — then use the chips above to filter by status.",
+      "You can also bookmark specific move lists from the character screens. They'll show up in the 'Move Lists' section at the bottom for quick access.",
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
     if (!AuthService.isLoggedIn) {
@@ -30,6 +41,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
           ),
         ),
+        floatingActionButton: _infoFab,
         body: const SignInPrompt(
           icon: Icons.favorite_border,
           message: 'Sign in to track your favorite games',
@@ -44,6 +56,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
         ),
       ),
+      floatingActionButton: _infoFab,
       body: StreamBuilder<List<UserFavorite>>(
         stream: UserService.favoritesStream(),
         builder: (context, favSnap) {
