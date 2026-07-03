@@ -143,37 +143,22 @@ class _FaveGamesSection extends StatelessWidget {
               title: 'Games',
               count: games.length,
               initiallyExpanded: true,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final crossAxisCount = constraints.maxWidth > 900
-                      ? 4
-                      : constraints.maxWidth > 600
-                          ? 3
-                          : 2;
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        childAspectRatio: 1.1,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      itemCount: games.length,
-                      itemBuilder: (context, index) {
-                        final game = games[index];
-                        return GameCard(
-                          game: game,
-                          status: statusByGameId[game.id],
-                          onTap: () => context.push('/game/${game.id}'),
-                        );
-                      },
-                    ),
-                  );
-                },
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: games.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final game = games[index];
+                    return GameCard(
+                      game: game,
+                      status: statusByGameId[game.id],
+                      onTap: () => context.push('/game/${game.id}'),
+                    );
+                  },
+                ),
               ),
             );
           },

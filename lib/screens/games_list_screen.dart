@@ -293,48 +293,33 @@ class _GamesListScreenState extends State<GamesListScreen> {
                             child: Text('No games match your filters.')),
                       )
                     else
-                      // Games grid
+                      // Games list (single column, full width)
                       Expanded(
                         child: RepaintBoundary(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              final crossAxisCount =
-                                  constraints.maxWidth > 900
-                                      ? 4
-                                      : constraints.maxWidth > 600
-                                          ? 3
-                                          : 2;
-                              return RefreshIndicator(
-                                onRefresh: () async {
-                                  setState(() => _streamAttempt++);
-                                  // Give the new stream a moment to emit
-                                  // before dismissing the indicator.
-                                  await Future<void>.delayed(
-                                      const Duration(milliseconds: 350));
-                                },
-                                child: GridView.builder(
-                                  padding: const EdgeInsets.all(12),
-                                  physics:
-                                      const AlwaysScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: crossAxisCount,
-                                    childAspectRatio: 1.1,
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10,
-                                  ),
-                                  itemCount: filteredGames.length,
-                                  itemBuilder: (context, index) {
-                                    final game = filteredGames[index];
-                                    return GameCard(
-                                      game: game,
-                                      onTap: () =>
-                                          context.push('/game/${game.id}'),
-                                    );
-                                  },
-                                ),
-                              );
+                          child: RefreshIndicator(
+                            onRefresh: () async {
+                              setState(() => _streamAttempt++);
+                              // Give the new stream a moment to emit
+                              // before dismissing the indicator.
+                              await Future<void>.delayed(
+                                  const Duration(milliseconds: 350));
                             },
+                            child: ListView.separated(
+                              padding: const EdgeInsets.fromLTRB(
+                                  12, 12, 12, 88),
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: filteredGames.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final game = filteredGames[index];
+                                return GameCard(
+                                  game: game,
+                                  onTap: () =>
+                                      context.push('/game/${game.id}'),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),

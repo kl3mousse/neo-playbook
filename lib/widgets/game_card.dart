@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../models/game.dart';
 import '../models/user_favorite.dart';
 import '../theme/app_theme.dart';
+import '../theme/combofox_theme.dart';
 
 Color genreColor(String genre) {
   final g = genre.toLowerCase();
@@ -21,32 +22,11 @@ Color genreColor(String genre) {
   return Colors.blueGrey.shade600;
 }
 
-// ── Diagonal line pattern painter ───────────────────────────
-
-class _DiagonalLinesPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.04)
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-
-    const spacing = 12.0;
-    final diagonal = size.width + size.height;
-    for (double d = 0; d < diagonal; d += spacing) {
-      canvas.drawLine(
-        Offset(d, 0),
-        Offset(d - size.height, size.height),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
 // ── GameCard ────────────────────────────────────────────────
+//
+// Flat, single-column card. The whole card sits on a unified dark
+// surface (theme colors) and uses the genre color only as a subtle
+// accent (left rail + genre chip tint).
 
 class GameCard extends StatefulWidget {
   final Game game;
@@ -59,16 +39,21 @@ class GameCard extends StatefulWidget {
   State<GameCard> createState() => _GameCardState();
 }
 
-class _GameCardState extends State<GameCard>
-    with SingleTickerProviderStateMixin {
+class _GameCardState extends State<GameCard> {
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = genreColor(widget.game.primaryGenre);
-    final darkColor = HSLColor.fromColor(baseColor)
-        .withLightness(0.12)
-        .toColor();
+    final accent = genreColor(widget.game.primaryGenre);
+    final game = widget.game;
+
+    // Assemble metadata bits: year · publisher · players.
+    final metaParts = <String>[
+      if (game.yearLabel.isNotEmpty) game.yearLabel,
+      if (game.publisher != null && game.publisher!.isNotEmpty)
+        game.publisher!,
+      if (game.playersLabel.isNotEmpty) game.playersLabel,
+    ];
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -78,142 +63,118 @@ class _GameCardState extends State<GameCard>
         widget.onTap?.call();
       },
       onTapCancel: () => setState(() => _isPressed = false),
-      onLongPress: () {
-        HapticFeedback.lightImpact();
-      },
       child: AnimatedScale(
-        scale: _isPressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 150),
+        scale: _isPressed ? 0.985 : 1.0,
+        duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _isPressed
+                  ? accent.withValues(alpha: 0.55)
+                  : ComboFoxColors.neonPurple.withValues(alpha: 0.12),
+              width: 1,
+            ),
             boxShadow: _isPressed
                 ? [
                     BoxShadow(
-                      color: baseColor.withValues(alpha: 0.65),
-                      blurRadius: 20,
-                      spreadRadius: 2,
+                      color: accent.withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      spreadRadius: 1,
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 8,
+                      color: Colors.black.withValues(alpha: 0.25),
+                      blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
                   ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(18),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [baseColor, darkColor],
-                ),
-              ),
-              child: Stack(
+            borderRadius: BorderRadius.circular(14),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Diagonal line pattern overlay
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: _DiagonalLinesPainter(),
-                    ),
-                  ),
-                  // Status badge
-                  if (widget.status != null)
-                    Positioned(
-                      top: 10,
-                      left: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.background.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '${widget.status!.icon} ${widget.status!.label}',
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  // Year badge
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: AppColors.background.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        widget.game.yearLabel,
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  // Genre accent rail (only visible splash of genre color)
+                  Container(
+                    width: 4,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          accent.withValues(alpha: 0.95),
+                          accent.withValues(alpha: 0.55),
+                        ],
                       ),
                     ),
                   ),
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Title
-                        Text(
-                          widget.game.title,
-                          textAlign: TextAlign.center,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 16,
-                            fontFamily: 'Doto',
-                            fontWeight: FontWeight.w800,
-                            height: 1.2,
-                            shadows: [
-                              Shadow(blurRadius: 8, color: Colors.black87),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Genre pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              width: 0.5,
+                  // Main content
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Title
+                                Text(
+                                  game.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontSize: 16,
+                                    fontFamily: 'Doto',
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.15,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                // Meta row: genre chip + year · publisher · players
+                                Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    if (game.primaryGenre.isNotEmpty) ...[
+                                      _GenreChip(
+                                        label: game.primaryGenre,
+                                        accent: accent,
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Expanded(
+                                      child: Text(
+                                        metaParts.join(' · '),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: AppColors.textSecondary,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          child: Text(
-                            widget.game.primaryGenre,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
+                          if (widget.status != null) ...[
+                            const SizedBox(width: 10),
+                            _StatusBadge(status: widget.status!),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -221,6 +182,78 @@ class _GameCardState extends State<GameCard>
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Small building blocks ───────────────────────────────────
+
+class _GenreChip extends StatelessWidget {
+  final String label;
+  final Color accent;
+
+  const _GenreChip({required this.label, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: accent.withValues(alpha: 0.45),
+          width: 0.8,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Color.alphaBlend(
+            accent.withValues(alpha: 0.35),
+            AppColors.textPrimary,
+          ),
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final FavoriteStatus status;
+
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: ComboFoxColors.neonPurple.withValues(alpha: 0.25),
+          width: 0.8,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(status.icon, style: const TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
+          Text(
+            status.label,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
