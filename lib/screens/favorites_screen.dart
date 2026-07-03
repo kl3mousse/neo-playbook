@@ -11,23 +11,16 @@ import '../widgets/info_fab.dart';
 import '../widgets/sign_in_prompt.dart';
 import 'character_moves_screen.dart';
 
-class FavoritesScreen extends StatefulWidget {
+class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
-
-  @override
-  State<FavoritesScreen> createState() => _FavoritesScreenState();
-}
-
-class _FavoritesScreenState extends State<FavoritesScreen> {
-  final Set<FavoriteStatus> _activeFilters = Set.of(FavoriteStatus.values);
 
   static const InfoFab _infoFab = InfoFab(
     foxxyAsset: 'assets/foxxy/sd/foxxy-sd-r2-c1.png',
     title: 'FAVORITES',
     paragraphs: [
       "Bookmark the games you love and I'll keep them right here for you!",
-      "From any game's detail page, tap the heart to mark it as 'Loved', 'Playing', 'Backlog' or 'Beaten' — then use the chips above to filter by status.",
-      "You can also bookmark specific move lists from the character screens. They'll show up in the 'Move Lists' section at the bottom for quick access.",
+      "From any game's detail page, tap the heart to save a game — it'll land in the Games section below.",
+      "You can also bookmark specific move lists from the character screens. They live in their own section, collapsed by default so the list stays tidy.",
     ],
   );
 
@@ -57,180 +50,135 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ),
       ),
       floatingActionButton: _infoFab,
-      body: StreamBuilder<List<UserFavorite>>(
-        stream: UserService.favoritesStream(),
-        builder: (context, favSnap) {
-          if (!favSnap.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        children: const [
+          _FaveGamesSection(),
+          _FaveMoveListsSection(),
+          SizedBox(height: 80), // room for the FAB
+        ],
+      ),
+    );
+  }
+}
 
-          final favorites = favSnap.data!;
+// ── Favorite Games Section ───────────────────────────────────────────────
 
-          if (favorites.isEmpty) {
-            return const Center(
+class _FaveGamesSection extends StatelessWidget {
+  const _FaveGamesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<UserFavorite>>(
+      stream: UserService.favoritesStream(),
+      builder: (context, favSnap) {
+        if (!favSnap.hasData) {
+          return const _SectionShell(
+            emoji: '❤️',
+            title: 'Games',
+            count: null,
+            initiallyExpanded: true,
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        final favorites = favSnap.data!;
+
+        if (favorites.isEmpty) {
+          return const _SectionShell(
+            emoji: '❤️',
+            title: 'Games',
+            count: 0,
+            initiallyExpanded: true,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 20),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.favorite_border, size: 64),
-                  SizedBox(height: 16),
                   Text('No favorite games yet'),
-                  SizedBox(height: 8),
+                  SizedBox(height: 6),
                   Text(
-                    'Add games to your favorites from\nany game detail page',
+                    'Tap the heart on any game detail page to save it here.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 13),
                   ),
                 ],
               ),
-            );
-          }
+            ),
+          );
+        }
 
-          return StreamBuilder<List<Game>>(
-            stream: FirestoreService.gamesStream(),
-            builder: (context, gamesSnap) {
-              if (!gamesSnap.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
+        return StreamBuilder<List<Game>>(
+          stream: FirestoreService.gamesStream(),
+          builder: (context, gamesSnap) {
+            if (!gamesSnap.hasData) {
+              return const _SectionShell(
+                emoji: '❤️',
+                title: 'Games',
+                count: null,
+                initiallyExpanded: true,
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              );
+            }
 
-              final allGames = {for (final g in gamesSnap.data!) g.id: g};
-              final statusByGameId = {
-                for (final f in favorites) f.gameId: f.status
-              };
+            final allGames = {for (final g in gamesSnap.data!) g.id: g};
+            final statusByGameId = {
+              for (final f in favorites) f.gameId: f.status
+            };
 
-              final filtered = favorites
-                  .where((f) => _activeFilters.contains(f.status))
-                  .toList();
+            final games = favorites
+                .map((f) => allGames[f.gameId])
+                .where((g) => g != null)
+                .cast<Game>()
+                .toList()
+              ..sort((a, b) => a.title.compareTo(b.title));
 
-              final games = filtered
-                  .map((f) => allGames[f.gameId])
-                  .where((g) => g != null)
-                  .cast<Game>()
-                  .toList()
-                ..sort((a, b) => a.title.compareTo(b.title));
-
-              // Count per status for chip labels
-              final counts = {
-                for (final s in FavoriteStatus.values)
-                  s: favorites.where((f) => f.status == s).length,
-              };
-
-              return LayoutBuilder(
+            return _SectionShell(
+              emoji: '❤️',
+              title: 'Games',
+              count: games.length,
+              initiallyExpanded: true,
+              child: LayoutBuilder(
                 builder: (context, constraints) {
                   final crossAxisCount = constraints.maxWidth > 900
                       ? 4
                       : constraints.maxWidth > 600
                           ? 3
                           : 2;
-
-                  return CustomScrollView(
-                    slivers: [
-                      // Filter chips
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: FavoriteStatus.values.map((status) {
-                              final selected =
-                                  _activeFilters.contains(status);
-                              return FilterChip(
-                                label: Text(
-                                  '${status.icon} ${status.label} (${counts[status]})',
-                                ),
-                                selected: selected,
-                                onSelected: (val) {
-                                  setState(() {
-                                    if (val) {
-                                      _activeFilters.add(status);
-                                    } else {
-                                      // Don't allow deselecting all
-                                      if (_activeFilters.length > 1) {
-                                        _activeFilters.remove(status);
-                                      }
-                                    }
-                                  });
-                                },
-                              );
-                            }).toList(),
-                          ),
-                        ),
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        childAspectRatio: 1.1,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
                       ),
-                      // Summary count
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                          child: Text(
-                            '${games.length} game${games.length == 1 ? '' : 's'}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
-                          ),
-                        ),
-                      ),
-                      // Games grid (or empty filter state)
-                      if (games.isEmpty)
-                        SliverFillRemaining(
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('No games match the selected filters'),
-                                const SizedBox(height: 12),
-                                TextButton(
-                                  onPressed: () => setState(() {
-                                    _activeFilters
-                                      ..clear()
-                                      ..addAll(FavoriteStatus.values);
-                                  }),
-                                  child: const Text('Clear filters'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      else
-                        SliverPadding(
-                          padding: const EdgeInsets.all(12),
-                          sliver: SliverGrid(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              childAspectRatio: 1.1,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                            ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final game = games[index];
-                                return GameCard(
-                                  game: game,
-                                  status: statusByGameId[game.id],
-                                  onTap: () =>
-                                      context.push('/game/${game.id}'),
-                                );
-                              },
-                              childCount: games.length,
-                            ),
-                          ),
-                        ),
-                      // Move Lists section
-                      const SliverToBoxAdapter(
-                        child: _FaveMoveListsSection(),
-                      ),
-                    ],
+                      itemCount: games.length,
+                      itemBuilder: (context, index) {
+                        final game = games[index];
+                        return GameCard(
+                          game: game,
+                          status: statusByGameId[game.id],
+                          onTap: () => context.push('/game/${game.id}'),
+                        );
+                      },
+                    ),
                   );
                 },
-              );
-            },
-          );
-        },
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -245,18 +193,48 @@ class _FaveMoveListsSection extends StatelessWidget {
     return StreamBuilder<List<FaveMoveList>>(
       stream: UserService.faveMovesStream(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const SizedBox.shrink();
+        if (!snapshot.hasData) {
+          return const _SectionShell(
+            emoji: '🥊',
+            title: 'Move Lists',
+            count: null,
+            initiallyExpanded: false,
+            child: SizedBox.shrink(),
+          );
         }
 
         final faveMoves = snapshot.data!;
 
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
-          child: ExpansionTile(
-            leading: const Text('🥊', style: TextStyle(fontSize: 20)),
-            title: Text('Move Lists (${faveMoves.length})'),
+        if (faveMoves.isEmpty) {
+          return const _SectionShell(
+            emoji: '🥊',
+            title: 'Move Lists',
+            count: 0,
             initiallyExpanded: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 20),
+              child: Column(
+                children: [
+                  Text('No bookmarked move lists yet'),
+                  SizedBox(height: 6),
+                  Text(
+                    'Bookmark a character or section from any move list to '
+                    'find it here.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return _SectionShell(
+          emoji: '🥊',
+          title: 'Move Lists',
+          count: faveMoves.length,
+          initiallyExpanded: false,
+          child: Column(
             children: faveMoves.map((fave) {
               return ListTile(
                 leading: const Icon(Icons.sports_martial_arts),
@@ -292,6 +270,51 @@ class _FaveMoveListsSection extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// ── Shared section shell (matching visual treatment) ─────────────────────
+
+class _SectionShell extends StatelessWidget {
+  final String emoji;
+  final String title;
+  final int? count;
+  final bool initiallyExpanded;
+  final Widget child;
+
+  const _SectionShell({
+    required this.emoji,
+    required this.title,
+    required this.count,
+    required this.initiallyExpanded,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final countLabel = count == null ? '' : ' ($count)';
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: Theme(
+          // Remove default ExpansionTile divider borders for a cleaner look.
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            initiallyExpanded: initiallyExpanded,
+            leading: Text(emoji, style: const TextStyle(fontSize: 20)),
+            title: Text(
+              '$title$countLabel',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            childrenPadding: EdgeInsets.zero,
+            children: [child],
+          ),
+        ),
+      ),
     );
   }
 }
