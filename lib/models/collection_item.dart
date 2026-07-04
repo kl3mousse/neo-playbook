@@ -471,6 +471,7 @@ class CollectionItem {
     bool? isUnverified,
     Timestamp? verifiedAt,
     bool clearAuthenticity = false,
+    bool clearNotes = false,
   }) {
     return CollectionItem(
       id: id,
@@ -486,7 +487,7 @@ class CollectionItem {
       acquisitionSource: acquisitionSource ?? this.acquisitionSource,
       currentEstimatedValue:
           currentEstimatedValue ?? this.currentEstimatedValue,
-      notes: notes ?? this.notes,
+      notes: clearNotes ? null : (notes ?? this.notes),
       addedAt: addedAt,
       imagePaths: imagePaths ?? this.imagePaths,
       ownershipStatus: ownershipStatus ?? this.ownershipStatus,

@@ -80,14 +80,18 @@ class CollectionScreen extends StatelessWidget {
             );
           }
 
-          // Group items by platform
+          // Draft (unverified) items surfaced separately for quick review.
+          final drafts = items.where((i) => i.isUnverified).toList();
+          final verifiedItems = items.where((i) => !i.isUnverified).toList();
+
+          // Group verified items by platform.
           final grouped = <String, List<CollectionItem>>{};
-          for (final item in items) {
+          for (final item in verifiedItems) {
             grouped.putIfAbsent(item.platform, () => []).add(item);
           }
           final platforms = grouped.keys.toList()..sort();
 
-          // Calculate total value
+          // Calculate total value across all items.
           double totalValue = 0;
           String? currency;
           for (final item in items) {
@@ -114,6 +118,11 @@ class CollectionScreen extends StatelessWidget {
                       label: 'Platforms',
                       value: platforms.length.toString(),
                     ),
+                    if (drafts.isNotEmpty)
+                      _SummaryTile(
+                        label: 'Drafts',
+                        value: drafts.length.toString(),
+                      ),
                     if (totalValue > 0)
                       _SummaryTile(
                         label: 'Total Value',
@@ -123,36 +132,69 @@ class CollectionScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              // Items list grouped by platform
+              // Items list: drafts first, then grouped by platform.
               Expanded(
-                child: ListView.builder(
-                  itemCount: platforms.length,
-                  itemBuilder: (context, index) {
-                    final platform = platforms[index];
-                    final platformItems = grouped[platform]!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                          child: Text(
-                            platform.toUpperCase(),
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
+                child: ListView(
+                  children: [
+                    if (drafts.isNotEmpty) _DraftsSection(items: drafts),
+                    for (final platform in platforms) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          platform.toUpperCase(),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        ...platformItems.map(
-                          (item) => CollectionTile(item: item),
-                        ),
-                      ],
-                    );
-                  },
+                      ),
+                      for (final item in grouped[platform]!)
+                        CollectionTile(item: item),
+                    ],
+                  ],
                 ),
               ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class _DraftsSection extends StatelessWidget {
+  final List<CollectionItem> items;
+  const _DraftsSection({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    const warning = Color(0xFFFBBF24);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Row(
+            children: [
+              const Icon(Icons.flag_outlined, color: warning, size: 18),
+              const SizedBox(width: 6),
+              Text(
+                'Needs review (${items.length})',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: warning,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          child: Text(
+            'Auto-imported drafts. Open one to verify or edit its details.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+        for (final item in items) CollectionTile(item: item),
+      ],
     );
   }
 }

@@ -269,6 +269,16 @@ class UserService {
     await _collectionRef(user.uid).doc(itemId).update(item.toFirestoreUpdate());
   }
 
+  /// Mark an unverified (draft) collection item as verified.
+  static Future<void> markCollectionItemVerified(String itemId) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    await _collectionRef(user.uid).doc(itemId).update({
+      'is_unverified': false,
+      'verified_at': FieldValue.serverTimestamp(),
+    });
+  }
+
   static Future<bool> _collectionEntryExistsForScanCandidate(
     String uid,
     String scanJobId,

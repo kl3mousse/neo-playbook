@@ -67,6 +67,10 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
   late Map<String, ComponentState> _components;
   late Map<String, dynamic> _platformFields;
 
+  // Draft / verification state.
+  late bool _wasUnverified;
+  late bool _markVerifiedOnSave;
+
   bool _saving = false;
 
   final _regionOptions = const ['jp', 'us', 'eu', 'kr', 'asia', 'world'];
@@ -103,6 +107,10 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
     _existingPhotos = List<String>.from(i.imagePaths);
     _components = Map<String, ComponentState>.from(i.components);
     _platformFields = Map<String, dynamic>.from(i.platformFields);
+    _wasUnverified = i.isUnverified;
+    // For drafts, default to promoting to "verified" once the user saves
+    // their reviewed changes. Users can opt out by toggling the switch.
+    _markVerifiedOnSave = i.isUnverified;
   }
 
   @override
@@ -218,6 +226,8 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       final price = _parseDouble(_priceController.text);
       final estValue = _parseDouble(_estValueController.text);
 
+      final notesText = _textOrNull(_notesController);
+
       final updated = widget.item.copyWith(
         gameId: _gameId,
         gameTitle: _gameTitle,
@@ -229,7 +239,8 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
         purchaseDate: _acquisitionDate,
         acquisitionSource: _textOrNull(_sourceController),
         currentEstimatedValue: estValue,
-        notes: _textOrNull(_notesController),
+        notes: notesText,
+        clearNotes: notesText == null,
         imagePaths: photos,
         ownershipStatus: _ownership,
         visibility: _visibility,
@@ -243,6 +254,10 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
         clearAuthenticity: _authenticity == null,
         components: cleanedComponents,
         platformFields: cleanedFields,
+        isUnverified: _wasUnverified ? !_markVerifiedOnSave : false,
+        verifiedAt: _wasUnverified && _markVerifiedOnSave
+            ? Timestamp.now()
+            : widget.item.verifiedAt,
       );
 
       await UserService.updateCollectionItem(itemId, updated);
@@ -328,6 +343,10 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
+          if (_wasUnverified) ...[
+            _draftBanner(),
+            const SizedBox(height: 16),
+          ],
           _linkedGameSection(palette),
           const SizedBox(height: 16),
           _visibilitySection(),
@@ -366,6 +385,71 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
   }
 
   // ── Sections ────────────────────────────────────────────────────────
+
+  Widget _draftBanner() {
+    const warning = Color(0xFFFBBF24);
+    return ArcadePanel(
+      accentColor: warning,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.flag_outlined, color: warning, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Draft — needs your review',
+                  style: TextStyle(
+                    color: warning,
+                    fontFamily: 'Doto',
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'This item was auto-created from a low-confidence scan. '
+            'Check the game, platform and details, then save to confirm.',
+            style: TextStyle(
+              color: ComboFoxColors.textSecondary,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            value: _markVerifiedOnSave,
+            onChanged: (v) => setState(() => _markVerifiedOnSave = v),
+            title: const Text(
+              'Mark as verified when I save',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+            subtitle: Text(
+              _markVerifiedOnSave
+                  ? "The draft flag will be cleared once you tap Save."
+                  : 'The item will stay marked as a draft after saving.',
+              style: const TextStyle(
+                color: ComboFoxColors.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _sectionPanel(String title, Color accent, List<Widget> children) {
     return ArcadePanel(

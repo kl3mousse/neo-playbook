@@ -854,6 +854,11 @@ List<CollectionBadge> computeBadges(
 ) {
   final badges = <CollectionBadge>[];
 
+  // Draft / unverified status — surface first so users can act on it.
+  if (item.isUnverified) {
+    badges.add(const CollectionBadge('Draft · Unverified', BadgeTone.warning));
+  }
+
   final completeness = computeCompleteness(item, template);
   if (completeness != null) {
     badges.add(CollectionBadge(completeness, BadgeTone.info));

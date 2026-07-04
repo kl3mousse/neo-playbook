@@ -57,6 +57,18 @@ class _DetailBody extends StatelessWidget {
     );
   }
 
+  Future<void> _markVerified(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await UserService.markCollectionItemVerified(item.id);
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Item marked as verified')),
+      );
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = platformPalette(item.platform);
@@ -84,6 +96,10 @@ class _DetailBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (item.isUnverified) ...[
+                  _draftBanner(context),
+                  const SizedBox(height: 16),
+                ],
                 if (badges.isNotEmpty) ...[
                   Wrap(
                     spacing: 8,
@@ -124,6 +140,67 @@ class _DetailBody extends StatelessWidget {
   }
 
   // ── Sections ────────────────────────────────────────────────────────
+
+  Widget _draftBanner(BuildContext context) {
+    const warning = Color(0xFFFBBF24);
+    return ArcadePanel(
+      accentColor: warning,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.flag_outlined, color: warning, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Draft — needs your review',
+                  style: TextStyle(
+                    color: warning,
+                    fontFamily: 'Doto',
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'This item was auto-created from a low-confidence scan. '
+            'Review the details and confirm — or open the editor to fix them.',
+            style: TextStyle(
+              color: ComboFoxColors.textSecondary,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => _markVerified(context),
+                  icon: const Icon(Icons.check),
+                  label: const Text('Mark verified'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _edit(context),
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Review & edit'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _panel(String title, Color accent, List<Widget> children) {
     return ArcadePanel(
