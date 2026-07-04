@@ -318,6 +318,14 @@ class CollectionItem {
   String? get acquisitionCurrency => purchaseCurrency;
   Timestamp? get acquisitionDate => purchaseDate;
 
+  /// True when this item is not linked to a catalog game (gameId is empty).
+  bool get isCustomEntry => gameId.isEmpty;
+
+  /// Human-readable platform label for off-catalog entries, stored in
+  /// [platformFields] under the key `custom_platform_label`.
+  String? get customPlatformLabel =>
+      platformFields['custom_platform_label'] as String?;
+
   static Map<String, ComponentState> _parseComponents(dynamic raw) {
     if (raw is! Map) return const {};
     final result = <String, ComponentState>{};

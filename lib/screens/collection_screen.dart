@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/collection_item.dart';
 import '../services/user_service.dart';
 import '../services/auth_service.dart';
+import '../widgets/add_to_collection_sheet.dart';
 import '../widgets/collection_scan_sheet.dart';
 import '../widgets/collection_tile.dart';
+import '../widgets/game_picker_sheet.dart';
 import '../widgets/info_fab.dart';
 import '../widgets/sign_in_prompt.dart';
 
@@ -19,6 +21,46 @@ class CollectionScreen extends StatelessWidget {
       "Add an item from any game's detail page, or tap the camera icon up top to scan a whole batch at once.",
     ],
   );
+
+  static Future<void> _addGame(BuildContext context) async {
+    final result = await showGamePicker(context);
+    if (result == null || !context.mounted) return;
+
+    if (result.game != null) {
+      final game = result.game!;
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: AddToCollectionSheet(
+            gameId: game.id,
+            gameTitle: game.title,
+            initialPlatform: game.platform,
+          ),
+        ),
+      );
+    } else if (result.custom != null) {
+      final draft = result.custom!;
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: AddToCollectionSheet(
+            gameId: '',
+            gameTitle: draft.title,
+            initialPlatform: draft.platformId,
+            customDraft: draft,
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +87,11 @@ class CollectionScreen extends StatelessWidget {
           style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
         ),
         actions: [
+          IconButton(
+            tooltip: 'Add game',
+            icon: const Icon(Icons.add),
+            onPressed: () => _addGame(context),
+          ),
           IconButton(
             tooltip: 'Scan collection',
             icon: const Icon(Icons.camera_alt_outlined),

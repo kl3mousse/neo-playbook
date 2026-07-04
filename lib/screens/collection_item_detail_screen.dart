@@ -234,6 +234,13 @@ class _DetailBody extends StatelessWidget {
         _kv('Last tested', _fmtDate(item.lastTestedAt!.toDate())),
       if (item.storageLocation != null && item.storageLocation!.isNotEmpty)
         _kv('Storage', item.storageLocation!),
+      // Off-catalog extra metadata.
+      if (item.isCustomEntry) ...[
+        if (item.platformFields['custom_year'] != null)
+          _kv('Year', item.platformFields['custom_year'].toString()),
+        if (item.platformFields['custom_publisher'] != null)
+          _kv('Publisher', item.platformFields['custom_publisher'].toString()),
+      ],
     ];
     return _panel('My Copy', ComboFoxColors.neonPink, rows);
   }
@@ -362,6 +369,8 @@ class _DetailBody extends StatelessWidget {
   }
 
   Widget _platformDetailsSection(BuildContext context) {
+    // Keys that are shown elsewhere (off-catalog section in _myCopySection).
+    const customKeys = {'custom_platform_label', 'custom_year', 'custom_publisher'};
     final rows = <Widget>[];
     for (final spec in _template.fields) {
       final value = item.platformFields[spec.key];
@@ -370,6 +379,19 @@ class _DetailBody extends StatelessWidget {
       if (value is bool && value == false) continue;
       final display = value is bool ? 'Yes' : value.toString();
       rows.add(_kv(spec.label, display));
+    }
+    // Also surface any platformFields keys not covered by the template spec
+    // (e.g. user-entered values from older schema), skipping the reserved
+    // off-catalog keys and anything already rendered above.
+    final templateKeys = _template.fields.map((f) => f.key).toSet();
+    for (final entry in item.platformFields.entries) {
+      if (templateKeys.contains(entry.key)) continue;
+      if (customKeys.contains(entry.key)) continue;
+      final v = entry.value;
+      if (v == null) continue;
+      if (v is String && v.trim().isEmpty) continue;
+      if (v is bool && v == false) continue;
+      rows.add(_kv(entry.key, v.toString()));
     }
     if (rows.isEmpty) {
       rows.add(
@@ -480,7 +502,7 @@ class _Header extends StatelessWidget {
                 ),
                 child: Text(
                   [
-                    palette.label,
+                    item.customPlatformLabel ?? palette.label,
                     if (item.region.isNotEmpty) item.region.toUpperCase(),
                   ].join(' · '),
                   style: const TextStyle(

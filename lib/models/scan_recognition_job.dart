@@ -3,7 +3,8 @@ import 'firestore_helpers.dart';
 
 enum RecognitionMode {
   ownershipCheck('ownership_check'),
-  bulkImport('bulk_import');
+  bulkImport('bulk_import'),
+  singleImport('single_import');
 
   final String value;
   const RecognitionMode(this.value);

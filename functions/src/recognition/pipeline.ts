@@ -86,15 +86,35 @@ export async function runScanPipeline(opts: ScanPipelineOptions): Promise<void> 
 
   const prepared = await preprocessImage(originalBytes);
 
-  const extraction = await runVisualExtraction(openai, DEFAULT_MODELS.visual, {
-    full: prepared.full,
-    sharpened: prepared.sharpened,
-    crops: prepared.crops,
-  });
+  const extraction = await runVisualExtraction(
+    openai,
+    DEFAULT_MODELS.visual,
+    {
+      full: prepared.full,
+      sharpened: prepared.sharpened,
+      crops: prepared.crops,
+    },
+    { singleSubject: mode === "single_import" },
+  );
 
   const parseWarnings: string[] = [];
   if (extraction.items.length === 0) {
     parseWarnings.push("Vision pass returned no items");
+  }
+
+  // For single_import: keep only the most prominent item (largest bounding
+  // box area; fallback to first) in case the model returned more than one.
+  if (mode === "single_import" && extraction.items.length > 1) {
+    const extra = extraction.items.length - 1;
+    const dominant = extraction.items.reduce((best, item) => {
+      const area = (bb: typeof item.bounding_box) =>
+        bb ? bb.width * bb.height : 0;
+      return area(item.bounding_box) > area(best.bounding_box) ? item : best;
+    });
+    extraction.items = [dominant];
+    parseWarnings.push(
+      `Single-import mode: kept dominant item '${dominant.candidate_id}', discarded ${extra} extra item(s)`,
+    );
   }
 
   const catalog = await getCatalog(db);

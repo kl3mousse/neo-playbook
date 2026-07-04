@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/collection_item.dart';
+import '../models/platform_template.dart';
 import '../services/user_service.dart';
+import 'game_picker_sheet.dart' show CustomGameDraft;
 import 'picture_source_sheet.dart';
 
 class AddToCollectionSheet extends StatefulWidget {
@@ -11,12 +13,19 @@ class AddToCollectionSheet extends StatefulWidget {
   final String gameTitle;
   final CollectionItem? existingItem;
   final String? initialPlatform;
+
+  /// When non-null the sheet starts in off-catalog mode, pre-filled from this
+  /// draft. [gameId] should be empty and [gameTitle] should match
+  /// [CustomGameDraft.title] in this case.
+  final CustomGameDraft? customDraft;
+
   const AddToCollectionSheet({
     super.key,
     required this.gameId,
     required this.gameTitle,
     this.existingItem,
     this.initialPlatform,
+    this.customDraft,
   });
 
   bool get isEditing => existingItem != null;
@@ -30,23 +39,47 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
   late ItemFormat _format;
   late ItemCondition _condition;
   late String _region;
+  late CopyType _copyType;
   late final TextEditingController _priceController;
   late String _currency;
   late final TextEditingController _notesController;
+  late final TextEditingController _yearController;
+  late final TextEditingController _publisherController;
   bool _submitting = false;
+
+  // Platform "Other…" state — active when the user types a custom platform name.
+  bool _isCustomPlatform = false;
+  String? _customPlatformLabel;
+  final _customPlatformLabelController = TextEditingController();
 
   final _imagePicker = ImagePicker();
   late List<String> _existingPhotoPaths;
   final List<String> _removedPhotoPaths = [];
   final List<_PendingPhoto> _newPhotos = [];
 
+  static final _knownPlatformIds =
+      allPlatformTemplates.map((t) => t.id).toList();
+
   @override
   void initState() {
     super.initState();
     final e = widget.existingItem;
-    _platform = e?.platform ?? widget.initialPlatform ?? 'mvs';
+    final draft = widget.customDraft;
+
+    final rawPlatform =
+        e?.platform ?? draft?.platformId ?? widget.initialPlatform ?? 'mvs';
+    _platform = rawPlatform;
+    _customPlatformLabel =
+        draft?.customPlatformLabel ?? e?.customPlatformLabel;
+    _isCustomPlatform = _customPlatformLabel != null ||
+        (!_knownPlatformIds.contains(rawPlatform) && rawPlatform.isNotEmpty);
+    if (_customPlatformLabel != null) {
+      _customPlatformLabelController.text = _customPlatformLabel!;
+    }
+
     _format = e?.format ?? ItemFormat.cartridge;
     _condition = e?.condition ?? ItemCondition.good;
+    _copyType = e?.copyType ?? CopyType.unknown;
     _region = e?.region ?? 'jp';
     _priceController = TextEditingController(
       text: e?.purchasePrice?.toStringAsFixed(2) ?? '',
@@ -54,11 +87,19 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     _currency = e?.purchaseCurrency ?? 'USD';
     _notesController = TextEditingController(text: e?.notes ?? '');
     _existingPhotoPaths = List<String>.from(e?.imagePaths ?? const []);
+
+    // Off-catalog metadata (year / publisher) from platformFields.
+    final pf = e?.platformFields ?? const {};
+    _yearController = TextEditingController(
+      text: pf['custom_year']?.toString() ?? '',
+    );
+    _publisherController = TextEditingController(
+      text: pf['custom_publisher']?.toString() ?? '',
+    );
   }
 
-  final _platformOptions = ['mvs', 'aes', 'ngcd', 'cps1', 'cps2'];
-  final _regionOptions = ['jp', 'us', 'eu', 'kr'];
-  final _currencyOptions = ['USD', 'EUR', 'JPY', 'GBP'];
+  static const _regionOptions = ['jp', 'us', 'eu', 'kr'];
+  static const _currencyOptions = ['USD', 'EUR', 'JPY', 'GBP'];
 
   Future<void> _addPhoto() async {
     final source = await showPictureSourceSheet(context);
@@ -124,6 +165,18 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
       final price = double.tryParse(_priceController.text.trim());
       final retainedPaths = List<String>.from(_existingPhotoPaths);
 
+      // Build platform fields for off-catalog metadata.
+      final platformFields = <String, dynamic>{};
+      if (_customPlatformLabel != null && _customPlatformLabel!.isNotEmpty) {
+        platformFields['custom_platform_label'] = _customPlatformLabel;
+      }
+      final yearText = _yearController.text.trim();
+      if (yearText.isNotEmpty) platformFields['custom_year'] = yearText;
+      final publisherText = _publisherController.text.trim();
+      if (publisherText.isNotEmpty) {
+        platformFields['custom_publisher'] = publisherText;
+      }
+
       final item = CollectionItem(
         id: '',
         gameId: widget.gameId,
@@ -132,12 +185,14 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
         format: _format,
         condition: _condition,
         region: _region,
+        copyType: _copyType,
         purchasePrice: price,
         purchaseCurrency: price != null ? _currency : null,
         notes: _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
         imagePaths: retainedPaths,
+        platformFields: platformFields,
         isUnverified: widget.isEditing
             ? false
             : (widget.existingItem?.isUnverified ?? false),
@@ -177,9 +232,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
           );
         }
       }
- else {
-        await UserService.addToCollection(item);
-      }
+
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
@@ -196,6 +249,9 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
   void dispose() {
     _priceController.dispose();
     _notesController.dispose();
+    _yearController.dispose();
+    _publisherController.dispose();
+    _customPlatformLabelController.dispose();
     super.dispose();
   }
 
@@ -232,23 +288,59 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
             const SizedBox(height: 16),
             // Platform
             DropdownButtonFormField<String>(
-              initialValue: _platform,
+              key: ValueKey('platform-${_isCustomPlatform ? '_other' : _platform}'),
+              isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Platform',
                 border: OutlineInputBorder(),
               ),
-              items: _platformOptions
-                  .map(
-                    (p) => DropdownMenuItem(
-                      value: p,
-                      child: Text(p.toUpperCase()),
-                    ),
-                  )
-                  .toList(),
+              initialValue: _isCustomPlatform ? '_other' : _platform,
+              items: [
+                for (final t in allPlatformTemplates)
+                  DropdownMenuItem(
+                    value: t.id,
+                    child: Text(t.displayName),
+                  ),
+                const DropdownMenuItem(
+                  value: '_other',
+                  child: Text('Other…'),
+                ),
+              ],
               onChanged: (v) {
-                if (v != null) setState(() => _platform = v);
+                setState(() {
+                  if (v == '_other') {
+                    _isCustomPlatform = true;
+                  } else if (v != null) {
+                    _isCustomPlatform = false;
+                    _platform = v;
+                    _customPlatformLabel = null;
+                    _customPlatformLabelController.clear();
+                  }
+                });
               },
             ),
+            // When the user picks "Other…", show a text field for the name.
+            if (_isCustomPlatform) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _customPlatformLabelController,
+                decoration: const InputDecoration(
+                  labelText: 'Platform name',
+                  hintText: 'e.g. Sega Titan Video',
+                  border: OutlineInputBorder(),
+                ),
+                textCapitalization: TextCapitalization.words,
+                onChanged: (v) {
+                  final raw = v.trim();
+                  _customPlatformLabel = raw.isEmpty ? null : raw;
+                  final slug = raw
+                      .toLowerCase()
+                      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+                      .replaceAll(RegExp(r'^-+|-+$'), '');
+                  _platform = slug.isEmpty ? 'other' : slug;
+                },
+              ),
+            ],
             const SizedBox(height: 12),
             // Format
             DropdownButtonFormField<ItemFormat>(
@@ -262,6 +354,21 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                   .toList(),
               onChanged: (v) {
                 if (v != null) setState(() => _format = v);
+              },
+            ),
+            const SizedBox(height: 12),
+            // Copy type
+            DropdownButtonFormField<CopyType>(
+              initialValue: _copyType,
+              decoration: const InputDecoration(
+                labelText: 'Copy type',
+                border: OutlineInputBorder(),
+              ),
+              items: CopyType.values
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
+                  .toList(),
+              onChanged: (v) {
+                if (v != null) setState(() => _copyType = v);
               },
             ),
             const SizedBox(height: 12),
@@ -299,6 +406,36 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                 if (v != null) setState(() => _region = v);
               },
             ),
+            // Off-catalog extra fields: year and publisher.
+            if (widget.gameId.isEmpty) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _yearController,
+                      decoration: const InputDecoration(
+                        labelText: 'Year (optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: _publisherController,
+                      decoration: const InputDecoration(
+                        labelText: 'Publisher (optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             // Price + Currency
             Row(

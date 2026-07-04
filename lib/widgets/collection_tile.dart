@@ -26,7 +26,7 @@ class CollectionTile extends StatelessWidget {
           [
             item.format.label,
             item.condition.label,
-            item.region.toUpperCase(),
+            if (item.region.isNotEmpty) item.region.toUpperCase(),
             if (item.purchasePrice != null)
               '${item.purchasePrice!.toStringAsFixed(0)} ${item.purchaseCurrency ?? ''}',
             if (item.notes != null && item.notes!.isNotEmpty) item.notes!,
@@ -38,7 +38,13 @@ class CollectionTile extends StatelessWidget {
                 label: const Text('Draft · Unverified'),
                 visualDensity: VisualDensity.compact,
               )
-            : const Icon(Icons.chevron_right),
+            : item.isCustomEntry
+                ? Chip(
+                    avatar: const Icon(Icons.extension_outlined, size: 16),
+                    label: const Text('Off-catalog'),
+                    visualDensity: VisualDensity.compact,
+                  )
+                : const Icon(Icons.chevron_right),
       ),
     );
   }

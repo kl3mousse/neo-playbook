@@ -2,7 +2,7 @@
  * Shared types for the collection-scan recognition pipeline.
  */
 
-export type RecognitionMode = "ownership_check" | "bulk_import";
+export type RecognitionMode = "ownership_check" | "bulk_import" | "single_import";
 
 export type ItemType =
   | "box"

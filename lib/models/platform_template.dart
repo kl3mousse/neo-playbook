@@ -859,6 +859,11 @@ List<CollectionBadge> computeBadges(
     badges.add(const CollectionBadge('Draft · Unverified', BadgeTone.warning));
   }
 
+  // Off-catalog entries: not linked to a catalog game.
+  if (item.isCustomEntry) {
+    badges.add(const CollectionBadge('Off-catalog', BadgeTone.info));
+  }
+
   final completeness = computeCompleteness(item, template);
   if (completeness != null) {
     badges.add(CollectionBadge(completeness, BadgeTone.info));

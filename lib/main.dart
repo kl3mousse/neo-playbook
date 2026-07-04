@@ -5,6 +5,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
+import 'app_state.dart';
 import 'firebase_options.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
@@ -41,11 +42,6 @@ void main() async {
 
   runApp(const OtakuPlaybookApp());
 }
-
-/// Becomes `true` once the splash sequence completes. The splash is shown
-/// as an overlay above the routed content, so deep-linked routes (e.g.
-/// `/game/<id>`) are preserved across the splash.
-final ValueNotifier<bool> splashFinished = ValueNotifier<bool>(false);
 
 /// Currently selected tab in the main shell. Exposed at the top level so
 /// deep-linked pages (e.g. `/game/<id>`) can render a bottom nav that

@@ -200,7 +200,16 @@ export async function runVisualExtraction(
     sharpened: PreparedImage;
     crops: PreparedImage[];
   },
+  opts: { singleSubject?: boolean } = {},
 ): Promise<VisualExtractionResult> {
+  const singleSubjectDirective = opts.singleSubject
+    ? [
+        "IMPORTANT: This is a single-game import scan.",
+        "Focus on the ONE dominant foreground game item. If multiple items are visible, return ONLY the most prominent one.",
+        "Do NOT return more than one item in the 'items' array.",
+      ]
+    : [];
+
   const userContent: ChatCompletionContentPart[] = [
     textPart(
       [
@@ -217,6 +226,7 @@ export async function runVisualExtraction(
         "- bounding_box: normalized 0..1 coords inside the FULL image, or null if you can't estimate.",
         "- uncertainty_reason: brief reason if you are not confident.",
         "Multiple images of the same scene are provided (full + sharpened + optional crops); fuse evidence across them.",
+        ...singleSubjectDirective,
       ].join("\n"),
     ),
     textPart("Full image:"),

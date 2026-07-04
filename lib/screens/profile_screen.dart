@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
+import '../app_state.dart';
 import '../models/user_profile.dart';
 import '../models/social_link.dart';
 import '../models/app_language.dart';
@@ -192,6 +193,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           _LanguageSection(
             languageCode: _profile?.preferredLanguage ?? '',
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.play_circle_outline),
+            title: const Text('Replay intro screen'),
+            subtitle: const Text('Watch the loading screen again'),
+            onTap: () => splashFinished.value = false,
           ),
         ],
       ),

@@ -160,23 +160,49 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
   // ── Change game ─────────────────────────────────────────────────────
 
   Future<void> _changeGame() async {
-    final game = await showGamePicker(context, initialQuery: _gameTitle);
-    if (game == null || !mounted) return;
-    final platformChanged =
-        game.platform.toLowerCase() != _platform.toLowerCase();
-    setState(() {
-      _gameId = game.id;
-      _gameTitle = game.title;
-      if (game.platform.isNotEmpty) _platform = game.platform;
-      // When the platform changes, keep generic fields but reset
-      // platform-specific fields and components which no longer apply.
+    final result = await showGamePicker(context, initialQuery: _gameTitle);
+    if (result == null || !mounted) return;
+
+    if (result.game != null) {
+      final game = result.game!;
+      final platformChanged =
+          game.platform.toLowerCase() != _platform.toLowerCase();
+      setState(() {
+        _gameId = game.id;
+        _gameTitle = game.title;
+        if (game.platform.isNotEmpty) _platform = game.platform;
+        if (platformChanged) {
+          _platformFields = {};
+          _components = {};
+        }
+        // Catalog games are never "off-catalog" — clear any custom labels.
+        _platformFields.remove('custom_platform_label');
+      });
       if (platformChanged) {
-        _platformFields = {};
-        _components = {};
+        _showError('Platform changed — platform-specific fields were reset.');
       }
-    });
-    if (platformChanged) {
-      _showError('Platform changed — platform-specific fields were reset.');
+    } else if (result.custom != null) {
+      final draft = result.custom!;
+      final platformChanged =
+          draft.platformId.toLowerCase() != _platform.toLowerCase();
+      setState(() {
+        _gameId = '';
+        _gameTitle = draft.title;
+        _platform = draft.platformId;
+        if (platformChanged) {
+          _platformFields = {};
+          _components = {};
+        }
+        if (draft.customPlatformLabel != null) {
+          _platformFields['custom_platform_label'] =
+              draft.customPlatformLabel;
+        } else {
+          _platformFields.remove('custom_platform_label');
+        }
+      });
+      if (platformChanged) {
+        _showError('Platform changed — platform-specific fields were reset.');
+      }
     }
   }
 
@@ -467,6 +493,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
   }
 
   Widget _linkedGameSection(PlatformPalette palette) {
+    final isCustom = _gameId.isEmpty;
     return _sectionPanel('Linked Game', ComboFoxColors.neonPurple, [
       Row(
         children: [
@@ -492,7 +519,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
                   ),
                 ),
                 Text(
-                  palette.label,
+                  isCustom ? 'Off-catalog' : palette.label,
                   style: const TextStyle(
                     color: ComboFoxColors.textSecondary,
                     fontSize: 12,
@@ -504,12 +531,62 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
         ],
       ),
       const SizedBox(height: 12),
-      OutlinedButton.icon(
-        onPressed: _changeGame,
-        icon: const Icon(Icons.swap_horiz),
-        label: const Text('Change game'),
+      Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: _changeGame,
+              icon: const Icon(Icons.swap_horiz),
+              label: const Text('Change game'),
+            ),
+          ),
+          // Off-catalog items allow editing the title in-place.
+          if (isCustom) ...[
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _editCustomTitle,
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Edit title'),
+              ),
+            ),
+          ],
+        ],
       ),
     ]);
+  }
+
+  Future<void> _editCustomTitle() async {
+    final controller = TextEditingController(text: _gameTitle);
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit title'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Game title',
+            border: OutlineInputBorder(),
+          ),
+          textCapitalization: TextCapitalization.words,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (newTitle != null && newTitle.isNotEmpty && mounted) {
+      setState(() => _gameTitle = newTitle);
+    }
   }
 
   Widget _visibilitySection() {
