@@ -309,7 +309,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
                                   12, 12, 12, 88),
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: filteredGames.length,
-                              separatorBuilder: (_, __) =>
+                              separatorBuilder: (_, _) =>
                                   const SizedBox(height: 10),
                               itemBuilder: (context, index) {
                                 final game = filteredGames[index];

@@ -29,15 +29,15 @@ dependencies:
   firebase_auth: ^6.3.0
   cached_network_image: ^3.3.0
   image_picker: ^1.0.0
-  connectivity_plus: ^6.0.0
+  connectivity_plus: ^7.2.0
   phosphor_flutter: ^2.1.0
   url_launcher: ^6.3.2
   flutter_svg: ^2.2.4
   go_router: ^17.2.1
-  share_plus: ^12.0.2
+  share_plus: ^13.2.0
   shared_preferences: ^2.5.5
-  package_info_plus: ^9.0.1
-  google_fonts: ^6.2.1
+  package_info_plus: ^10.2.0
+  google_fonts: ^8.1.0
   flutter_native_splash: ^2.4.6
 
 dev_dependencies:
@@ -51,6 +51,16 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
+
+# phosphor_flutter 2.1.0 extends Flutter's `IconData`, which was marked
+# final in Flutter 3.43. Pin to PR #62's fork until upstream publishes a fix.
+# Remove this override once https://github.com/phosphor-icons/flutter/pull/62
+# is merged and a new version is released on pub.dev.
+dependency_overrides:
+  phosphor_flutter:
+    git:
+      url: https://github.com/subarnaPdl/phosphor_icons.git
+      ref: "514f0a883571c4453dbd6ee3041d1dcba4fb8fc7"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
