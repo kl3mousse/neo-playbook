@@ -6,6 +6,7 @@ import '../models/collection_item.dart';
 import '../models/platform_template.dart';
 import '../services/user_service.dart';
 import 'game_picker_sheet.dart' show CustomGameDraft;
+import 'neo_geo_format_picker.dart';
 import 'picture_source_sheet.dart';
 
 class AddToCollectionSheet extends StatefulWidget {
@@ -59,6 +60,12 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
 
   static final _knownPlatformIds =
       allPlatformTemplates.map((t) => t.id).toList();
+
+  /// True when the game being added belongs to the Neo Geo hardware family,
+  /// which means we show a dedicated format picker instead of the generic dropdown.
+  bool get _isNeoGeoGame =>
+      isNeoGeoFamily(widget.initialPlatform ?? '') ||
+      (!_isCustomPlatform && isNeoGeoFamily(_platform));
 
   @override
   void initState() {
@@ -286,40 +293,67 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
               onAddPhoto: _addPhoto,
             ),
             const SizedBox(height: 16),
-            // Platform
-            DropdownButtonFormField<String>(
-              key: ValueKey('platform-${_isCustomPlatform ? '_other' : _platform}'),
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Platform',
-                border: OutlineInputBorder(),
+            // Platform / Format
+            if (_isNeoGeoGame && !_isCustomPlatform) ...[
+              NeoGeoFormatPicker(
+                selectedFormatId: neoGeoFormatIds.contains(_platform)
+                    ? _platform
+                    : neoGeoFormatIds.first,
+                onChanged: (id) => setState(() {
+                  _platform = id;
+                  _isCustomPlatform = false;
+                  _customPlatformLabel = null;
+                  _customPlatformLabelController.clear();
+                }),
               ),
-              initialValue: _isCustomPlatform ? '_other' : _platform,
-              items: [
-                for (final t in allPlatformTemplates)
-                  DropdownMenuItem(
-                    value: t.id,
-                    child: Text(t.displayName),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => setState(() => _isCustomPlatform = true),
+                child: Text(
+                  'Different platform…',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.primary,
+                    decoration: TextDecoration.underline,
                   ),
-                const DropdownMenuItem(
-                  value: '_other',
-                  child: Text('Other…'),
                 ),
-              ],
-              onChanged: (v) {
-                setState(() {
-                  if (v == '_other') {
-                    _isCustomPlatform = true;
-                  } else if (v != null) {
-                    _isCustomPlatform = false;
-                    _platform = v;
-                    _customPlatformLabel = null;
-                    _customPlatformLabelController.clear();
-                  }
-                });
-              },
-            ),
-            // When the user picks "Other…", show a text field for the name.
+              ),
+            ] else ...[
+              DropdownButtonFormField<String>(
+                key: ValueKey('platform-${_isCustomPlatform ? '_other' : _platform}'),
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Platform',
+                  border: OutlineInputBorder(),
+                ),
+                initialValue: _isCustomPlatform ? '_other' : _platform,
+                items: [
+                  for (final t in allPlatformTemplates)
+                    DropdownMenuItem(
+                      value: t.id,
+                      child: Text(t.displayName),
+                    ),
+                  const DropdownMenuItem(
+                    value: '_other',
+                    child: Text('Other…'),
+                  ),
+                ],
+                onChanged: (v) {
+                  setState(() {
+                    if (v == '_other') {
+                      _isCustomPlatform = true;
+                    } else if (v != null) {
+                      _isCustomPlatform = false;
+                      _platform = v;
+                      _customPlatformLabel = null;
+                      _customPlatformLabelController.clear();
+                    }
+                  });
+                },
+              ),
+            ],
+            // When the user picks "Other…" / "Different platform…",
+            // show a text field for the name.
             if (_isCustomPlatform) ...[
               const SizedBox(height: 12),
               TextField(
@@ -340,6 +374,25 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                   _platform = slug.isEmpty ? 'other' : slug;
                 },
               ),
+              if (_isNeoGeoGame) ...[
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () => setState(() {
+                    _isCustomPlatform = false;
+                    _customPlatformLabel = null;
+                    _customPlatformLabelController.clear();
+                    _platform = widget.initialPlatform ?? 'mvs';
+                  }),
+                  child: Text(
+                    '← Back to Neo Geo formats',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
             ],
             const SizedBox(height: 12),
             // Format

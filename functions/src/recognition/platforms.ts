@@ -26,6 +26,10 @@ const PLATFORM_ALIASES: Record<string, string[]> = {
     "ngcd", "neo geo cd", "neogeo cd", "neo-geo cd",
     "neo geo cdz",
   ],
+  neojamma: [
+    "neojamma", "neo geo jamma", "neogeo jamma", "neo-geo jamma",
+    "ng jamma", "ng jamma board", "neo geo jamma board",
+  ],
   cps1: [
     "cps1", "cps 1", "capcom cps1", "capcom cps 1",
     "capcom play system", "capcom play system 1",
@@ -44,8 +48,9 @@ const PLATFORM_ALIASES: Record<string, string[]> = {
 
 /** Platforms that often share the same titles (treat as related, not mismatched). */
 const PLATFORM_GROUPS: Record<string, string[]> = {
-  mvs: ["mvs", "aes"],
-  aes: ["mvs", "aes"],
+  mvs: ["mvs", "aes", "neojamma"],
+  aes: ["mvs", "aes", "neojamma"],
+  neojamma: ["mvs", "aes", "neojamma"],
 };
 
 const ALIAS_LOOKUP = (() => {

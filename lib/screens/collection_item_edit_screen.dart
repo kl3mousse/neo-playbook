@@ -10,6 +10,7 @@ import '../theme/combofox_theme.dart';
 import '../theme/platform_palette.dart';
 import '../widgets/arcade_panel.dart';
 import '../widgets/game_picker_sheet.dart';
+import '../widgets/neo_geo_format_picker.dart';
 import '../widgets/photo_viewer.dart';
 import '../widgets/picture_source_sheet.dart';
 
@@ -207,6 +208,40 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
   }
 
   // ── Save ────────────────────────────────────────────────────────────
+
+  /// Change the Neo Geo format of the current item, resetting component data
+  /// after user confirmation (since different formats have different checklists).
+  Future<void> _changeNeoGeoFormat(String newFormatId) async {
+    if (newFormatId == _platform) return;
+    final hasComponentData = _components.isNotEmpty || _platformFields.isNotEmpty;
+    if (hasComponentData) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Change Format'),
+          content: const Text(
+            'Switching to a different Neo Geo format will reset your component checklist and format-specific fields.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Change'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+    setState(() {
+      _platform = newFormatId;
+      _components = {};
+      _platformFields = {};
+    });
+  }
 
   double? _parseDouble(String text) => double.tryParse(text.trim());
 
@@ -494,6 +529,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
 
   Widget _linkedGameSection(PlatformPalette palette) {
     final isCustom = _gameId.isEmpty;
+    final isNeoGeo = isNeoGeoFamily(_platform);
     return _sectionPanel('Linked Game', ComboFoxColors.neonPurple, [
       Row(
         children: [
@@ -553,6 +589,17 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
           ],
         ],
       ),
+      // For Neo Geo family items, surface the format picker so the user can
+      // correct the format without having to re-link the game.
+      if (isNeoGeo) ...[
+        const SizedBox(height: 16),
+        NeoGeoFormatPicker(
+          selectedFormatId: neoGeoFormatIds.contains(_platform)
+              ? _platform
+              : neoGeoFormatIds.first,
+          onChanged: _changeNeoGeoFormat,
+        ),
+      ],
     ]);
   }
 

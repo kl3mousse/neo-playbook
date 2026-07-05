@@ -38,10 +38,32 @@ const _kPlatformPalettes = <String, PlatformPalette>{
     start: Color(0xFFB8001F),
     end: Color(0xFF1A1A2E),
   ),
+  // Explicit entries for each Neo Geo format so they get distinct colours
+  // instead of falling back to the hash-based palette.
+  'mvs': PlatformPalette(
+    label: 'Neo Geo MVS',
+    start: Color(0xFFB8001F), // SNK arcade red
+    end: Color(0xFF1A1A2E),
+  ),
+  'aes': PlatformPalette(
+    label: 'Neo Geo AES',
+    start: Color(0xFFD4A017), // AES gold/cream
+    end: Color(0xFF1A140A),
+  ),
+  'ngcd': PlatformPalette(
+    label: 'Neo Geo CD',
+    start: Color(0xFF0B5EA8), // CD blue
+    end: Color(0xFF0E1A33),
+  ),
   'neogeocd': PlatformPalette(
     label: 'Neo Geo CD',
     start: Color(0xFF0B5EA8), // AES-CD blue
     end: Color(0xFF0E1A33),
+  ),
+  'neojamma': PlatformPalette(
+    label: 'Neo Geo Jamma',
+    start: Color(0xFF8B0000), // dark arcade red
+    end: Color(0xFF1A0A0A),
   ),
   'cps1': PlatformPalette(
     label: 'CPS-1',
