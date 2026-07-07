@@ -51,14 +51,12 @@ class DipSettingsView extends StatelessWidget {
                 onPressed: () => _showInfoDialog(
                   context,
                   'Soft DIP Settings',
-                  'Soft DIPs are software-configurable game settings stored in '
-                  'battery-backed SRAM on MVS arcade boards, or in backup RAM '
-                  'on AES home consoles.\n\n'
-                  'They control gameplay options such as difficulty, round time, '
-                  'number of lives, and other game-specific parameters.\n\n'
-                  'On Neo Geo CD, these settings are stored on the memory card '
-                  'or internal storage. Each region (EU / US / JP) can have '
-                  'different default values.',
+                  'Soft DIPs are the operator settings of a Neo Geo game.\n\n'
+                  'On MVS arcade boards, they are changed from the service/test menu, just like an arcade operator would do inside a cabinet. They control game options such as difficulty, play time, lives, continues, demo sound, blood, and other settings defined by each game.\n\n'
+                  'On real MVS hardware, Soft DIP values are saved per game in the board\'s backup RAM.\n\n'
+                  'On AES, Neo Geo CD, flash carts, and emulators, access can vary depending on the BIOS, core, emulator, or game version. A stock home setup may not expose the same operator menu, while UniBIOS and many emulators often make these options easier to reach.\n\n'
+                  'ComboFox shows the known values for the selected game, region, and version whenever they are documented.',
+                  iconPath: 'assets/foxxy/sd/foxxy-sd-icon-07.png',
                 ),
               ),
             ],
@@ -300,12 +298,11 @@ class _DebugDipsSection extends StatelessWidget {
             onPressed: () => _showInfoDialog(
               context,
               'Debug DIP Switches',
-              'Debug DIP switches correspond to the physical hardware '
-              'DIP switches found on MVS arcade boards.\n\n'
-              'They are typically used for diagnostic and test modes, '
-              'such as entering the service menu, enabling free play, '
-              'or activating debug features built into the game.\n\n'
-              'Most players will never need to change these settings.',
+              'Debug DIPs are hidden test and developer flags found in some Neo Geo games.\n\n'
+              'They are not the normal Soft DIP operator settings, and they are usually not meant for regular players. Depending on the game, they may reveal hit boxes, sprite viewers, debug text, job meters, pause modes, level selects, or unfinished test features.\n\n'
+              'On original hardware, these options were likely intended for development or test setups, not for standard MVS or AES use. Today, they are mostly accessed through UniBIOS, debug BIOSes, emulator tools, cheats, or ROM research.\n\n'
+              'Some labels are based on community documentation and reverse engineering. They can be incomplete, game-specific, or still uncertain, so handle them like a fox in a PCB shop: curious, but careful.',
+              iconPath: 'assets/foxxy/sd/foxxy-sd-icon-07.png',
             ),
           ),
         ],
@@ -384,12 +381,36 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-void _showInfoDialog(BuildContext context, String title, String body) {
+void _showInfoDialog(
+  BuildContext context,
+  String title,
+  String body, {
+  String? iconPath,
+}) {
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(title),
-      content: Text(body),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (iconPath != null) ...[const Divider(),
+              SizedBox(
+                height: 100,
+                child: Image.asset(
+                  iconPath,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const Divider(),
+              const SizedBox(height: 8),
+            ],
+            Text(body),
+          ],
+        ),
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(),
