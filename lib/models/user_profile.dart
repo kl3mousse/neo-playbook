@@ -10,6 +10,7 @@ class UserProfile {
   final String bio;
   final List<SocialLink> socialLinks;
   final String preferredLanguage;
+  final String defaultCurrency;
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
 
@@ -21,6 +22,7 @@ class UserProfile {
     this.bio = '',
     this.socialLinks = const <SocialLink>[],
     this.preferredLanguage = '',
+    this.defaultCurrency = 'USD',
     this.createdAt,
     this.updatedAt,
   });
@@ -45,6 +47,7 @@ class UserProfile {
       bio: data['bio'] as String? ?? '',
       socialLinks: links,
       preferredLanguage: data['preferred_language'] as String? ?? '',
+      defaultCurrency: data['default_currency'] as String? ?? 'USD',
       createdAt: parseTimestamp(data['created_at']),
       updatedAt: parseTimestamp(data['updated_at']),
     );
@@ -57,6 +60,7 @@ class UserProfile {
         'bio': bio,
         'social_links': socialLinks.map((l) => l.toMap()).toList(),
         'preferred_language': preferredLanguage,
+        'default_currency': defaultCurrency,
         'updated_at': FieldValue.serverTimestamp(),
       };
 
@@ -67,6 +71,7 @@ class UserProfile {
         'bio': bio,
         'social_links': socialLinks.map((l) => l.toMap()).toList(),
         'preferred_language': preferredLanguage,
+        'default_currency': defaultCurrency,
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       };

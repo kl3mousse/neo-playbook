@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/collection_item.dart';
 import '../models/platform_template.dart';
+import '../services/prefs_service.dart';
 import '../services/user_service.dart';
+import '../utils/price_input_formatter.dart';
 import '../theme/app_theme.dart';
 import '../theme/combofox_theme.dart';
 import '../theme/platform_palette.dart';
@@ -74,7 +76,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
 
   bool _saving = false;
 
-  final _regionOptions = const ['jp', 'us', 'eu', 'kr', 'asia', 'world'];
+  final _regionOptions = const ['', 'jp', 'us', 'eu', 'kr', 'asia', 'world'];
   final _currencyOptions = const ['USD', 'EUR', 'JPY', 'GBP'];
 
   @override
@@ -89,11 +91,13 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
     _copyType = i.copyType;
     _condition = i.condition;
     _working = i.workingStatus;
-    _region = i.region.isEmpty ? 'jp' : i.region;
+    _region = i.region;
     _authenticity = i.authenticityConfidence;
     _lastTestedAt = i.lastTestedAt;
     _acquisitionDate = i.purchaseDate;
-    _currency = i.purchaseCurrency ?? 'USD';
+    _currency = i.purchaseCurrency ??
+        PrefsService.getDefaultCurrency() ??
+        'USD';
     _languageController = TextEditingController(text: i.language ?? '');
     _priceController = TextEditingController(
       text: i.purchasePrice?.toStringAsFixed(2) ?? '',
@@ -243,7 +247,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
     });
   }
 
-  double? _parseDouble(String text) => double.tryParse(text.trim());
+  double? _parseDouble(String text) => parsePrice(text);
 
   Future<void> _save() async {
     setState(() => _saving = true);
@@ -721,7 +725,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
               label: 'Region',
               value: _region,
               items: _regionOptions,
-              labelOf: (v) => v.toUpperCase(),
+              labelOf: (v) => v.isEmpty ? '— Unset' : v.toUpperCase(),
               onChanged: (v) => setState(() => _region = v),
             ),
           ),
@@ -1009,11 +1013,34 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
     return _sectionPanel('Acquisition', ComboFoxColors.neonBlue, [
       Row(
         children: [
+          const Icon(
+            Icons.lock_outline,
+            size: 13,
+            color: ComboFoxColors.textSecondary,
+          ),
+          const SizedBox(width: 5),
+          const Expanded(
+            child: Text(
+              'Price, seller and date are private — never shared with other users.',
+              style: TextStyle(
+                fontSize: 11,
+                color: ComboFoxColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      Row(
+        children: [
           Expanded(
             flex: 2,
             child: TextField(
               controller: _priceController,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [PriceInputFormatter()],
               decoration: const InputDecoration(
                 labelText: 'Price',
                 border: OutlineInputBorder(),
@@ -1049,7 +1076,8 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       const SizedBox(height: 12),
       TextField(
         controller: _estValueController,
-        keyboardType: TextInputType.number,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [PriceInputFormatter()],
         decoration: const InputDecoration(
           labelText: 'Current estimated value',
           border: OutlineInputBorder(),

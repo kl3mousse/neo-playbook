@@ -62,6 +62,7 @@ class UserService {
     if (doc.exists) {
       final profile = UserProfile.fromFirestore(doc);
       await PrefsService.setPreferredLanguage(profile.preferredLanguage);
+      await PrefsService.setDefaultCurrency(profile.defaultCurrency);
       return profile;
     }
 
@@ -107,6 +108,17 @@ class UserService {
       await PrefsService.setPreferredLanguage(preferredLanguage);
     }
     await _usersRef.doc(user.uid).update(data);
+  }
+
+  /// Update the user's default currency preference.
+  static Future<void> updateDefaultCurrency(String currency) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    await _usersRef.doc(user.uid).update({
+      'default_currency': currency,
+      'updated_at': FieldValue.serverTimestamp(),
+    });
+    await PrefsService.setDefaultCurrency(currency);
   }
 
   // ── Support and Feedback ─────────────────────────────────────────────

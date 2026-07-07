@@ -19,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   PackageInfo? _info;
   int _recentCount = 0;
   bool _deletingAccount = false;
+  String _defaultCurrency = PrefsService.getDefaultCurrency() ?? 'USD';
 
   @override
   void initState() {
@@ -155,6 +156,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         children: [
+          // ── Preferences ─────────────────────────────────────────────
+          if (AuthService.isLoggedIn) ...[
+            const _SectionHeader('Preferences'),
+            ListTile(
+              leading: const Icon(Icons.attach_money_outlined),
+              title: const Text('Default Currency'),
+              subtitle: Text(_defaultCurrency),
+              onTap: () async {
+                const options = ['USD', 'EUR', 'JPY', 'GBP'];
+                final picked = await showDialog<String>(
+                  context: context,
+                  builder: (context) => SimpleDialog(
+                    title: const Text('Default currency'),
+                    children: [
+                      for (final c in options)
+                        SimpleDialogOption(
+                          onPressed: () => Navigator.pop(context, c),
+                          child: Text(c),
+                        ),
+                    ],
+                  ),
+                );
+                if (picked == null || !mounted) return;
+                await UserService.updateDefaultCurrency(picked);
+                setState(() => _defaultCurrency = picked);
+              },
+            ),
+          ],
+
           // ── Network ─────────────────────────────────────────────────
           const _SectionHeader('Network'),
           StreamBuilder<List<ConnectivityResult>>(

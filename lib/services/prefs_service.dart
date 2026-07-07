@@ -121,4 +121,34 @@ class PrefsService {
   static Future<void> setPreferredLanguage(String code) => code.isEmpty
       ? _p.remove(_kPreferredLanguage)
       : _p.setString(_kPreferredLanguage, code);
+
+  // ── Default currency ──────────────────────────────────────────────
+
+  static const _kDefaultCurrency = 'user.defaultCurrency';
+
+  /// Returns the user's default currency (e.g. `'EUR'`), or `null` if
+  /// the profile has not been loaded yet. Callers should fall back to `'USD'`.
+  static String? getDefaultCurrency() => _p.getString(_kDefaultCurrency);
+
+  /// Mirror the default-currency value from the user profile into local prefs
+  /// for fast synchronous access.
+  static Future<void> setDefaultCurrency(String currency) =>
+      _p.setString(_kDefaultCurrency, currency);
+
+  // ── Collection preferences ────────────────────────────────────────
+
+  static const _kCollectionSortOption = 'collection.sortOption';
+  static const _kCollapsedPlatforms = 'collection.collapsedPlatforms';
+
+  static String getCollectionSortOption() =>
+      _p.getString(_kCollectionSortOption) ?? 'name';
+
+  static Future<void> setCollectionSortOption(String v) =>
+      _p.setString(_kCollectionSortOption, v);
+
+  static List<String> getCollapsedPlatforms() =>
+      _p.getStringList(_kCollapsedPlatforms) ?? const [];
+
+  static Future<void> setCollapsedPlatforms(List<String> platforms) =>
+      _p.setStringList(_kCollapsedPlatforms, platforms);
 }

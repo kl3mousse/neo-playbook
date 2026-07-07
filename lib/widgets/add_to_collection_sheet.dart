@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/collection_item.dart';
 import '../models/platform_template.dart';
+import '../services/prefs_service.dart';
 import '../services/user_service.dart';
+import '../utils/price_input_formatter.dart';
 import 'game_picker_sheet.dart' show CustomGameDraft;
 import 'neo_geo_format_picker.dart';
 import 'picture_source_sheet.dart';
@@ -87,11 +89,13 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     _format = e?.format ?? ItemFormat.cartridge;
     _condition = e?.condition ?? ItemCondition.good;
     _copyType = e?.copyType ?? CopyType.unknown;
-    _region = e?.region ?? 'jp';
+    _region = e?.region ?? '';
     _priceController = TextEditingController(
       text: e?.purchasePrice?.toStringAsFixed(2) ?? '',
     );
-    _currency = e?.purchaseCurrency ?? 'USD';
+    _currency = e?.purchaseCurrency ??
+        PrefsService.getDefaultCurrency() ??
+        'USD';
     _notesController = TextEditingController(text: e?.notes ?? '');
     _existingPhotoPaths = List<String>.from(e?.imagePaths ?? const []);
 
@@ -105,7 +109,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     );
   }
 
-  static const _regionOptions = ['jp', 'us', 'eu', 'kr'];
+  static const _regionOptions = ['', 'jp', 'us', 'eu', 'kr'];
   static const _currencyOptions = ['USD', 'EUR', 'JPY', 'GBP'];
 
   Future<void> _addPhoto() async {
@@ -169,7 +173,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
   Future<void> _submit() async {
     setState(() => _submitting = true);
     try {
-      final price = double.tryParse(_priceController.text.trim());
+      final price = parsePrice(_priceController.text);
       final retainedPaths = List<String>.from(_existingPhotoPaths);
 
       // Build platform fields for off-catalog metadata.
@@ -451,7 +455,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                   .map(
                     (r) => DropdownMenuItem(
                       value: r,
-                      child: Text(r.toUpperCase()),
+                      child: Text(r.isEmpty ? '— Unset' : r.toUpperCase()),
                     ),
                   )
                   .toList(),
@@ -490,6 +494,27 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
               ),
             ],
             const SizedBox(height: 12),
+            // Privacy notice for acquisition info
+            Row(
+              children: [
+                Icon(
+                  Icons.lock_outline,
+                  size: 13,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    'Price, seller and date are private — never shared with other users.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
             // Price + Currency
             Row(
               children: [
@@ -501,7 +526,10 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                       labelText: 'Price (optional)',
                       border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [PriceInputFormatter()],
                   ),
                 ),
                 const SizedBox(width: 8),

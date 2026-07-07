@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../models/collection_item.dart';
 import '../models/platform_template.dart';
 import '../services/user_service.dart';
@@ -110,6 +111,10 @@ class _DetailBody extends StatelessWidget {
                 ],
                 _myCopySection(context),
                 const SizedBox(height: 16),
+                if (item.gameId.isNotEmpty) ...[
+                  _viewGamePageButton(context),
+                  const SizedBox(height: 16),
+                ],
                 if (item.imagePaths.isNotEmpty) ...[
                   _photosSection(context),
                   const SizedBox(height: 16),
@@ -255,6 +260,26 @@ class _DetailBody extends StatelessWidget {
   Widget _acquisitionSection(BuildContext context) {
     final currency = item.purchaseCurrency ?? '';
     final rows = <Widget>[
+      Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          children: [
+            Icon(
+              Icons.lock_outline,
+              size: 12,
+              color: ComboFoxColors.textSecondary.withValues(alpha: 0.7),
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'Private — never shared with other users',
+              style: TextStyle(
+                fontSize: 11,
+                color: ComboFoxColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
       if (item.purchasePrice != null)
         _kv(
           'Acquired for',
@@ -415,6 +440,17 @@ class _DetailBody extends StatelessWidget {
         style: const TextStyle(height: 1.5, color: AppColors.textPrimary),
       ),
     ]);
+  }
+
+  Widget _viewGamePageButton(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () => context.push('/game/${item.gameId}'),
+      icon: const Icon(Icons.videogame_asset_outlined, size: 18),
+      label: const Text('View catalog page'),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(44),
+      ),
+    );
   }
 
   // ── Small helpers ───────────────────────────────────────────────────
