@@ -103,6 +103,8 @@ class GameDetailScreen extends StatelessWidget {
                     children: [
                       ...game.genre.map((g) => _InfoChip(label: g, filled: true)),
                       _InfoChip(label: game.playersLabel),
+                      if (game.type != null && game.type!.isNotEmpty)
+                        _InfoChip(label: game.type!),
                       if (game.ngmId != null)
                         _NgmChip(ngmId: game.ngmId!),
                     ],

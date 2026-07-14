@@ -5,12 +5,14 @@ import '../models/game.dart';
 class GameFilters {
   final String? genre;
   final String? publisher;
+  final String? type;
   final int? playerCount;
   final RangeValues? yearRange;
 
   const GameFilters({
     this.genre,
     this.publisher,
+    this.type,
     this.playerCount,
     this.yearRange,
   });
@@ -18,18 +20,21 @@ class GameFilters {
   bool get hasActiveFilters =>
       genre != null ||
       publisher != null ||
+      type != null ||
       playerCount != null ||
       yearRange != null;
 
   GameFilters copyWith({
     String? Function()? genre,
     String? Function()? publisher,
+    String? Function()? type,
     int? Function()? playerCount,
     RangeValues? Function()? yearRange,
   }) {
     return GameFilters(
       genre: genre != null ? genre() : this.genre,
       publisher: publisher != null ? publisher() : this.publisher,
+      type: type != null ? type() : this.type,
       playerCount: playerCount != null ? playerCount() : this.playerCount,
       yearRange: yearRange != null ? yearRange() : this.yearRange,
     );
@@ -43,6 +48,9 @@ class GameFilters {
     }
     if (publisher != null) {
       filtered = filtered.where((g) => g.publisher == publisher).toList();
+    }
+    if (type != null) {
+      filtered = filtered.where((g) => g.type == type).toList();
     }
     if (playerCount != null) {
       filtered =
@@ -95,6 +103,7 @@ class FilterPanel extends StatelessWidget {
     // Extract unique values from games
     final genres = allGames.expand((g) => g.genre).toSet().toList()..sort();
     final publishers = allGames.map((g) => g.publisher).where((p) => p != null && p.isNotEmpty).cast<String>().toSet().toList()..sort();
+    final types = allGames.map((g) => g.type).where((t) => t != null && t.isNotEmpty).cast<String>().toSet().toList()..sort();
     final playerCounts = allGames.map((g) => g.nbPlayers).where((p) => p != null).cast<int>().toSet().toList()..sort();
 
     final years = allGames.map((g) => g.year).where((y) => y != null).cast<int>().toList();
@@ -156,6 +165,16 @@ class FilterPanel extends StatelessWidget {
             selected: filters.publisher,
             onSelected: (v) => onFiltersChanged(filters.copyWith(
                 publisher: () => v == filters.publisher ? null : v)),
+          ),
+
+        // Type chips
+        if (types.length > 1)
+          _ChipRow(
+            label: 'Type',
+            values: types,
+            selected: filters.type,
+            onSelected: (v) => onFiltersChanged(
+                filters.copyWith(type: () => v == filters.type ? null : v)),
           ),
 
         // Player count chips

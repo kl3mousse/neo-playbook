@@ -112,6 +112,7 @@ class Game {
   final String? altTitle;
   final int? year;
   final String? publisher;
+  final String? type;
   final List<String> genre;
   final int? nbPlayers;
   final String? description;
@@ -133,6 +134,7 @@ class Game {
     this.altTitle,
     this.year,
     this.publisher,
+    this.type,
     required this.genre,
     this.nbPlayers,
     this.description,
@@ -186,6 +188,7 @@ class Game {
       altTitle: data['alt_title'] as String?,
       year: _parseInt(data['year']),
       publisher: data['publisher'] as String?,
+      type: data['type'] as String?,
       genre: genre,
       nbPlayers: _parseInt(data['nb_players']),
       description: data['description'] as String?,

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../models/game.dart';
 import '../theme/app_theme.dart';
 import '../theme/combofox_theme.dart';
@@ -27,6 +28,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
   bool _sortAscending = true;
   bool _showFilters = false;
   final _searchFocus = FocusNode();
+  final _searchController = TextEditingController();
   bool _searchFocused = false;
   // Bumped to force the StreamBuilder to re-subscribe after an error.
   int _streamAttempt = 0;
@@ -75,6 +77,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
   @override
   void dispose() {
     _searchFocus.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -196,44 +199,79 @@ class _GamesListScreenState extends State<GamesListScreen> {
               // Search bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOut,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: _searchFocused
-                        ? [
-                            BoxShadow(
-                              color: ComboFoxColors.neonBlue.withValues(alpha: 0.20),
-                              blurRadius: 16,
-                              spreadRadius: 1,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: _searchFocused
+                              ? [
+                                  BoxShadow(
+                                    color: ComboFoxColors.neonBlue
+                                        .withValues(alpha: 0.20),
+                                    blurRadius: 16,
+                                    spreadRadius: 1,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: TextField(
+                          focusNode: _searchFocus,
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: 'Search games...',
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: _searchFocused
+                                  ? ComboFoxColors.neonBlue
+                                  : AppColors.textSecondary,
                             ),
-                          ]
-                        : null,
-                  ),
-                  child: TextField(
-                    focusNode: _searchFocus,
-                    decoration: InputDecoration(
-                      hintText: 'Search games...',
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: _searchFocused
-                            ? ComboFoxColors.neonBlue
-                            : AppColors.textSecondary,
+                            suffixIcon: _searchQuery.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    tooltip: 'Clear search',
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                  ),
+                          ),
+                          onChanged: (v) => setState(() => _searchQuery = v),
+                        ),
                       ),
-                      suffixIcon: IconButton(
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: (_showFilters || _filters.hasActiveFilters)
+                            ? Border.all(
+                                color: ComboFoxColors.neonBlue
+                                    .withValues(alpha: 0.6),
+                              )
+                            : null,
+                      ),
+                      child: IconButton(
                         icon: Icon(
-                          _showFilters
-                              ? Icons.filter_list_off
-                              : Icons.filter_list,
+                          (_showFilters || _filters.hasActiveFilters)
+                              ? PhosphorIconsFill.faders
+                              : PhosphorIconsRegular.faders,
+                          color: (_showFilters || _filters.hasActiveFilters)
+                              ? ComboFoxColors.neonBlue
+                              : AppColors.textSecondary,
                         ),
                         onPressed: () =>
                             setState(() => _showFilters = !_showFilters),
                         tooltip: 'Filters',
                       ),
                     ),
-                    onChanged: (v) => setState(() => _searchQuery = v),
-                  ),
+                  ],
                 ),
               ),
 
