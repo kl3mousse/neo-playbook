@@ -740,48 +740,6 @@ const _jamma = PlatformTemplate(
   ],
 );
 
-/// Dedicated Neo Geo Jamma board (a specific game PCB mounted in a cabinet).
-const _neoJamma = PlatformTemplate(
-  id: 'neojamma',
-  displayName: 'Neo Geo Jamma',
-  components: [
-    ComponentSpec(key: 'pcb', label: 'PCB', important: true),
-    ComponentSpec(key: 'marquee', label: 'Marquee'),
-    ComponentSpec(key: 'side_art', label: 'Side art'),
-    ComponentSpec(key: 'bezel', label: 'Bezel'),
-  ],
-  fields: [
-    PlatformFieldSpec(
-      key: 'original_pcb',
-      label: 'Original PCB',
-      type: PlatformFieldType.toggle,
-    ),
-    PlatformFieldSpec(
-      key: 'rom_labels',
-      label: 'ROM labels',
-      type: PlatformFieldType.text,
-    ),
-    PlatformFieldSpec(
-      key: 'edge_connector_condition',
-      label: 'Edge connector condition',
-      type: PlatformFieldType.dropdown,
-      options: _labelConditionOptions,
-    ),
-    PlatformFieldSpec(
-      key: 'suicide_battery',
-      label: 'Suicide battery',
-      type: PlatformFieldType.toggle,
-    ),
-    PlatformFieldSpec(
-      key: 'battery_service_date',
-      label: 'Battery service date',
-      type: PlatformFieldType.date,
-      warnWhenEmpty: true,
-    ),
-  ],
-  batteryServiceFieldKey: 'battery_service_date',
-);
-
 /// Simple home-console / CD templates so AES & Neo Geo CD copies still work.
 const _aes = PlatformTemplate(
   id: 'aes',
@@ -811,7 +769,6 @@ const Map<String, PlatformTemplate> _templates = {
   'aes': _aes,
   'ngcd': _ngcd,
   'neogeocd': _ngcd,
-  'neojamma': _neoJamma,
   'cps1': _cps1,
   'cps2': _cps2,
   'cps3': _cps3,
@@ -826,26 +783,11 @@ const Map<String, PlatformTemplate> _templates = {
   'jamma': _jamma,
 };
 
-/// Platform IDs that belong to the Neo Geo hardware family.
-const Set<String> neoGeoFamilyPlatformIds = {
-  'mvs', 'neogeo', 'aes', 'ngcd', 'neogeocd', 'neojamma',
-};
-
-/// The four selectable Neo Geo formats, in display order.
-const List<String> neoGeoFormatIds = ['mvs', 'aes', 'ngcd', 'neojamma'];
-
-/// Returns true when [platformId] belongs to the Neo Geo family.
-bool isNeoGeoFamily(String platformId) {
-  final key = platformId.trim().toLowerCase().replaceAll(RegExp(r'[\s_-]'), '');
-  return neoGeoFamilyPlatformIds.contains(key);
-}
-
 /// All distinct templates available for selection.
 List<PlatformTemplate> get allPlatformTemplates => const [
   _mvs,
   _aes,
   _ngcd,
-  _neoJamma,
   _cps1,
   _cps2,
   _cps3,
@@ -870,6 +812,35 @@ PlatformTemplate platformTemplate(String platformId) {
 bool hasPlatformTemplate(String platformId) {
   final key = platformId.trim().toLowerCase().replaceAll(RegExp(r'[\s_-]'), '');
   return _templates.containsKey(key);
+}
+
+// ── Neo Geo family helpers ──────────────────────────────────────────────
+
+/// Canonical Neo Geo physical format platform ids, in display order:
+/// MVS cart, AES cart, Neo Geo CD, and JAMMA (bare board / conversion).
+const List<String> neoGeoFormatIds = ['mvs', 'aes', 'ngcd', 'jamma'];
+
+/// Aliases that should still map to a Neo Geo format when detecting the
+/// hardware family (e.g. legacy `neogeo` / `neogeocd` values).
+///
+/// `jamma` is intentionally excluded: a bare JAMMA board is offered as a Neo
+/// Geo *format* (see [neoGeoFormatIds]) because Neo Geo carts can be played
+/// on a converted JAMMA board, but many non–Neo Geo hardware families also
+/// use the JAMMA edge (CPS1/2, PGM, …), so `isNeoGeoFamily('jamma')` would
+/// false-positive when deciding whether to show the Neo Geo picker.
+const Set<String> _neoGeoFamilyAliases = {
+  'mvs',
+  'aes',
+  'ngcd',
+  'neogeo',
+  'neogeocd',
+};
+
+/// True when [platformId] belongs to the Neo Geo hardware family, using the
+/// same normalisation rules as [platformTemplate].
+bool isNeoGeoFamily(String platformId) {
+  final key = platformId.trim().toLowerCase().replaceAll(RegExp(r'[\s_-]'), '');
+  return _neoGeoFamilyAliases.contains(key);
 }
 
 // ── Completeness & badges ────────────────────────────────────────────────
@@ -915,11 +886,6 @@ List<CollectionBadge> computeBadges(
   // Draft / unverified status — surface first so users can act on it.
   if (item.isUnverified) {
     badges.add(const CollectionBadge('Draft · Unverified', BadgeTone.warning));
-  }
-
-  // Off-catalog entries: not linked to a catalog game.
-  if (item.isCustomEntry) {
-    badges.add(const CollectionBadge('Off-catalog', BadgeTone.info));
   }
 
   final completeness = computeCompleteness(item, template);

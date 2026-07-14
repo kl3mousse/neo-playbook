@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../models/collection_item.dart';
 import '../models/platform_template.dart';
 import '../services/user_service.dart';
@@ -111,10 +110,6 @@ class _DetailBody extends StatelessWidget {
                 ],
                 _myCopySection(context),
                 const SizedBox(height: 16),
-                if (item.gameId.isNotEmpty) ...[
-                  _viewGamePageButton(context),
-                  const SizedBox(height: 16),
-                ],
                 if (item.imagePaths.isNotEmpty) ...[
                   _photosSection(context),
                   const SizedBox(height: 16),
@@ -239,13 +234,6 @@ class _DetailBody extends StatelessWidget {
         _kv('Last tested', _fmtDate(item.lastTestedAt!.toDate())),
       if (item.storageLocation != null && item.storageLocation!.isNotEmpty)
         _kv('Storage', item.storageLocation!),
-      // Off-catalog extra metadata.
-      if (item.isCustomEntry) ...[
-        if (item.platformFields['custom_year'] != null)
-          _kv('Year', item.platformFields['custom_year'].toString()),
-        if (item.platformFields['custom_publisher'] != null)
-          _kv('Publisher', item.platformFields['custom_publisher'].toString()),
-      ],
     ];
     return _panel('My Copy', ComboFoxColors.neonPink, rows);
   }
@@ -260,26 +248,6 @@ class _DetailBody extends StatelessWidget {
   Widget _acquisitionSection(BuildContext context) {
     final currency = item.purchaseCurrency ?? '';
     final rows = <Widget>[
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          children: [
-            Icon(
-              Icons.lock_outline,
-              size: 12,
-              color: ComboFoxColors.textSecondary.withValues(alpha: 0.7),
-            ),
-            const SizedBox(width: 4),
-            const Text(
-              'Private — never shared with other users',
-              style: TextStyle(
-                fontSize: 11,
-                color: ComboFoxColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
       if (item.purchasePrice != null)
         _kv(
           'Acquired for',
@@ -394,8 +362,6 @@ class _DetailBody extends StatelessWidget {
   }
 
   Widget _platformDetailsSection(BuildContext context) {
-    // Keys that are shown elsewhere (off-catalog section in _myCopySection).
-    const customKeys = {'custom_platform_label', 'custom_year', 'custom_publisher'};
     final rows = <Widget>[];
     for (final spec in _template.fields) {
       final value = item.platformFields[spec.key];
@@ -404,19 +370,6 @@ class _DetailBody extends StatelessWidget {
       if (value is bool && value == false) continue;
       final display = value is bool ? 'Yes' : value.toString();
       rows.add(_kv(spec.label, display));
-    }
-    // Also surface any platformFields keys not covered by the template spec
-    // (e.g. user-entered values from older schema), skipping the reserved
-    // off-catalog keys and anything already rendered above.
-    final templateKeys = _template.fields.map((f) => f.key).toSet();
-    for (final entry in item.platformFields.entries) {
-      if (templateKeys.contains(entry.key)) continue;
-      if (customKeys.contains(entry.key)) continue;
-      final v = entry.value;
-      if (v == null) continue;
-      if (v is String && v.trim().isEmpty) continue;
-      if (v is bool && v == false) continue;
-      rows.add(_kv(entry.key, v.toString()));
     }
     if (rows.isEmpty) {
       rows.add(
@@ -440,17 +393,6 @@ class _DetailBody extends StatelessWidget {
         style: const TextStyle(height: 1.5, color: AppColors.textPrimary),
       ),
     ]);
-  }
-
-  Widget _viewGamePageButton(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () => context.push('/game/${item.gameId}'),
-      icon: const Icon(Icons.videogame_asset_outlined, size: 18),
-      label: const Text('View catalog page'),
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size.fromHeight(44),
-      ),
-    );
   }
 
   // ── Small helpers ───────────────────────────────────────────────────
@@ -538,7 +480,7 @@ class _Header extends StatelessWidget {
                 ),
                 child: Text(
                   [
-                    item.customPlatformLabel ?? palette.label,
+                    palette.label,
                     if (item.region.isNotEmpty) item.region.toUpperCase(),
                   ].join(' · '),
                   style: const TextStyle(

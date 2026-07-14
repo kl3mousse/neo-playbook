@@ -158,7 +158,9 @@ class GameDetailScreen extends StatelessWidget {
 
                   // External Links
                   if (game.hfsdbId != null ||
-                      (game.igdbUrl != null && game.igdbUrl!.isNotEmpty)) ...[
+                      (game.igdbUrl != null && game.igdbUrl!.isNotEmpty) ||
+                      (game.mvsScansUrl != null &&
+                          game.mvsScansUrl!.isNotEmpty)) ...[
                     _ExternalLinksSection(game: game),
                     const SizedBox(height: 24),
                   ],
@@ -868,6 +870,8 @@ class _ExternalLinksSection extends StatelessWidget {
       if (game.hfsdbId != null) _HfsdbChip(hfsdbId: game.hfsdbId!),
       if (game.igdbUrl != null && game.igdbUrl!.isNotEmpty)
         _IgdbChip(igdbUrl: game.igdbUrl!),
+      if (game.mvsScansUrl != null && game.mvsScansUrl!.isNotEmpty)
+        _MvsScansChip(mvsScansUrl: game.mvsScansUrl!),
     ];
     if (chips.isEmpty) return const SizedBox.shrink();
 
@@ -1005,6 +1009,51 @@ class _HfsdbChip extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               'HFS',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MvsScansChip extends StatelessWidget {
+  final String mvsScansUrl;
+  const _MvsScansChip({required this.mvsScansUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => launchUrl(
+        Uri.parse(mvsScansUrl),
+        mode: LaunchMode.externalApplication,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.textSecondary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.document_scanner_outlined,
+              size: 16,
+              color: AppColors.textSecondary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'MVS-scans.com',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,

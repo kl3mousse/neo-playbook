@@ -4,15 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/collection_item.dart';
 import '../models/platform_template.dart';
-import '../services/prefs_service.dart';
 import '../services/user_service.dart';
-import '../utils/price_input_formatter.dart';
 import '../theme/app_theme.dart';
 import '../theme/combofox_theme.dart';
 import '../theme/platform_palette.dart';
 import '../widgets/arcade_panel.dart';
 import '../widgets/game_picker_sheet.dart';
-import '../widgets/neo_geo_format_picker.dart';
 import '../widgets/photo_viewer.dart';
 import '../widgets/picture_source_sheet.dart';
 
@@ -76,7 +73,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
 
   bool _saving = false;
 
-  final _regionOptions = const ['', 'jp', 'us', 'eu', 'kr', 'asia', 'world'];
+  final _regionOptions = const ['jp', 'us', 'eu', 'kr', 'asia', 'world'];
   final _currencyOptions = const ['USD', 'EUR', 'JPY', 'GBP'];
 
   @override
@@ -91,13 +88,11 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
     _copyType = i.copyType;
     _condition = i.condition;
     _working = i.workingStatus;
-    _region = i.region;
+    _region = i.region.isEmpty ? 'jp' : i.region;
     _authenticity = i.authenticityConfidence;
     _lastTestedAt = i.lastTestedAt;
     _acquisitionDate = i.purchaseDate;
-    _currency = i.purchaseCurrency ??
-        PrefsService.getDefaultCurrency() ??
-        'USD';
+    _currency = i.purchaseCurrency ?? 'USD';
     _languageController = TextEditingController(text: i.language ?? '');
     _priceController = TextEditingController(
       text: i.purchasePrice?.toStringAsFixed(2) ?? '',
@@ -168,86 +163,56 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
     final result = await showGamePicker(context, initialQuery: _gameTitle);
     if (result == null || !mounted) return;
 
+    final String newGameId;
+    final String newTitle;
+    final String newPlatform;
+    String? newCustomPlatformLabel;
+
     if (result.game != null) {
-      final game = result.game!;
-      final platformChanged =
-          game.platform.toLowerCase() != _platform.toLowerCase();
-      setState(() {
-        _gameId = game.id;
-        _gameTitle = game.title;
-        if (game.platform.isNotEmpty) _platform = game.platform;
-        if (platformChanged) {
-          _platformFields = {};
-          _components = {};
-        }
-        // Catalog games are never "off-catalog" — clear any custom labels.
-        _platformFields.remove('custom_platform_label');
-      });
-      if (platformChanged) {
-        _showError('Platform changed — platform-specific fields were reset.');
-      }
+      final g = result.game!;
+      newGameId = g.id;
+      newTitle = g.title;
+      newPlatform = g.platform.isNotEmpty ? g.platform : _platform;
     } else if (result.custom != null) {
-      final draft = result.custom!;
-      final platformChanged =
-          draft.platformId.toLowerCase() != _platform.toLowerCase();
-      setState(() {
-        _gameId = '';
-        _gameTitle = draft.title;
-        _platform = draft.platformId;
-        if (platformChanged) {
-          _platformFields = {};
-          _components = {};
-        }
-        if (draft.customPlatformLabel != null) {
-          _platformFields['custom_platform_label'] =
-              draft.customPlatformLabel;
-        } else {
-          _platformFields.remove('custom_platform_label');
-        }
-      });
+      final c = result.custom!;
+      // Off-catalog entry: no catalog id.
+      newGameId = '';
+      newTitle = c.title;
+      newPlatform = c.platformId.isNotEmpty ? c.platformId : _platform;
+      newCustomPlatformLabel = c.customPlatformLabel;
+    } else {
+      return;
+    }
+
+    final platformChanged =
+        newPlatform.toLowerCase() != _platform.toLowerCase();
+    setState(() {
+      _gameId = newGameId;
+      _gameTitle = newTitle;
+      _platform = newPlatform;
+      // When the platform changes, keep generic fields but reset
+      // platform-specific fields and components which no longer apply.
       if (platformChanged) {
-        _showError('Platform changed — platform-specific fields were reset.');
+        _platformFields = {};
+        _components = {};
       }
+      // Preserve/refresh the human-readable custom platform label so the
+      // saved item keeps a friendly platform name for off-catalog entries.
+      if (newCustomPlatformLabel != null &&
+          newCustomPlatformLabel.isNotEmpty) {
+        _platformFields['custom_platform_label'] = newCustomPlatformLabel;
+      } else if (platformChanged) {
+        _platformFields.remove('custom_platform_label');
+      }
+    });
+    if (platformChanged) {
+      _showError('Platform changed — platform-specific fields were reset.');
     }
   }
 
   // ── Save ────────────────────────────────────────────────────────────
 
-  /// Change the Neo Geo format of the current item, resetting component data
-  /// after user confirmation (since different formats have different checklists).
-  Future<void> _changeNeoGeoFormat(String newFormatId) async {
-    if (newFormatId == _platform) return;
-    final hasComponentData = _components.isNotEmpty || _platformFields.isNotEmpty;
-    if (hasComponentData) {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Change Format'),
-          content: const Text(
-            'Switching to a different Neo Geo format will reset your component checklist and format-specific fields.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Change'),
-            ),
-          ],
-        ),
-      );
-      if (confirmed != true) return;
-    }
-    setState(() {
-      _platform = newFormatId;
-      _components = {};
-      _platformFields = {};
-    });
-  }
-
-  double? _parseDouble(String text) => parsePrice(text);
+  double? _parseDouble(String text) => double.tryParse(text.trim());
 
   Future<void> _save() async {
     setState(() => _saving = true);
@@ -291,8 +256,6 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       final price = _parseDouble(_priceController.text);
       final estValue = _parseDouble(_estValueController.text);
 
-      final notesText = _textOrNull(_notesController);
-
       final updated = widget.item.copyWith(
         gameId: _gameId,
         gameTitle: _gameTitle,
@@ -304,8 +267,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
         purchaseDate: _acquisitionDate,
         acquisitionSource: _textOrNull(_sourceController),
         currentEstimatedValue: estValue,
-        notes: notesText,
-        clearNotes: notesText == null,
+        notes: _textOrNull(_notesController),
         imagePaths: photos,
         ownershipStatus: _ownership,
         visibility: _visibility,
@@ -532,8 +494,6 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
   }
 
   Widget _linkedGameSection(PlatformPalette palette) {
-    final isCustom = _gameId.isEmpty;
-    final isNeoGeo = isNeoGeoFamily(_platform);
     return _sectionPanel('Linked Game', ComboFoxColors.neonPurple, [
       Row(
         children: [
@@ -559,7 +519,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
                   ),
                 ),
                 Text(
-                  isCustom ? 'Off-catalog' : palette.label,
+                  palette.label,
                   style: const TextStyle(
                     color: ComboFoxColors.textSecondary,
                     fontSize: 12,
@@ -571,73 +531,12 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
         ],
       ),
       const SizedBox(height: 12),
-      Row(
-        children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _changeGame,
-              icon: const Icon(Icons.swap_horiz),
-              label: const Text('Change game'),
-            ),
-          ),
-          // Off-catalog items allow editing the title in-place.
-          if (isCustom) ...[
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: _editCustomTitle,
-                icon: const Icon(Icons.edit_outlined),
-                label: const Text('Edit title'),
-              ),
-            ),
-          ],
-        ],
+      OutlinedButton.icon(
+        onPressed: _changeGame,
+        icon: const Icon(Icons.swap_horiz),
+        label: const Text('Change game'),
       ),
-      // For Neo Geo family items, surface the format picker so the user can
-      // correct the format without having to re-link the game.
-      if (isNeoGeo) ...[
-        const SizedBox(height: 16),
-        NeoGeoFormatPicker(
-          selectedFormatId: neoGeoFormatIds.contains(_platform)
-              ? _platform
-              : neoGeoFormatIds.first,
-          onChanged: _changeNeoGeoFormat,
-        ),
-      ],
     ]);
-  }
-
-  Future<void> _editCustomTitle() async {
-    final controller = TextEditingController(text: _gameTitle);
-    final newTitle = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Edit title'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Game title',
-            border: OutlineInputBorder(),
-          ),
-          textCapitalization: TextCapitalization.words,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (newTitle != null && newTitle.isNotEmpty && mounted) {
-      setState(() => _gameTitle = newTitle);
-    }
   }
 
   Widget _visibilitySection() {
@@ -725,7 +624,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
               label: 'Region',
               value: _region,
               items: _regionOptions,
-              labelOf: (v) => v.isEmpty ? '— Unset' : v.toUpperCase(),
+              labelOf: (v) => v.toUpperCase(),
               onChanged: (v) => setState(() => _region = v),
             ),
           ),
@@ -1013,34 +912,11 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
     return _sectionPanel('Acquisition', ComboFoxColors.neonBlue, [
       Row(
         children: [
-          const Icon(
-            Icons.lock_outline,
-            size: 13,
-            color: ComboFoxColors.textSecondary,
-          ),
-          const SizedBox(width: 5),
-          const Expanded(
-            child: Text(
-              'Price, seller and date are private — never shared with other users.',
-              style: TextStyle(
-                fontSize: 11,
-                color: ComboFoxColors.textSecondary,
-              ),
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 10),
-      Row(
-        children: [
           Expanded(
             flex: 2,
             child: TextField(
               controller: _priceController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [PriceInputFormatter()],
+              keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: 'Price',
                 border: OutlineInputBorder(),
@@ -1076,8 +952,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       const SizedBox(height: 12),
       TextField(
         controller: _estValueController,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [PriceInputFormatter()],
+        keyboardType: TextInputType.number,
         decoration: const InputDecoration(
           labelText: 'Current estimated value',
           border: OutlineInputBorder(),
