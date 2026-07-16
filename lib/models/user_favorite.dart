@@ -3,6 +3,7 @@ import 'firestore_helpers.dart';
 
 enum FavoriteStatus {
   wantToPlay('want_to_play', 'Want to Play', '🎯'),
+  wantToBuy('want_to_buy', 'Want to Buy', '🛒'),
   playing('playing', 'Playing', '🎮'),
   played('played', 'Played', '✅'),
   mastered('mastered', 'Mastered', '🏆');
