@@ -78,6 +78,38 @@ flutter build appbundle --release
 
 If Google Play App Signing is enabled, this keystore is your upload key.
 
+## Automatic Play Store internal releases
+
+A push to `main` whose **commit subject** matches `vX.Y.Z description` builds a
+signed Android App Bundle and publishes it to the Play Store's **Internal
+testing** track. For example:
+
+```bash
+git commit -m "v1.2.3 Fix offline collection sync"
+git push origin main
+```
+
+Other commits still run the workflow's quick validation job, but do not build
+or publish anything. The release version name is taken from `vX.Y.Z`; its
+version code is generated from the GitHub Actions run number and is therefore
+monotonically increasing.
+
+Before the first release, add these repository secrets under **Settings →
+Secrets and variables → Actions**:
+
+| Secret | Value |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | Base64 of the Play upload keystore: `base64 < android/upload-keystore.jks | tr -d '\n'` |
+| `ANDROID_KEY_PROPERTIES` | Content of `android/key.properties` (with `storeFile=../upload-keystore.jks`) |
+| `PLAY_SERVICE_ACCOUNT_JSON` | JSON key for a Google service account that has been granted access to this Play Console app |
+| `FIREBASE_GOOGLE_SERVICES_JSON` | Content of the generated `android/app/google-services.json` |
+| `FIREBASE_OPTIONS_DART` | Content of the generated `lib/firebase_options.dart` |
+
+Create the app once in Play Console with package name
+`net.combofox.androidapp`, then invite the service-account email in **Users and
+permissions** with permission to publish to the internal track. The first
+manual upload may be required by Play Console before API uploads are accepted.
+
 ## Project Structure
 
 ```

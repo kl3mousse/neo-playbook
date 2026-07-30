@@ -1,0 +1,93 @@
+name: Publish Android internal testing
+
+on:
+  push:
+    branches: [main]
+
+# A run is started for every push because GitHub Actions cannot filter on a
+# commit subject at the trigger level. The `release` job is skipped unless the
+# subject starts with `vX.Y.Z `.
+permissions:
+  contents: read
+
+concurrency:
+  group: play-internal
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Check release commit
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.subject.outputs.is_release }}
+      version: ${{ steps.subject.outputs.version }}
+    steps:
+      - id: subject
+        name: Parse commit subject
+        shell: bash
+        run: |
+          set -euo pipefail
+          subject="$(jq -r '.head_commit.message // "" | split("\\n")[0]' "$GITHUB_EVENT_PATH")"
+
+          # Accepted example: v1.2.3 Release candidate
+          if [[ "$subject" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)[[:space:]]+.+$ ]]; then
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+            echo "The commit subject does not request a Play publication."
+          fi
+
+  release:
+    name: Build and publish internal AAB
+    needs: version
+    if: needs.version.outputs.is_release == 'true'
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+      FIREBASE_GOOGLE_SERVICES_JSON: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON }}
+      FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Restore release-only configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEY_PROPERTIES"
+          test -n "$FIREBASE_GOOGLE_SERVICES_JSON"
+          test -n "$FIREBASE_OPTIONS_DART"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+          printf '%s' "$ANDROID_KEY_PROPERTIES" > android/key.properties
+          printf '%s' "$FIREBASE_GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          printf '%s' "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build signed app bundle
+        shell: bash
+        run: |
+          # Play requires monotonically increasing version codes. The offset
+          # keeps the first CI build above this project's existing code (13).
+          build_number=$((1000000 + GITHUB_RUN_NUMBER))
+          flutter build appbundle --release \
+            --build-name="${{ needs.version.outputs.version }}" \
+            --build-number="$build_number"
+
+      - name: Upload app bundle to Play internal testing
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: net.combofox.androidapp
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
