@@ -45,13 +45,13 @@ class GameScore {
   }
 
   Map<String, dynamic> toFirestoreCreate() => {
-        'game_id': gameId,
-        'user_id': userId,
-        'user_name': userName,
-        'score': score,
-        'proof_url': proofUrl,
-        'proof_storage_path': proofStoragePath,
-        'platform': platform,
-        'created_at': FieldValue.serverTimestamp(),
-      };
+    'game_id': gameId,
+    'user_id': userId,
+    'user_name': userName,
+    'score': score,
+    'proof_url': proofUrl,
+    'proof_storage_path': proofStoragePath,
+    'platform': platform,
+    'created_at': FieldValue.serverTimestamp(),
+  };
 }

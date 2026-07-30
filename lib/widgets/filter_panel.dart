@@ -53,8 +53,7 @@ class GameFilters {
       filtered = filtered.where((g) => g.type == type).toList();
     }
     if (playerCount != null) {
-      filtered =
-          filtered.where((g) => g.nbPlayers == playerCount).toList();
+      filtered = filtered.where((g) => g.nbPlayers == playerCount).toList();
     }
     if (yearRange != null) {
       filtered = filtered.where((g) {
@@ -102,13 +101,42 @@ class FilterPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     // Extract unique values from games
     final genres = allGames.expand((g) => g.genre).toSet().toList()..sort();
-    final publishers = allGames.map((g) => g.publisher).where((p) => p != null && p.isNotEmpty).cast<String>().toSet().toList()..sort();
-    final types = allGames.map((g) => g.type).where((t) => t != null && t.isNotEmpty).cast<String>().toSet().toList()..sort();
-    final playerCounts = allGames.map((g) => g.nbPlayers).where((p) => p != null).cast<int>().toSet().toList()..sort();
+    final publishers =
+        allGames
+            .map((g) => g.publisher)
+            .where((p) => p != null && p.isNotEmpty)
+            .cast<String>()
+            .toSet()
+            .toList()
+          ..sort();
+    final types =
+        allGames
+            .map((g) => g.type)
+            .where((t) => t != null && t.isNotEmpty)
+            .cast<String>()
+            .toSet()
+            .toList()
+          ..sort();
+    final playerCounts =
+        allGames
+            .map((g) => g.nbPlayers)
+            .where((p) => p != null)
+            .cast<int>()
+            .toSet()
+            .toList()
+          ..sort();
 
-    final years = allGames.map((g) => g.year).where((y) => y != null).cast<int>().toList();
-    final minYear = years.isEmpty ? 1990.0 : years.reduce((a, b) => a < b ? a : b).toDouble();
-    final maxYear = years.isEmpty ? 2025.0 : years.reduce((a, b) => a > b ? a : b).toDouble();
+    final years = allGames
+        .map((g) => g.year)
+        .where((y) => y != null)
+        .cast<int>()
+        .toList();
+    final minYear = years.isEmpty
+        ? 1990.0
+        : years.reduce((a, b) => a < b ? a : b).toDouble();
+    final maxYear = years.isEmpty
+        ? 2025.0
+        : years.reduce((a, b) => a > b ? a : b).toDouble();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,15 +147,20 @@ class FilterPanel extends StatelessWidget {
           child: Row(
             children: [
               const Text('Sort: ', style: TextStyle(fontSize: 12)),
-              ...SortOption.values.map((opt) => Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: ChoiceChip(
-                      label: Text(opt.label, style: const TextStyle(fontSize: 12)),
-                      selected: sortOption == opt,
-                      onSelected: (_) => onSortChanged(opt),
-                      visualDensity: VisualDensity.compact,
+              ...SortOption.values.map(
+                (opt) => Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: ChoiceChip(
+                    label: Text(
+                      opt.label,
+                      style: const TextStyle(fontSize: 12),
                     ),
-                  )),
+                    selected: sortOption == opt,
+                    onSelected: (_) => onSortChanged(opt),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              ),
               IconButton(
                 icon: Icon(
                   sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
@@ -154,7 +187,8 @@ class FilterPanel extends StatelessWidget {
             values: genres,
             selected: filters.genre,
             onSelected: (v) => onFiltersChanged(
-                filters.copyWith(genre: () => v == filters.genre ? null : v)),
+              filters.copyWith(genre: () => v == filters.genre ? null : v),
+            ),
           ),
 
         // Publisher chips
@@ -163,8 +197,11 @@ class FilterPanel extends StatelessWidget {
             label: 'Publisher',
             values: publishers,
             selected: filters.publisher,
-            onSelected: (v) => onFiltersChanged(filters.copyWith(
-                publisher: () => v == filters.publisher ? null : v)),
+            onSelected: (v) => onFiltersChanged(
+              filters.copyWith(
+                publisher: () => v == filters.publisher ? null : v,
+              ),
+            ),
           ),
 
         // Type chips
@@ -174,7 +211,8 @@ class FilterPanel extends StatelessWidget {
             values: types,
             selected: filters.type,
             onSelected: (v) => onFiltersChanged(
-                filters.copyWith(type: () => v == filters.type ? null : v)),
+              filters.copyWith(type: () => v == filters.type ? null : v),
+            ),
           ),
 
         // Player count chips
@@ -182,11 +220,17 @@ class FilterPanel extends StatelessWidget {
           _ChipRow(
             label: 'Players',
             values: playerCounts.map((p) => '$p').toList(),
-            selected: filters.playerCount != null ? '${filters.playerCount}' : null,
+            selected: filters.playerCount != null
+                ? '${filters.playerCount}'
+                : null,
             onSelected: (v) {
               final intVal = int.tryParse(v);
-              onFiltersChanged(filters.copyWith(
-                  playerCount: () => intVal == filters.playerCount ? null : intVal));
+              onFiltersChanged(
+                filters.copyWith(
+                  playerCount: () =>
+                      intVal == filters.playerCount ? null : intVal,
+                ),
+              );
             },
           ),
 
@@ -199,8 +243,7 @@ class FilterPanel extends StatelessWidget {
                 const Text('Year: ', style: TextStyle(fontSize: 12)),
                 Expanded(
                   child: RangeSlider(
-                    values: filters.yearRange ??
-                        RangeValues(minYear, maxYear),
+                    values: filters.yearRange ?? RangeValues(minYear, maxYear),
                     min: minYear,
                     max: maxYear,
                     divisions: (maxYear - minYear).toInt(),
@@ -212,10 +255,12 @@ class FilterPanel extends StatelessWidget {
                       // If the range covers everything, clear the filter
                       if (range.start == minYear && range.end == maxYear) {
                         onFiltersChanged(
-                            filters.copyWith(yearRange: () => null));
+                          filters.copyWith(yearRange: () => null),
+                        );
                       } else {
                         onFiltersChanged(
-                            filters.copyWith(yearRange: () => range));
+                          filters.copyWith(yearRange: () => range),
+                        );
                       }
                     },
                   ),
@@ -255,16 +300,18 @@ class _ChipRow extends StatelessWidget {
               child: Text('$label:', style: const TextStyle(fontSize: 12)),
             ),
           ),
-          ...values.map((v) => Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: FilterChip(
-                  label: Text(v, style: const TextStyle(fontSize: 11)),
-                  selected: selected == v,
-                  onSelected: (_) => onSelected(v),
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              )),
+          ...values.map(
+            (v) => Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: FilterChip(
+                label: Text(v, style: const TextStyle(fontSize: 11)),
+                selected: selected == v,
+                onSelected: (_) => onSelected(v),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ),
         ],
       ),
     );

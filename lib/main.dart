@@ -7,6 +7,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'app_state.dart';
 import 'firebase_options.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 import 'theme/combofox_theme.dart';
@@ -66,6 +67,8 @@ class _OtakuPlaybookAppState extends State<OtakuPlaybookApp> {
       title: 'ComboFox',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: _router,
       builder: (context, child) {
         return ArcadeBackground(

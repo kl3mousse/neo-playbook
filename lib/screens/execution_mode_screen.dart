@@ -117,7 +117,10 @@ class _ExecutionModeScreenState extends State<ExecutionModeScreen>
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                      icon: const Icon(
+                        Icons.close,
+                        color: AppColors.textSecondary,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                     const Spacer(),
@@ -136,10 +139,14 @@ class _ExecutionModeScreenState extends State<ExecutionModeScreen>
               AnimatedBuilder(
                 animation: _glowController!,
                 builder: (context, child) {
-                  final glowOpacity =
-                      _sequenceComplete ? (1 - _glowController!.value) * 0.6 : 0.0;
+                  final glowOpacity = _sequenceComplete
+                      ? (1 - _glowController!.value) * 0.6
+                      : 0.0;
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                       color: AppColors.surface.withValues(alpha: 0.6),
@@ -153,7 +160,9 @@ class _ExecutionModeScreenState extends State<ExecutionModeScreen>
                       boxShadow: _sequenceComplete
                           ? [
                               BoxShadow(
-                                color: AppColors.secondary.withValues(alpha: glowOpacity),
+                                color: AppColors.secondary.withValues(
+                                  alpha: glowOpacity,
+                                ),
                                 blurRadius: 30,
                                 spreadRadius: 5,
                               ),
@@ -270,25 +279,25 @@ class _ExecutionModeScreenState extends State<ExecutionModeScreen>
 
   Color _categoryColorForExec(String category) {
     return switch (category) {
-      'throw'   => AppColors.catThrow,
+      'throw' => AppColors.catThrow,
       'command' => AppColors.catCommand,
       'special' => AppColors.catSpecial,
-      'super'   => AppColors.catDM,
-      'ultra'   => AppColors.catSDM,
-      'other'   => Colors.amber,
-      _         => AppColors.textSecondary,
+      'super' => AppColors.catDM,
+      'ultra' => AppColors.catSDM,
+      'other' => Colors.amber,
+      _ => AppColors.textSecondary,
     };
   }
 
   String _categoryLabel(String category) {
     return switch (category) {
-      'throw'   => 'THROW',
+      'throw' => 'THROW',
       'command' => 'COMMAND',
       'special' => 'SPECIAL',
-      'super'   => 'DM',
-      'ultra'   => 'SDM',
-      'other'   => 'OTHER',
-      _         => 'MOVE',
+      'super' => 'DM',
+      'ultra' => 'SDM',
+      'other' => 'OTHER',
+      _ => 'MOVE',
     };
   }
 }
@@ -342,29 +351,40 @@ class _AnimatedToken extends StatelessWidget {
 
   Widget _buildToken() {
     return switch (token) {
-      DirectionParsed(:final glyph, :final icon) => DirectionToken(glyph, icon: icon, size: size),
-      ChargeParsed(:final glyph, :final icon) => ChargeToken(glyph, icon: icon, size: size),
-      ButtonParsed(:final label, :final color) =>
-        ButtonToken(label, color, size: size),
+      DirectionParsed(:final glyph, :final icon) => DirectionToken(
+        glyph,
+        icon: icon,
+        size: size,
+      ),
+      ChargeParsed(:final glyph, :final icon) => ChargeToken(
+        glyph,
+        icon: icon,
+        size: size,
+      ),
+      ButtonParsed(:final label, :final color) => ButtonToken(
+        label,
+        color,
+        size: size,
+      ),
       OperatorParsed(:final op) => OperatorToken(op, size: size),
       ModifierParsed(:final text) => ModifierToken(text, size: size),
       TextParsed(:final text) => Text(
-          text,
-          style: TextStyle(
-            fontSize: size == InputTokenSize.large ? 18.0 : 13.0,
-            color: AppColors.textPrimary,
-          ),
+        text,
+        style: TextStyle(
+          fontSize: size == InputTokenSize.large ? 18.0 : 13.0,
+          color: AppColors.textPrimary,
         ),
+      ),
       SeparatorParsed() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            '/',
-            style: TextStyle(
-              fontSize: size == InputTokenSize.large ? 22.0 : 13.0,
-              color: AppColors.textSecondary,
-            ),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          '/',
+          style: TextStyle(
+            fontSize: size == InputTokenSize.large ? 22.0 : 13.0,
+            color: AppColors.textSecondary,
           ),
         ),
+      ),
     };
   }
 }

@@ -36,8 +36,7 @@ class InfoFab extends StatefulWidget {
   State<InfoFab> createState() => _InfoFabState();
 }
 
-class _InfoFabState extends State<InfoFab>
-    with SingleTickerProviderStateMixin {
+class _InfoFabState extends State<InfoFab> with SingleTickerProviderStateMixin {
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulseAnim;
 
@@ -48,10 +47,7 @@ class _InfoFabState extends State<InfoFab>
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     )..repeat(reverse: true);
-    _pulseAnim = CurvedAnimation(
-      parent: _pulseCtrl,
-      curve: Curves.easeInOut,
-    );
+    _pulseAnim = CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut);
   }
 
   @override
@@ -106,14 +102,12 @@ class _InfoFabState extends State<InfoFab>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: ComboFoxColors.surface,
-                          border: Border.all(
-                            color: widget.accent,
-                            width: 2,
-                          ),
+                          border: Border.all(color: widget.accent, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: widget.accent
-                                  .withValues(alpha: 0.35 + 0.35 * t),
+                              color: widget.accent.withValues(
+                                alpha: 0.35 + 0.35 * t,
+                              ),
                               blurRadius: 14 + 10 * t,
                               spreadRadius: 1 + 2 * t,
                             ),
@@ -151,10 +145,7 @@ class _InfoFabState extends State<InfoFab>
                       decoration: BoxDecoration(
                         color: ComboFoxColors.surface,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: widget.accent,
-                          width: 1.5,
-                        ),
+                        border: Border.all(color: widget.accent, width: 1.5),
                         boxShadow: [
                           BoxShadow(
                             color: widget.accent.withValues(alpha: 0.6),

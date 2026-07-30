@@ -26,8 +26,9 @@ class ScoresService {
         .orderBy('score', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => GameScore.fromFirestore(d)).toList());
+        .map(
+          (snap) => snap.docs.map((d) => GameScore.fromFirestore(d)).toList(),
+        );
   }
 
   /// Submit a score with proof photo.
@@ -44,7 +45,10 @@ class ScoresService {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final storagePath = 'scores/${user.uid}/$gameId/$timestamp.jpg';
     final ref = _storage.ref(storagePath);
-    await ref.putData(proofImageBytes, SettableMetadata(contentType: 'image/jpeg'));
+    await ref.putData(
+      proofImageBytes,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
     final proofUrl = await ref.getDownloadURL();
 
     // Create score document
@@ -84,7 +88,8 @@ class ScoresService {
         .where('user_id', isEqualTo: user.uid)
         .orderBy('created_at', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => GameScore.fromFirestore(d)).toList());
+        .map(
+          (snap) => snap.docs.map((d) => GameScore.fromFirestore(d)).toList(),
+        );
   }
 }

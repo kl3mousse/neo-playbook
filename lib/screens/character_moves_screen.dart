@@ -64,17 +64,14 @@ class CharacterMovesScreen extends StatelessWidget {
 
           final commandData = snapshot.data;
           if (commandData == null) {
-            return const Center(
-              child: Text('Move list not found'),
-            );
+            return const Center(child: Text('Move list not found'));
           }
 
           final commonSections = commandData.sections
               .where((s) => s.sectionType != 'other')
               .toList();
           final targetSection = commandData.sections
-              .where((s) =>
-                  s.sectionType == 'other' && s.title == sectionTitle)
+              .where((s) => s.sectionType == 'other' && s.title == sectionTitle)
               .toList();
 
           if (targetSection.isEmpty) {
@@ -89,8 +86,7 @@ class CharacterMovesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Common sections (collapsed)
-                for (final s in commonSections)
-                  SectionBlock(section: s),
+                for (final s in commonSections) SectionBlock(section: s),
 
                 const SizedBox(height: 8),
 

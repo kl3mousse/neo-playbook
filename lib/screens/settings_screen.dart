@@ -1,8 +1,11 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../experimental/gold_moves_profile_v1/presentation/debug_harness/gold_moves_harness_screen.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/prefs_service.dart';
 import '../services/user_service.dart';
@@ -258,6 +261,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
           ),
+
+          // ── Developer tools (debug builds only) ────────────────────
+          if (kDebugMode) ...[
+            _SectionHeader(
+              AppLocalizations.of(context).settingsDevSectionTitle,
+            ),
+            ListTile(
+              leading: const Icon(Icons.science_outlined),
+              title: Text(AppLocalizations.of(context).settingsGoldLabTitle),
+              subtitle: Text(
+                AppLocalizations.of(context).settingsGoldLabSubtitle,
+              ),
+              onTap: () => context.push(kGoldHarnessRoute),
+            ),
+          ],
 
           // ── Account ─────────────────────────────────────────────────
           if (AuthService.isLoggedIn) ...[

@@ -157,10 +157,7 @@ class _SplashScreenState extends State<SplashScreen>
         fit: StackFit.expand,
         children: [
           // ── Wallpaper ────────────────────────────────────────────────────
-          Image.asset(
-            _wallpaper,
-            fit: BoxFit.cover,
-          ),
+          Image.asset(_wallpaper, fit: BoxFit.cover),
 
           // ── Gradient overlay (light top → heavy bottom) ──────────────────
           const DecoratedBox(
@@ -169,10 +166,7 @@ class _SplashScreenState extends State<SplashScreen>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 stops: [0.3, 1.0],
-                colors: [
-                  Color(0x22000000),
-                  Color(0xBB000000),
-                ],
+                colors: [Color(0x22000000), Color(0xBB000000)],
               ),
             ),
           ),
@@ -198,12 +192,7 @@ class _SplashScreenState extends State<SplashScreen>
                           fontSize: 15,
                           fontFamily: 'Doto',
                           letterSpacing: 1.2,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black,
-                              blurRadius: 8,
-                            ),
-                          ],
+                          shadows: [Shadow(color: Colors.black, blurRadius: 8)],
                         ),
                       ),
                     ),
@@ -268,9 +257,8 @@ class _NeonLoadingBarState extends State<_NeonLoadingBar>
       ),
       child: AnimatedBuilder(
         animation: _ctrl,
-        builder: (context, _) => CustomPaint(
-          painter: _NeonBarPainter(_ctrl.value),
-        ),
+        builder: (context, _) =>
+            CustomPaint(painter: _NeonBarPainter(_ctrl.value)),
       ),
     );
   }
@@ -280,9 +268,9 @@ class _NeonBarPainter extends CustomPainter {
   final double t;
   const _NeonBarPainter(this.t);
 
-  static const _purple = AppColors.primary;    // #A855F7
-  static const _pink = AppColors.accent;       // #FF4FD8
-  static const _blue = AppColors.secondary;    // #22D3EE
+  static const _purple = AppColors.primary; // #A855F7
+  static const _pink = AppColors.accent; // #FF4FD8
+  static const _blue = AppColors.secondary; // #22D3EE
 
   @override
   void paint(Canvas canvas, Size size) {

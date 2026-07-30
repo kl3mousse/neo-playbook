@@ -141,9 +141,7 @@ class _GamePickerScreenState extends State<_GamePickerScreen> {
                     stream: FirestoreService.searchGames(_query),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
+                        return const Center(child: CircularProgressIndicator());
                       }
                       return _resultList(snapshot.data!);
                     },
@@ -269,10 +267,7 @@ class _GamePickerScreenState extends State<_GamePickerScreen> {
       ),
       subtitle: const Text(
         'Bootleg, homebrew, or any game not in the catalog',
-        style: TextStyle(
-          color: ComboFoxColors.textSecondary,
-          fontSize: 12,
-        ),
+        style: TextStyle(color: ComboFoxColors.textSecondary, fontSize: 12),
       ),
       onTap: _openCustomDialog,
     );

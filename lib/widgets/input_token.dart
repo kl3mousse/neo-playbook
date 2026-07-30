@@ -40,7 +40,12 @@ class DirectionToken extends StatelessWidget {
   final IconData? icon;
   final InputTokenSize size;
 
-  const DirectionToken(this.glyph, {super.key, this.icon, this.size = InputTokenSize.normal});
+  const DirectionToken(
+    this.glyph, {
+    super.key,
+    this.icon,
+    this.size = InputTokenSize.normal,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +97,12 @@ class ChargeToken extends StatelessWidget {
   final IconData? icon;
   final InputTokenSize size;
 
-  const ChargeToken(this.glyph, {super.key, this.icon, this.size = InputTokenSize.normal});
+  const ChargeToken(
+    this.glyph, {
+    super.key,
+    this.icon,
+    this.size = InputTokenSize.normal,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -135,8 +145,12 @@ class ButtonToken extends StatelessWidget {
   final Color color;
   final InputTokenSize size;
 
-  const ButtonToken(this.label, this.color,
-      {super.key, this.size = InputTokenSize.normal});
+  const ButtonToken(
+    this.label,
+    this.color, {
+    super.key,
+    this.size = InputTokenSize.normal,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +172,7 @@ class ButtonToken extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: color, width: 2),
             boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.45),
-                blurRadius: 8,
-              ),
+              BoxShadow(color: color.withValues(alpha: 0.45), blurRadius: 8),
             ],
           ),
           alignment: Alignment.center,
@@ -211,7 +222,11 @@ class ModifierToken extends StatelessWidget {
   final String text;
   final InputTokenSize size;
 
-  const ModifierToken(this.text, {super.key, this.size = InputTokenSize.normal});
+  const ModifierToken(
+    this.text, {
+    super.key,
+    this.size = InputTokenSize.normal,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -240,19 +255,25 @@ class ModifierToken extends StatelessWidget {
 
 // Shorthand motion sequences
 const _motionTokens = <String, List<String>>{
-  '_t': ['↓', '↘', '→'],            // QCF
-  '_p': ['↓', '↙', '←'],            // QCB
+  '_t': ['↓', '↘', '→'], // QCF
+  '_p': ['↓', '↙', '←'], // QCB
   '_m': ['←', '↙', '↓', '↘', '→'], // HCF
   '_k': ['→', '↘', '↓', '↙', '←'], // HCB
-  '_Q': ['→', '↓', '↘'],            // DP
-  '_R': ['←', '↓', '↙'],            // Reverse DP
+  '_Q': ['→', '↓', '↘'], // DP
+  '_R': ['←', '↓', '↙'], // Reverse DP
 };
 
 // Single direction tokens (numpad)
 const _dirTokens = <String, String>{
-  '_7': '↖', '_8': '↑', '_9': '↗',
-  '_4': '←', '_5': '●', '_6': '→',
-  '_1': '↙', '_2': '↓', '_3': '↘',
+  '_7': '↖',
+  '_8': '↑',
+  '_9': '↗',
+  '_4': '←',
+  '_5': '●',
+  '_6': '→',
+  '_1': '↙',
+  '_2': '↓',
+  '_3': '↘',
 };
 
 // Button tokens → (label, color)
@@ -489,78 +510,88 @@ List<InlineSpan> tokeniseInput(String raw, BuildContext context) {
 InlineSpan _parsedToSpan(ParsedToken t, BuildContext context) {
   return switch (t) {
     DirectionParsed(:final glyph, :final icon) => WidgetSpan(
-        alignment: PlaceholderAlignment.middle,
-        child: DirectionToken(glyph, icon: icon),
-      ),
+      alignment: PlaceholderAlignment.middle,
+      child: DirectionToken(glyph, icon: icon),
+    ),
     ChargeParsed(:final glyph, :final icon) => WidgetSpan(
-        alignment: PlaceholderAlignment.middle,
-        child: ChargeToken(glyph, icon: icon),
-      ),
+      alignment: PlaceholderAlignment.middle,
+      child: ChargeToken(glyph, icon: icon),
+    ),
     ButtonParsed(:final label, :final color) => WidgetSpan(
-        alignment: PlaceholderAlignment.middle,
-        child: ButtonToken(label, color),
-      ),
+      alignment: PlaceholderAlignment.middle,
+      child: ButtonToken(label, color),
+    ),
     OperatorParsed(:final op) => TextSpan(
-        text: op,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: AppColors.textSecondary,
-        ),
+      text: op,
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textSecondary,
       ),
+    ),
     ModifierParsed(:final text) => TextSpan(
-        text: ' $text ',
-        style: TextStyle(
-          fontSize: 11,
-          fontStyle: FontStyle.italic,
-          color: AppColors.textSecondary,
-        ),
+      text: ' $text ',
+      style: TextStyle(
+        fontSize: 11,
+        fontStyle: FontStyle.italic,
+        color: AppColors.textSecondary,
       ),
+    ),
     TextParsed(:final text) => TextSpan(
-        text: text,
-        style: TextStyle(
-          fontSize: 13,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+      text: text,
+      style: TextStyle(
+        fontSize: 13,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
+    ),
     SeparatorParsed() => TextSpan(
-        text: ' / ',
-        style: TextStyle(
-          fontSize: 12,
-          color: AppColors.textSecondary,
-        ),
-      ),
+      text: ' / ',
+      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+    ),
   };
 }
 
 /// Convert parsed tokens into Widgets (for Wrap/Row layouts in Execution Mode).
-List<Widget> tokensToWidgets(List<ParsedToken> tokens,
-    {InputTokenSize size = InputTokenSize.normal}) {
+List<Widget> tokensToWidgets(
+  List<ParsedToken> tokens, {
+  InputTokenSize size = InputTokenSize.normal,
+}) {
   return tokens.map((t) {
     return switch (t) {
-      DirectionParsed(:final glyph, :final icon) => DirectionToken(glyph, icon: icon, size: size),
-      ChargeParsed(:final glyph, :final icon) => ChargeToken(glyph, icon: icon, size: size),
-      ButtonParsed(:final label, :final color) =>
-        ButtonToken(label, color, size: size),
+      DirectionParsed(:final glyph, :final icon) => DirectionToken(
+        glyph,
+        icon: icon,
+        size: size,
+      ),
+      ChargeParsed(:final glyph, :final icon) => ChargeToken(
+        glyph,
+        icon: icon,
+        size: size,
+      ),
+      ButtonParsed(:final label, :final color) => ButtonToken(
+        label,
+        color,
+        size: size,
+      ),
       OperatorParsed(:final op) => OperatorToken(op, size: size),
       ModifierParsed(:final text) => ModifierToken(text, size: size),
       TextParsed(:final text) => Text(
-          text,
-          style: TextStyle(
-            fontSize: size == InputTokenSize.large ? 18.0 : 13.0,
-            color: AppColors.textPrimary,
-          ),
+        text,
+        style: TextStyle(
+          fontSize: size == InputTokenSize.large ? 18.0 : 13.0,
+          color: AppColors.textPrimary,
         ),
+      ),
       SeparatorParsed() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            '/',
-            style: TextStyle(
-              fontSize: size == InputTokenSize.large ? 22.0 : 13.0,
-              color: AppColors.textSecondary,
-            ),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          '/',
+          style: TextStyle(
+            fontSize: size == InputTokenSize.large ? 22.0 : 13.0,
+            color: AppColors.textSecondary,
           ),
         ),
+      ),
     };
   }).toList();
 }

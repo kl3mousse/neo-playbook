@@ -98,10 +98,7 @@ class _ArcadeButton extends StatelessWidget {
         color: color.withValues(alpha: 0.18),
         border: Border.all(color: color, width: 2),
         boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.4),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8),
         ],
       ),
       alignment: Alignment.center,

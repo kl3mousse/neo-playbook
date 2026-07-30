@@ -119,7 +119,11 @@ const _mvs = PlatformTemplate(
   id: 'mvs',
   displayName: 'Neo Geo MVS',
   components: [
-    ComponentSpec(key: 'mvs_cartridge', label: 'MVS cartridge', important: true),
+    ComponentSpec(
+      key: 'mvs_cartridge',
+      label: 'MVS cartridge',
+      important: true,
+    ),
     ComponentSpec(key: 'mini_marquee', label: 'Mini marquee'),
     ComponentSpec(key: 'move_strip', label: 'Move strip / instruction card'),
     ComponentSpec(key: 'dip_sheet', label: 'DIP sheet'),
@@ -212,10 +216,7 @@ const _mvs = PlatformTemplate(
       label: 'Cart + mini marquee',
       requiredKeys: {'mvs_cartridge', 'mini_marquee'},
     ),
-    CompletenessTier(
-      label: 'Loose cart',
-      requiredKeys: {'mvs_cartridge'},
-    ),
+    CompletenessTier(label: 'Loose cart', requiredKeys: {'mvs_cartridge'}),
   ],
 );
 
@@ -335,7 +336,11 @@ const _cps3 = PlatformTemplate(
       label: 'Security cartridge',
       important: true,
     ),
-    ComponentSpec(key: 'cd_rom_disc', label: 'CD-ROM game disc', important: true),
+    ComponentSpec(
+      key: 'cd_rom_disc',
+      label: 'CD-ROM game disc',
+      important: true,
+    ),
     ComponentSpec(key: 'cd_rom_drive', label: 'CD-ROM drive'),
     ComponentSpec(key: 'scsi_cable', label: 'SCSI cable'),
     ComponentSpec(key: 'power_cable', label: 'Power cable'),
@@ -432,7 +437,10 @@ const _naomi = PlatformTemplate(
     ),
   ],
   missingComponentWarnings: [
-    MissingComponentWarning(componentKey: 'key_chip', label: 'Missing key chip'),
+    MissingComponentWarning(
+      componentKey: 'key_chip',
+      label: 'Missing key chip',
+    ),
   ],
 );
 
@@ -599,12 +607,7 @@ const _pgm = PlatformTemplate(
       key: 'cave_pgm_variant',
       label: 'Cave PGM variant',
       type: PlatformFieldType.dropdown,
-      options: [
-        'Original PCB',
-        'Conversion',
-        'Bootleg cart',
-        'Unknown',
-      ],
+      options: ['Original PCB', 'Conversion', 'Bootleg cart', 'Unknown'],
     ),
   ],
 );
@@ -619,7 +622,11 @@ const _typex = PlatformTemplate(
       label: 'USB security dongle',
       important: true,
     ),
-    ComponentSpec(key: 'motherboard', label: 'Motherboard / PC', important: true),
+    ComponentSpec(
+      key: 'motherboard',
+      label: 'Motherboard / PC',
+      important: true,
+    ),
     ComponentSpec(key: 'jvs_io', label: 'JVS I/O'),
     ComponentSpec(key: 'restore_media', label: 'Restore media'),
     ComponentSpec(key: 'manual', label: 'Manual'),
@@ -915,7 +922,9 @@ List<CollectionBadge> computeBadges(
   // Authenticity.
   switch (item.authenticityConfidence) {
     case AuthenticityConfidence.originalConfirmed:
-      badges.add(const CollectionBadge('Original confirmed', BadgeTone.positive));
+      badges.add(
+        const CollectionBadge('Original confirmed', BadgeTone.positive),
+      );
       break;
     case AuthenticityConfidence.likelyOriginal:
       badges.add(const CollectionBadge('Likely original', BadgeTone.positive));

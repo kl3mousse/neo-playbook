@@ -12,7 +12,8 @@ import '../models/dip_settings.dart';
 import '../models/community_note.dart';
 import '../models/game_score.dart';
 import '../models/user_favorite.dart';
-import '../models/collection_item.dart';import '../router.dart' show canonicalGameUrl;
+import '../models/collection_item.dart';
+import '../router.dart' show canonicalGameUrl;
 import '../theme/app_theme.dart';
 import '../theme/combofox_theme.dart';
 import '../theme/platform_palette.dart';
@@ -85,11 +86,7 @@ class GameDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Platform-accented typographic hero header.
-            _HeroHeader(
-              game: game,
-              palette: palette,
-              genreAccent: baseColor,
-            ),
+            _HeroHeader(game: game, palette: palette, genreAccent: baseColor),
 
             Padding(
               padding: const EdgeInsets.all(20),
@@ -101,12 +98,13 @@ class GameDetailScreen extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 6,
                     children: [
-                      ...game.genre.map((g) => _InfoChip(label: g, filled: true)),
+                      ...game.genre.map(
+                        (g) => _InfoChip(label: g, filled: true),
+                      ),
                       _InfoChip(label: game.playersLabel),
                       if (game.type != null && game.type!.isNotEmpty)
                         _InfoChip(label: game.type!),
-                      if (game.ngmId != null)
-                        _NgmChip(ngmId: game.ngmId!),
+                      if (game.ngmId != null) _NgmChip(ngmId: game.ngmId!),
                     ],
                   ),
 
@@ -143,16 +141,15 @@ class GameDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // DIP Settings
-                  if ((game.features.hasSoftDips || game.features.hasDebugDips) &&
+                  if ((game.features.hasSoftDips ||
+                          game.features.hasDebugDips) &&
                       game.roms.isNotEmpty)
                     ArcadePanel(
                       isActive: true,
                       accentColor: ComboFoxColors.neonBlue,
                       padding: EdgeInsets.zero,
                       child: _DipSettingsLoader(
-                        romNames: game.roms
-                            .map((r) => r.romName)
-                            .toList(),
+                        romNames: game.roms.map((r) => r.romName).toList(),
                       ),
                     ),
 
@@ -191,24 +188,28 @@ class GameDetailScreen extends StatelessWidget {
                         children: [
                           const Icon(Icons.memory, size: 20),
                           const SizedBox(width: 8),
-                          Text('ROM Versions',
-                              style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                            'ROM Versions',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                         ],
                       ),
                       children: [
-                        ...game.roms.map((rom) => Card(
-                              child: ListTile(
-                                title: Text(rom.romName),
-                                subtitle: Text(
-                                  [
-                                    if (rom.title != null) rom.title!,
-                                    if (rom.isParent) 'Parent ROM',
-                                    if (rom.region != null) rom.region!,
-                                  ].join('\n'),
-                                ),
-                                isThreeLine: true,
+                        ...game.roms.map(
+                          (rom) => Card(
+                            child: ListTile(
+                              title: Text(rom.romName),
+                              subtitle: Text(
+                                [
+                                  if (rom.title != null) rom.title!,
+                                  if (rom.isParent) 'Parent ROM',
+                                  if (rom.region != null) rom.region!,
+                                ].join('\n'),
                               ),
-                            )),
+                              isThreeLine: true,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                 ],
@@ -354,8 +355,9 @@ class _DescriptionWithFoxxy extends StatelessWidget {
         }
 
         final lineHeight = metrics.first.height;
-        final linesFitBesideImage =
-            (desiredImageSize / lineHeight).round().clamp(1, metrics.length);
+        final linesFitBesideImage = (desiredImageSize / lineHeight)
+            .round()
+            .clamp(1, metrics.length);
         // Snap the image height to an integer number of text lines so
         // the Row's height matches the beside-text height exactly. This
         // preserves a continuous line rhythm with the "below" text.
@@ -382,8 +384,7 @@ class _DescriptionWithFoxxy extends StatelessWidget {
 
         // Find the character index at the end of the last line that
         // still sits beside the image.
-        final yInLastBesideLine =
-            (linesFitBesideImage - 0.5) * lineHeight;
+        final yInLastBesideLine = (linesFitBesideImage - 0.5) * lineHeight;
         final splitPos = painter.getPositionForOffset(
           Offset(besideWidth, yInLastBesideLine),
         );
@@ -463,23 +464,29 @@ class _FavoriteButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Set Status',
-                style: Theme.of(ctx).textTheme.titleMedium),
+            Text('Set Status', style: Theme.of(ctx).textTheme.titleMedium),
             const SizedBox(height: 12),
-            ...FavoriteStatus.values.map((status) => ListTile(
-                  leading: Text(status.icon, style: const TextStyle(fontSize: 24)),
-                  title: Text(status.label),
-                  selected: current?.status == status,
-                  onTap: () {
-                    UserService.setFavorite(gameId, status);
-                    Navigator.pop(ctx);
-                  },
-                )),
+            ...FavoriteStatus.values.map(
+              (status) => ListTile(
+                leading: Text(
+                  status.icon,
+                  style: const TextStyle(fontSize: 24),
+                ),
+                title: Text(status.label),
+                selected: current?.status == status,
+                onTap: () {
+                  UserService.setFavorite(gameId, status);
+                  Navigator.pop(ctx);
+                },
+              ),
+            ),
             if (current != null) ...[
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.remove_circle_outline,
-                    color: Colors.red),
+                leading: const Icon(
+                  Icons.remove_circle_outline,
+                  color: Colors.red,
+                ),
                 title: const Text('Remove from Favorites'),
                 onTap: () {
                   UserService.removeFavorite(gameId);
@@ -539,10 +546,7 @@ class _CommunityNotesSectionState extends State<_CommunityNotesSection> {
         ),
         const SizedBox(height: 8),
         StreamBuilder<List<CommunityNote>>(
-          stream: NotesService.notesForGameStream(
-            widget.gameId,
-            limit: _limit,
-          ),
+          stream: NotesService.notesForGameStream(widget.gameId, limit: _limit),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
@@ -551,8 +555,10 @@ class _CommunityNotesSectionState extends State<_CommunityNotesSection> {
             if (notes.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text('No notes yet. Be the first to share a tip!',
-                    style: TextStyle(fontStyle: FontStyle.italic)),
+                child: Text(
+                  'No notes yet. Be the first to share a tip!',
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
               );
             }
             final canLoadMore = notes.length >= _limit;
@@ -563,8 +569,7 @@ class _CommunityNotesSectionState extends State<_CommunityNotesSection> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: TextButton.icon(
-                      onPressed: () =>
-                          setState(() => _limit += _pageSize),
+                      onPressed: () => setState(() => _limit += _pageSize),
                       icon: const Icon(Icons.expand_more, size: 18),
                       label: const Text('Load more'),
                     ),
@@ -584,8 +589,7 @@ class _NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isOwner =
-        AuthService.currentUser?.uid == note.userId;
+    final isOwner = AuthService.currentUser?.uid == note.userId;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -595,14 +599,18 @@ class _NoteCard extends StatelessWidget {
             Row(
               children: [
                 Chip(
-                  label: Text(note.category.label,
-                      style: const TextStyle(fontSize: 11)),
+                  label: Text(
+                    note.category.label,
+                    style: const TextStyle(fontSize: 11),
+                  ),
                   visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 const SizedBox(width: 8),
-                Text(note.userName,
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  note.userName,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const Spacer(),
                 if (AuthService.isLoggedIn)
                   IconButton(
@@ -610,8 +618,10 @@ class _NoteCard extends StatelessWidget {
                     onPressed: () => NotesService.upvoteNote(note.id),
                     visualDensity: VisualDensity.compact,
                   ),
-                Text('${note.upvotes}',
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  '${note.upvotes}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 if (isOwner)
                   IconButton(
                     icon: const Icon(Icons.delete_outline, size: 16),
@@ -686,8 +696,10 @@ class _LeaderboardSectionState extends State<_LeaderboardSection> {
             if (scores.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text('No scores yet. Set a record!',
-                    style: TextStyle(fontStyle: FontStyle.italic)),
+                child: Text(
+                  'No scores yet. Set a record!',
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
               );
             }
             final canLoadMore = scores.length >= _limit;
@@ -699,8 +711,7 @@ class _LeaderboardSectionState extends State<_LeaderboardSection> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: TextButton.icon(
-                      onPressed: () =>
-                          setState(() => _limit += _pageSize),
+                      onPressed: () => setState(() => _limit += _pageSize),
                       icon: const Icon(Icons.expand_more, size: 18),
                       label: const Text('Load more'),
                     ),
@@ -721,7 +732,12 @@ class _ScoreTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final medal = switch (rank) { 1 => '🥇', 2 => '🥈', 3 => '🥉', _ => '#$rank' };
+    final medal = switch (rank) {
+      1 => '🥇',
+      2 => '🥈',
+      3 => '🥉',
+      _ => '#$rank',
+    };
     return Card(
       child: ListTile(
         leading: Text(medal, style: const TextStyle(fontSize: 20)),
@@ -772,11 +788,12 @@ class _ScoreTile extends StatelessWidget {
                       );
                     } catch (_) {
                       await Clipboard.setData(
-                          ClipboardData(text: score.proofUrl));
+                        ClipboardData(text: score.proofUrl),
+                      );
                       messenger.showSnackBar(
                         const SnackBar(
-                            content:
-                                Text('Proof link copied to clipboard')),
+                          content: Text('Proof link copied to clipboard'),
+                        ),
                       );
                     }
                   },
@@ -785,12 +802,12 @@ class _ScoreTile extends StatelessWidget {
             ),
             GestureDetector(
               onLongPress: () async {
-                await Clipboard.setData(
-                    ClipboardData(text: score.proofUrl));
+                await Clipboard.setData(ClipboardData(text: score.proofUrl));
                 if (!ctx.mounted) return;
                 ScaffoldMessenger.of(ctx).showSnackBar(
                   const SnackBar(
-                      content: Text('Proof link copied to clipboard')),
+                    content: Text('Proof link copied to clipboard'),
+                  ),
                 );
               },
               child: InteractiveViewer(
@@ -806,7 +823,7 @@ class _ScoreTile extends StatelessWidget {
                         child: CircularProgressIndicator(
                           value: progress.expectedTotalBytes != null
                               ? progress.cumulativeBytesLoaded /
-                                  progress.expectedTotalBytes!
+                                    progress.expectedTotalBytes!
                               : null,
                         ),
                       ),
@@ -888,11 +905,7 @@ class _ExternalLinksSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          children: chips,
-        ),
+        Wrap(spacing: 8, runSpacing: 6, children: chips),
       ],
     );
   }
@@ -937,10 +950,8 @@ class _IgdbChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => launchUrl(
-        Uri.parse(igdbUrl),
-        mode: LaunchMode.externalApplication,
-      ),
+      onTap: () =>
+          launchUrl(Uri.parse(igdbUrl), mode: LaunchMode.externalApplication),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
@@ -1003,11 +1014,7 @@ class _HfsdbChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/images/logo_hfs.png',
-              width: 16,
-              height: 16,
-            ),
+            Image.asset('assets/images/logo_hfs.png', width: 16, height: 16),
             const SizedBox(width: 6),
             Text(
               'HFS',
@@ -1102,8 +1109,6 @@ class _InfoChip extends StatelessWidget {
     );
   }
 }
-
-
 
 /// Async loader that fetches command data from Firestore for a game's rom names.
 class _MoveListLoader extends StatelessWidget {
@@ -1252,7 +1257,9 @@ class _HeroHeaderState extends State<_HeroHeader>
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(999),
@@ -1301,9 +1308,7 @@ class _HeroHeaderState extends State<_HeroHeader>
                     fontWeight: FontWeight.w800,
                     height: 1.05,
                     letterSpacing: -0.3,
-                    shadows: [
-                      Shadow(blurRadius: 10, color: Colors.black87),
-                    ],
+                    shadows: [Shadow(blurRadius: 10, color: Colors.black87)],
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -1342,10 +1347,8 @@ class _HeroHeaderState extends State<_HeroHeader>
             left: 16,
             child: AnimatedBuilder(
               animation: _flickerAnim,
-              builder: (context, child) => Opacity(
-                opacity: _flickerAnim.value,
-                child: child,
-              ),
+              builder: (context, child) =>
+                  Opacity(opacity: _flickerAnim.value, child: child),
               child: Text(
                 '// INSERT COIN //',
                 style: GoogleFonts.pressStart2p(

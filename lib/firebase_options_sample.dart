@@ -1,4 +1,4 @@
-// ⚠️ SAMPLE FILE — This file is gitignored. 
+// ⚠️ SAMPLE FILE — This file is gitignored.
 // Generate the real one by running:
 //   flutterfire configure
 //

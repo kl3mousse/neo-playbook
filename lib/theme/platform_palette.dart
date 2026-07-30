@@ -18,10 +18,10 @@ class PlatformPalette {
   });
 
   LinearGradient get gradient => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [start, end],
-      );
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [start, end],
+  );
 
   /// Mid-blend colour — useful for chips and accents.
   Color get accent => Color.lerp(start, end, 0.5)!;

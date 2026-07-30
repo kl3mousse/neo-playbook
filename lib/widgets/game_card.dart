@@ -50,8 +50,7 @@ class _GameCardState extends State<GameCard> {
     // Assemble metadata bits: year · publisher · players.
     final metaParts = <String>[
       if (game.yearLabel.isNotEmpty) game.yearLabel,
-      if (game.publisher != null && game.publisher!.isNotEmpty)
-        game.publisher!,
+      if (game.publisher != null && game.publisher!.isNotEmpty) game.publisher!,
       if (game.playersLabel.isNotEmpty) game.playersLabel,
     ];
 
@@ -142,8 +141,7 @@ class _GameCardState extends State<GameCard> {
                                 const SizedBox(height: 6),
                                 // Meta row: genre chip + year · publisher · players
                                 Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     if (game.primaryGenre.isNotEmpty) ...[
                                       _GenreChip(
@@ -202,10 +200,7 @@ class _GenreChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: accent.withValues(alpha: 0.45),
-          width: 0.8,
-        ),
+        border: Border.all(color: accent.withValues(alpha: 0.45), width: 0.8),
       ),
       child: Text(
         label,

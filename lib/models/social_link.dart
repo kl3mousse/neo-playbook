@@ -18,12 +18,10 @@ class SocialLink {
   }
 
   Map<String, dynamic> toMap() => {
-        'url': url.trim(),
-        'username': username.trim(),
-      };
+    'url': url.trim(),
+    'username': username.trim(),
+  };
 
-  SocialLink copyWith({String? url, String? username}) => SocialLink(
-        url: url ?? this.url,
-        username: username ?? this.username,
-      );
+  SocialLink copyWith({String? url, String? username}) =>
+      SocialLink(url: url ?? this.url, username: username ?? this.username);
 }

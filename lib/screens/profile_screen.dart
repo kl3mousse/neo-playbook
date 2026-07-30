@@ -118,10 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child:
                       (_profile?.photoUrl == null ||
                           _profile!.photoUrl!.isEmpty)
-                      ? Text(
-                          avatarLabel,
-                          style: const TextStyle(fontSize: 36),
-                        )
+                      ? Text(avatarLabel, style: const TextStyle(fontSize: 36))
                       : null,
                 ),
                 IconButton(
@@ -191,9 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             links: _profile?.socialLinks ?? const <SocialLink>[],
           ),
           const SizedBox(height: 16),
-          _LanguageSection(
-            languageCode: _profile?.preferredLanguage ?? '',
-          ),
+          _LanguageSection(languageCode: _profile?.preferredLanguage ?? ''),
           const SizedBox(height: 16),
           const Divider(),
           ListTile(
@@ -262,9 +257,9 @@ class _SocialLinksSection extends StatelessWidget {
     if (uri == null) return;
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open $target')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open $target')));
     }
   }
 
@@ -341,10 +336,7 @@ class _LanguageSection extends StatelessWidget {
         const SizedBox(height: 4),
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            Icons.translate,
-            color: theme.colorScheme.primary,
-          ),
+          leading: Icon(Icons.translate, color: theme.colorScheme.primary),
           title: Text(lang.label),
           subtitle: Text(
             lang.isDefault
@@ -461,9 +453,9 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
       return;
     }
     if (bio.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bio is required.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Bio is required.')));
       return;
     }
 
@@ -671,12 +663,12 @@ class _SocialLinkDraft {
   final TextEditingController username;
 
   _SocialLinkDraft.empty()
-      : url = TextEditingController(),
-        username = TextEditingController();
+    : url = TextEditingController(),
+      username = TextEditingController();
 
   _SocialLinkDraft.fromLink(SocialLink link)
-      : url = TextEditingController(text: link.url),
-        username = TextEditingController(text: link.username);
+    : url = TextEditingController(text: link.url),
+      username = TextEditingController(text: link.username);
 
   void dispose() {
     url.dispose();
@@ -729,10 +721,7 @@ class _SocialLinkEditorState extends State<_SocialLinkEditor> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  site.label,
-                  style: theme.textTheme.labelLarge,
-                ),
+                child: Text(site.label, style: theme.textTheme.labelLarge),
               ),
               if (widget.onRemove != null)
                 IconButton(

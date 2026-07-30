@@ -219,5 +219,3 @@ class _SummaryTile extends StatelessWidget {
     );
   }
 }
-
-

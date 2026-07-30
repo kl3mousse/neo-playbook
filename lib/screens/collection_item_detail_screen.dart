@@ -51,9 +51,7 @@ class _DetailBody extends StatelessWidget {
   Future<void> _edit(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => CollectionItemEditScreen(item: item),
-      ),
+      MaterialPageRoute(builder: (_) => CollectionItemEditScreen(item: item)),
     );
   }
 
@@ -241,8 +239,7 @@ class _DetailBody extends StatelessWidget {
   bool get _hasAcquisitionInfo =>
       item.purchasePrice != null ||
       item.acquisitionDate != null ||
-      (item.acquisitionSource != null &&
-          item.acquisitionSource!.isNotEmpty) ||
+      (item.acquisitionSource != null && item.acquisitionSource!.isNotEmpty) ||
       item.currentEstimatedValue != null;
 
   Widget _acquisitionSection(BuildContext context) {
@@ -341,8 +338,9 @@ class _DetailBody extends StatelessWidget {
                     color: present
                         ? AppColors.textPrimary
                         : ComboFoxColors.textSecondary,
-                    fontWeight:
-                        spec.important ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: spec.important
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                   ),
                 ),
                 if (present && detail.isNotEmpty)
@@ -469,7 +467,10 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.45),
                   borderRadius: BorderRadius.circular(999),

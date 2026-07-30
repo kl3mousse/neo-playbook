@@ -1,0 +1,135 @@
+{
+  "notice": "Reference renderings produced by render_samples.py. They are not part of the consumer contract; consumers may implement their own renderers. Use these to smoke-test your own renderer against known-good outputs.",
+  "moves": [
+    {
+      "move_id": "ngpc-kofr2-kyo-spc-aragami",
+      "character_id": "ngpc-kofr2-kyo",
+      "name": "114 Shiki: Aragami",
+      "category": "special",
+      "activation_kind": "by_player_input",
+      "activation_hint_en": null,
+      "source_raw": "{{cade|Qcf}}{{plus}}{{cade|LPunch}}",
+      "input_expressions": [
+        {
+          "parse_status": "parsed",
+          "numpad": "236 A",
+          "classic_2d": "QCF + A",
+          "icon_tokens": [
+            {
+              "type": "motion",
+              "shape": "quarter_circle_forward"
+            },
+            {
+              "type": "button",
+              "symbol": "A"
+            }
+          ],
+          "accessible_en": "quarter circle forward, then press A",
+          "accessible_fr": "quart de cercle avant, puis appuyer sur A"
+        }
+      ]
+    },
+    {
+      "move_id": "ngpc-kofr2-mai-spc-musasabi-no-mai-chijou",
+      "character_id": "ngpc-kofr2-mai",
+      "name": "Musasabi no Mai (Chijou)",
+      "category": "special",
+      "activation_kind": "by_player_input",
+      "activation_hint_en": null,
+      "source_raw": "{{cade|CDU}}{{plus}}(hold){{cade|Punch}}",
+      "input_expressions": [
+        {
+          "parse_status": "parsed",
+          "numpad": "[2]~8 P (hold)",
+          "classic_2d": "charge d, u + P (hold)",
+          "icon_tokens": [
+            {
+              "type": "charge",
+              "charge_direction": "down"
+            },
+            {
+              "type": "direction",
+              "value": "up"
+            },
+            {
+              "type": "hold_start"
+            },
+            {
+              "type": "button",
+              "symbol": "P"
+            },
+            {
+              "type": "hold_end"
+            }
+          ],
+          "accessible_en": "hold down then up, then press P and hold",
+          "accessible_fr": "maintenir bas puis haut, puis appuyer sur P et maintenir"
+        }
+      ]
+    },
+    {
+      "move_id": "ngpc-kofr2-kyo-throw-hatsugane",
+      "character_id": "ngpc-kofr2-kyo",
+      "name": "Hatsugane",
+      "category": "throw",
+      "activation_kind": "by_player_input",
+      "activation_hint_en": null,
+      "source_raw": "(close) {{cade|Left}} or {{cade|Right}}{{plus}}{{cade|Punch}}",
+      "input_expressions": [
+        {
+          "parse_status": "parsed",
+          "numpad": "4 P | 6 P",
+          "classic_2d": "b + P | f + P",
+          "icon_tokens": [
+            {
+              "type": "alternative",
+              "options": [
+                [
+                  {
+                    "type": "direction",
+                    "value": "back"
+                  },
+                  {
+                    "type": "button",
+                    "symbol": "P"
+                  }
+                ],
+                [
+                  {
+                    "type": "direction",
+                    "value": "forward"
+                  },
+                  {
+                    "type": "button",
+                    "symbol": "P"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "contextual_hint",
+              "requirements": [
+                {
+                  "kind": "spatial",
+                  "value": "near_opponent"
+                }
+              ]
+            }
+          ],
+          "accessible_en": "close to the opponent: back, then press P OR forward, then press P",
+          "accessible_fr": "près de l'adversaire : arrière, puis appuyer sur P OU avant, puis appuyer sur P"
+        }
+      ]
+    },
+    {
+      "move_id": "ngpc-kofr2-kyo-spc-arashin",
+      "character_id": "ngpc-kofr2-kyo",
+      "name": "Arashin",
+      "category": "special",
+      "activation_kind": "automatic_after_move",
+      "activation_hint_en": "Fires automatically on a mid hit as a follow-up of 'ngpc-kofr2-kyo-spc-nue-tumi'. ((Mid Hit — automatic))",
+      "source_raw": "(Mid Hit — automatic)",
+      "input_expressions": []
+    }
+  ]
+}

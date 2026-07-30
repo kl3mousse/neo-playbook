@@ -43,9 +43,9 @@ class _AddNoteSheetState extends State<AddNoteSheet> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -71,8 +71,7 @@ class _AddNoteSheetState extends State<AddNoteSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Add Note',
-              style: Theme.of(context).textTheme.titleMedium),
+          Text('Add Note', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           // Category selector
           Wrap(

@@ -34,16 +34,17 @@ class DipSettingsView extends StatelessWidget {
       children: [
         ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-          childrenPadding:
-              const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           initiallyExpanded: false,
           title: Row(
             children: [
               const Icon(Icons.tune, size: 20),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('Soft DIP Settings',
-                    style: Theme.of(context).textTheme.titleMedium),
+                child: Text(
+                  'Soft DIP Settings',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.info_outline, size: 18),
@@ -52,10 +53,10 @@ class DipSettingsView extends StatelessWidget {
                   context,
                   'Soft DIP Settings',
                   'Soft DIPs are the operator settings of a Neo Geo game.\n\n'
-                  'On MVS arcade boards, they are changed from the service/test menu, just like an arcade operator would do inside a cabinet. They control game options such as difficulty, play time, lives, continues, demo sound, blood, and other settings defined by each game.\n\n'
-                  'On real MVS hardware, Soft DIP values are saved per game in the board\'s backup RAM.\n\n'
-                  'On AES, Neo Geo CD, flash carts, and emulators, access can vary depending on the BIOS, core, emulator, or game version. A stock home setup may not expose the same operator menu, while UniBIOS and many emulators often make these options easier to reach.\n\n'
-                  'ComboFox shows the known values for the selected game, region, and version whenever they are documented.',
+                      'On MVS arcade boards, they are changed from the service/test menu, just like an arcade operator would do inside a cabinet. They control game options such as difficulty, play time, lives, continues, demo sound, blood, and other settings defined by each game.\n\n'
+                      'On real MVS hardware, Soft DIP values are saved per game in the board\'s backup RAM.\n\n'
+                      'On AES, Neo Geo CD, flash carts, and emulators, access can vary depending on the BIOS, core, emulator, or game version. A stock home setup may not expose the same operator menu, while UniBIOS and many emulators often make these options easier to reach.\n\n'
+                      'ComboFox shows the known values for the selected game, region, and version whenever they are documented.',
                   iconPath: 'assets/foxxy/sd/foxxy-sd-icon-07.png',
                 ),
               ),
@@ -64,10 +65,7 @@ class DipSettingsView extends StatelessWidget {
           children: [
             // Region tabs + settings
             if (availableRegions.isNotEmpty)
-              _RegionTabView(
-                regions: availableRegions,
-                dipData: dipData,
-              ),
+              _RegionTabView(regions: availableRegions, dipData: dipData),
           ],
         ),
 
@@ -100,10 +98,7 @@ class _RegionTabViewState extends State<_RegionTabView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: widget.regions.length,
-      vsync: this,
-    );
+    _tabController = TabController(length: widget.regions.length, vsync: this);
   }
 
   @override
@@ -136,8 +131,10 @@ class _RegionTabViewState extends State<_RegionTabView>
               if (settings == null || settings.isEmpty) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text('No settings available for this region.',
-                      style: TextStyle(fontStyle: FontStyle.italic)),
+                  child: Text(
+                    'No settings available for this region.',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
                 );
               }
               return _RegionSettingsBody(
@@ -215,10 +212,7 @@ class _RegionSettingsBody extends StatelessWidget {
             width: 140,
             child: Text(
               setting.description,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
           _ValueChip(label: setting.value, isDefault: true),
@@ -247,8 +241,7 @@ class _SimpleSettingTile extends StatelessWidget {
             width: 140,
             child: Text(
               setting.description,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
           const SizedBox(width: 8),
@@ -289,8 +282,10 @@ class _DebugDipsSection extends StatelessWidget {
           const Icon(Icons.bug_report, size: 20),
           const SizedBox(width: 8),
           Expanded(
-            child: Text('Debug DIP Switches',
-                style: Theme.of(context).textTheme.titleMedium),
+            child: Text(
+              'Debug DIP Switches',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.info_outline, size: 18),
@@ -299,9 +294,9 @@ class _DebugDipsSection extends StatelessWidget {
               context,
               'Debug DIP Switches',
               'Debug DIPs are hidden test and developer flags found in some Neo Geo games.\n\n'
-              'They are not the normal Soft DIP operator settings, and they are usually not meant for regular players. Depending on the game, they may reveal hit boxes, sprite viewers, debug text, job meters, pause modes, level selects, or unfinished test features.\n\n'
-              'On original hardware, these options were likely intended for development or test setups, not for standard MVS or AES use. Today, they are mostly accessed through UniBIOS, debug BIOSes, emulator tools, cheats, or ROM research.\n\n'
-              'Some labels are based on community documentation and reverse engineering. They can be incomplete, game-specific, or still uncertain, so handle them like a fox in a PCB shop: curious, but careful.',
+                  'They are not the normal Soft DIP operator settings, and they are usually not meant for regular players. Depending on the game, they may reveal hit boxes, sprite viewers, debug text, job meters, pause modes, level selects, or unfinished test features.\n\n'
+                  'On original hardware, these options were likely intended for development or test setups, not for standard MVS or AES use. Today, they are mostly accessed through UniBIOS, debug BIOSes, emulator tools, cheats, or ROM research.\n\n'
+                  'Some labels are based on community documentation and reverse engineering. They can be incomplete, game-specific, or still uncertain, so handle them like a fox in a PCB shop: curious, but careful.',
               iconPath: 'assets/foxxy/sd/foxxy-sd-icon-07.png',
             ),
           ),
@@ -343,8 +338,7 @@ class _DebugSwitchTile extends StatelessWidget {
           Expanded(
             child: Text(
               debugSwitch.effect,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
           const SizedBox(width: 8),
@@ -396,13 +390,11 @@ void _showInfoDialog(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (iconPath != null) ...[const Divider(),
+            if (iconPath != null) ...[
+              const Divider(),
               SizedBox(
                 height: 100,
-                child: Image.asset(
-                  iconPath,
-                  fit: BoxFit.contain,
-                ),
+                child: Image.asset(iconPath, fit: BoxFit.contain),
               ),
               const Divider(),
               const SizedBox(height: 8),
@@ -434,9 +426,7 @@ class _ValueChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: isDefault
-            ? cs.primaryContainer
-            : cs.surfaceContainerHighest,
+        color: isDefault ? cs.primaryContainer : cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(6),
         border: isDefault
             ? Border.all(color: cs.primary.withValues(alpha: 0.5), width: 1)

@@ -75,9 +75,7 @@ ThemeData buildAppTheme() {
     cardTheme: CardThemeData(
       color: AppColors.surface,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(vertical: 4),
     ),
     appBarTheme: const AppBarTheme(
@@ -97,10 +95,7 @@ ThemeData buildAppTheme() {
             color: AppColors.primary,
           );
         }
-        return const TextStyle(
-          fontSize: 12,
-          color: AppColors.textSecondary,
-        );
+        return const TextStyle(fontSize: 12, color: AppColors.textSecondary);
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
@@ -126,9 +121,7 @@ ThemeData buildAppTheme() {
     chipTheme: ChipThemeData(
       backgroundColor: AppColors.surfaceLight,
       side: BorderSide.none,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -148,10 +141,7 @@ ThemeData buildAppTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: AppColors.secondary,
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
       ),
     ),
     textTheme: const TextTheme(
@@ -178,20 +168,10 @@ ThemeData buildAppTheme() {
         fontWeight: FontWeight.w600,
         color: AppColors.textSecondary,
       ),
-      bodyLarge: TextStyle(
-        color: AppColors.textPrimary,
-        height: 1.5,
-      ),
-      bodyMedium: TextStyle(
-        color: AppColors.textPrimary,
-      ),
-      bodySmall: TextStyle(
-        color: AppColors.textSecondary,
-      ),
-      labelSmall: TextStyle(
-        color: AppColors.textSecondary,
-        fontSize: 10,
-      ),
+      bodyLarge: TextStyle(color: AppColors.textPrimary, height: 1.5),
+      bodyMedium: TextStyle(color: AppColors.textPrimary),
+      bodySmall: TextStyle(color: AppColors.textSecondary),
+      labelSmall: TextStyle(color: AppColors.textSecondary, fontSize: 10),
     ),
   );
 }

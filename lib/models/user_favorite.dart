@@ -34,7 +34,9 @@ class UserFavorite {
     this.updatedAt,
   });
 
-  factory UserFavorite.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory UserFavorite.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? {};
     return UserFavorite(
       gameId: doc.id,
@@ -45,13 +47,13 @@ class UserFavorite {
   }
 
   Map<String, dynamic> toFirestore() => {
-        'status': status.value,
-        'updated_at': FieldValue.serverTimestamp(),
-      };
+    'status': status.value,
+    'updated_at': FieldValue.serverTimestamp(),
+  };
 
   Map<String, dynamic> toFirestoreCreate() => {
-        'status': status.value,
-        'added_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
-      };
+    'status': status.value,
+    'added_at': FieldValue.serverTimestamp(),
+    'updated_at': FieldValue.serverTimestamp(),
+  };
 }

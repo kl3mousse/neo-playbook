@@ -25,8 +25,8 @@ class NeoGeoFormatPicker extends StatelessWidget {
         Text(
           'Format',
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -72,9 +72,13 @@ class _FormatChip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? accentColor.withValues(alpha: 0.18) : Colors.transparent,
+          color: isSelected
+              ? accentColor.withValues(alpha: 0.18)
+              : Colors.transparent,
           border: Border.all(
-            color: isSelected ? accentColor : colorScheme.outline.withValues(alpha: 0.4),
+            color: isSelected
+                ? accentColor
+                : colorScheme.outline.withValues(alpha: 0.4),
             width: isSelected ? 1.5 : 1.0,
           ),
           borderRadius: BorderRadius.circular(20),
@@ -82,9 +86,9 @@ class _FormatChip extends StatelessWidget {
         child: Text(
           label,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: isSelected ? accentColor : colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-              ),
+            color: isSelected ? accentColor : colorScheme.onSurface,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+          ),
         ),
       ),
     );

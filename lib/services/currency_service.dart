@@ -20,7 +20,8 @@ class CurrencyService {
   };
 
   /// Human-readable note about the rate source, shown in the UI.
-  static const String ratesNote = 'Approximate rates as of 2025-07. '
+  static const String ratesNote =
+      'Approximate rates as of 2025-07. '
       'For display only — individual prices are in their original currency.';
 
   /// Whether [currency] has a known rate.
@@ -54,7 +55,8 @@ class CurrencyService {
 
     // If all amounts are already in the target currency → exact total.
     if (currencyTotals.length == 1 &&
-        currencyTotals.keys.first.toUpperCase() == targetCurrency.toUpperCase()) {
+        currencyTotals.keys.first.toUpperCase() ==
+            targetCurrency.toUpperCase()) {
       return ConvertedTotal(
         total: currencyTotals.values.first,
         currency: targetCurrency,
@@ -75,7 +77,9 @@ class CurrencyService {
         }
       } else {
         hasUnknown = true;
-        breakdown.add('${entry.value.toStringAsFixed(0)} ${entry.key} (not converted)');
+        breakdown.add(
+          '${entry.value.toStringAsFixed(0)} ${entry.key} (not converted)',
+        );
       }
     }
 

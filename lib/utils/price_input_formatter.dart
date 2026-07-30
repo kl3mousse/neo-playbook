@@ -16,7 +16,9 @@ class PriceInputFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     // Normalise separator and strip invalid characters.
-    var text = newValue.text.replaceAll(',', '.').replaceAll(RegExp(r'[^\d.]'), '');
+    var text = newValue.text
+        .replaceAll(',', '.')
+        .replaceAll(RegExp(r'[^\d.]'), '');
 
     // Collapse multiple dots: keep only the first one.
     final dotIndex = text.indexOf('.');

@@ -24,7 +24,10 @@ String platformLabel(String key) {
     'zn': 'ZN',
   };
   return labels[key] ??
-      key.split(' ').map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
+      key
+          .split(' ')
+          .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+          .join(' ');
 }
 
 class SystemChip extends StatelessWidget {

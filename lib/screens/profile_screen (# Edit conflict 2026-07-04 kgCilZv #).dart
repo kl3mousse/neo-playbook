@@ -116,10 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child:
                       (_profile?.photoUrl == null ||
                           _profile!.photoUrl!.isEmpty)
-                      ? Text(
-                          avatarLabel,
-                          style: const TextStyle(fontSize: 36),
-                        )
+                      ? Text(avatarLabel, style: const TextStyle(fontSize: 36))
                       : null,
                 ),
                 IconButton(
@@ -245,9 +242,9 @@ class _SocialLinksSection extends StatelessWidget {
     if (uri == null) return;
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open $target')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open $target')));
     }
   }
 
@@ -399,9 +396,9 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
       return;
     }
     if (bio.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bio is required.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Bio is required.')));
       return;
     }
 

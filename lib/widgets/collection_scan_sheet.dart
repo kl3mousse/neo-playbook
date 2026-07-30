@@ -98,16 +98,16 @@ class _ModeChooser extends StatelessWidget {
         ),
         Text(
           'Scan Collection',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 4),
         Text(
           'Pick a mode to scan games with your camera.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: 16),
         _ModeCard(
@@ -129,7 +129,8 @@ class _ModeChooser extends StatelessWidget {
         _ModeCard(
           icon: Icons.fact_check_outlined,
           title: 'Ownership Check',
-          subtitle: 'One photo · check if a game is already in your collection.',
+          subtitle:
+              'One photo · check if a game is already in your collection.',
           accent: scheme.tertiary,
           onTap: onSelectOwnership,
         ),
@@ -193,24 +194,21 @@ class _ModeCard extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: scheme.onSurfaceVariant,
-              ),
+              Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
             ],
           ),
         ),
@@ -490,8 +488,9 @@ class _BulkImportViewState extends State<_BulkImportView> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Capture failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Capture failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _capturing = false);
@@ -502,8 +501,9 @@ class _BulkImportViewState extends State<_BulkImportView> {
 
   void _attachJobListener(String jobId) {
     _jobSubscription?.cancel();
-    _jobSubscription =
-        CollectionScanService.watchJob(jobId).listen((job) async {
+    _jobSubscription = CollectionScanService.watchJob(jobId).listen((
+      job,
+    ) async {
       if (!mounted || job == null) return;
       setState(() => _job = job);
       if (job.isCompleted && !_preloaded) {
@@ -682,8 +682,9 @@ class _BulkImportViewState extends State<_BulkImportView> {
     );
     await UserService.updateCollectionItem(existing.id, updated);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Updated to ${selectedGame.title}')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Updated to ${selectedGame.title}')));
   }
 
   // ── build ──────────────────────────────────────────────────────────────────
@@ -724,19 +725,16 @@ class _BulkImportViewState extends State<_BulkImportView> {
               icon: const Icon(Icons.arrow_back),
             ),
             const SizedBox(width: 4),
-            Text(
-              'Bulk Import',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Bulk Import', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
         Padding(
           padding: const EdgeInsets.only(left: 4),
           child: Text(
             'Review detections, then import the ones you want.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ),
         const SizedBox(height: 12),
@@ -754,13 +752,22 @@ class _BulkImportViewState extends State<_BulkImportView> {
           ),
 
         // ── pre-capture empty state ───────────────────────────────────────────
-        if (_jobId == null) ...[const SizedBox(height: 12), const Text('No scan captured yet.')],
+        if (_jobId == null) ...[
+          const SizedBox(height: 12),
+          const Text('No scan captured yet.'),
+        ],
 
         // ── processing / error ────────────────────────────────────────────────
-        if (_jobId != null && !isReady) ...[const SizedBox(height: 12), _buildStatusOrError()],
+        if (_jobId != null && !isReady) ...[
+          const SizedBox(height: 12),
+          _buildStatusOrError(),
+        ],
 
         // ── results ───────────────────────────────────────────────────────────
-        if (isReady) ...[const SizedBox(height: 4), _buildResults(job, pendingCount, keptCount, discardedCount)],
+        if (isReady) ...[
+          const SizedBox(height: 4),
+          _buildResults(job, pendingCount, keptCount, discardedCount),
+        ],
       ],
     );
   }
@@ -829,18 +836,22 @@ class _BulkImportViewState extends State<_BulkImportView> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               job.parseWarnings.first,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
             ),
           ),
         if (job.detectedGames.isEmpty)
           const Padding(
             padding: EdgeInsets.only(top: 12),
-            child: Text('No games detected. Try another angle or better lighting.'),
+            child: Text(
+              'No games detected. Try another angle or better lighting.',
+            ),
           )
-        else ...[const SizedBox(height: 10), _buildList(job)],
+        else ...[
+          const SizedBox(height: 10),
+          _buildList(job),
+        ],
         // Sticky bottom actions.
         const SizedBox(height: 12),
         _buildBottomBar(pendingCount),
@@ -907,8 +918,9 @@ class _BulkImportViewState extends State<_BulkImportView> {
           const SizedBox(width: 8),
           // Import all pending.
           FilledButton.icon(
-            onPressed:
-                (pendingCount == 0 || _bulkImporting) ? null : _importAllPending,
+            onPressed: (pendingCount == 0 || _bulkImporting)
+                ? null
+                : _importAllPending,
             icon: _bulkImporting
                 ? SizedBox(
                     width: 16,
@@ -990,9 +1002,9 @@ class _SingleImportViewState extends State<_SingleImportView> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Capture failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Capture failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _capturing = false);
@@ -1001,7 +1013,9 @@ class _SingleImportViewState extends State<_SingleImportView> {
 
   void _attachJobListener(String jobId) {
     _jobSubscription?.cancel();
-    _jobSubscription = CollectionScanService.watchJob(jobId).listen((job) async {
+    _jobSubscription = CollectionScanService.watchJob(jobId).listen((
+      job,
+    ) async {
       if (!mounted || job == null) return;
       setState(() => _job = job);
       if (job.isCompleted && !_imported && !_importing) {
@@ -1055,7 +1069,8 @@ class _SingleImportViewState extends State<_SingleImportView> {
           platform: 'mvs',
           confidence: 0,
           unverified: true,
-          notes: 'Auto-created from single-game scan — no item detected. Please review.',
+          notes:
+              'Auto-created from single-game scan — no item detected. Please review.',
           imagePath: photoPath,
         );
         await UserService.markScanJobImported(jobId, 'draft_auto_created');
@@ -1070,7 +1085,9 @@ class _SingleImportViewState extends State<_SingleImportView> {
         });
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unverified draft created — no game detected')),
+          const SnackBar(
+            content: Text('Unverified draft created — no game detected'),
+          ),
         );
         return;
       }
@@ -1186,9 +1203,9 @@ class _SingleImportViewState extends State<_SingleImportView> {
     await UserService.updateCollectionItem(item.id, updated);
     if (!mounted) return;
     setState(() => _importedItem = updated);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Updated to ${selectedGame.title}')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Updated to ${selectedGame.title}')));
   }
 
   @override
@@ -1298,8 +1315,8 @@ class _SingleImportResultCard extends StatelessWidget {
                   child: Text(
                     i.gameTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -1363,10 +1380,10 @@ class _SummaryChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context)
-            .textTheme
-            .labelSmall
-            ?.copyWith(color: color, fontWeight: FontWeight.w600),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -1399,11 +1416,13 @@ class _DetectedCandidateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final best = detected.topMatch;
-    final title = best?.gameTitle ??
+    final title =
+        best?.gameTitle ??
         (detected.rawTitle.trim().isNotEmpty
             ? detected.rawTitle.trim()
             : 'Unidentified Game');
-    final platform = best?.platform ??
+    final platform =
+        best?.platform ??
         (detected.normalizedPlatform.trim().isNotEmpty
             ? detected.normalizedPlatform.trim()
             : 'unknown');
@@ -1429,11 +1448,11 @@ class _DetectedCandidateCard extends StatelessWidget {
                     child: Text(
                       title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            decoration: isDiscarded
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
+                        fontWeight: FontWeight.w700,
+                        decoration: isDiscarded
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1465,10 +1484,9 @@ class _DetectedCandidateCard extends StatelessWidget {
               // Platform.
               Text(
                 platform.toUpperCase(),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: scheme.onSurfaceVariant),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
               ),
               // Low-conf warning.
               if (isLow && !isImported && !isDiscarded)
@@ -1478,9 +1496,9 @@ class _DetectedCandidateCard extends StatelessWidget {
                     best == null
                         ? 'No reliable catalog match — will be saved as a draft.'
                         : 'Low confidence — will be saved as an unverified draft.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.error,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: scheme.error),
                   ),
                 ),
               const SizedBox(height: 8),
@@ -1571,10 +1589,12 @@ class _ConfidenceChip extends StatelessWidget {
     final (label, color, bg) = isHigh
         ? ('High match', scheme.onTertiaryContainer, scheme.tertiaryContainer)
         : isMid
-            ? ('Possible match', scheme.onSecondaryContainer,
-                scheme.secondaryContainer)
-            : ('Low confidence', scheme.onErrorContainer,
-                scheme.errorContainer);
+        ? (
+            'Possible match',
+            scheme.onSecondaryContainer,
+            scheme.secondaryContainer,
+          )
+        : ('Low confidence', scheme.onErrorContainer, scheme.errorContainer);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -1583,10 +1603,10 @@ class _ConfidenceChip extends StatelessWidget {
       ),
       child: Text(
         '$label · ${(confidence * 100).toStringAsFixed(0)}%',
-        style: Theme.of(context)
-            .textTheme
-            .labelSmall
-            ?.copyWith(color: color, fontWeight: FontWeight.w600),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -1619,10 +1639,10 @@ class _StateBadge extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
-                ?.copyWith(color: color, fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

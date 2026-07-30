@@ -1,0 +1,144 @@
+{
+  "gold_schema_version": "1.0.0",
+  "silver_schema_version": "0.2.0",
+  "id": "ngpc-kofr2-v2.example-minimal",
+  "profile_revision": 1,
+  "applies_to": {
+    "game_id": "ngpc-kofr2",
+    "platform": "neogeo_pocket_color",
+    "region": "world",
+    "rom_ids": [
+      "kofr2",
+      "kofr2d",
+      "kofr2d2"
+    ],
+    "notation_frame": "player_relative"
+  },
+  "attribution": {
+    "primary_source": {
+      "name": "strategywiki-kofr2-moves",
+      "url": "https://strategywiki.org/wiki/King_of_Fighters_R-2/Moves",
+      "version": "2024-10-11",
+      "license": "CC BY-SA 4.0",
+      "notes": "CC-BY-SA 4.0. Attribution: StrategyWiki contributors. Sole factual source for the 289 moves."
+    },
+    "additional_sources": [
+      {
+        "name": "snk-wiki-kofr2",
+        "url": "https://snk.fandom.com/wiki/King_of_Fighters_R-2",
+        "role": "context_only",
+        "notes": "Used for character roster confirmation only. No move data extracted."
+      },
+      {
+        "name": "mame-ngpc",
+        "url": null,
+        "role": "metadata",
+        "notes": "Platform / release metadata only. No move data extracted."
+      }
+    ],
+    "display_text": "Move data from strategywiki-kofr2-moves (https://strategywiki.org/wiki/King_of_Fighters_R-2/Moves). Licensed under CC BY-SA 4.0. CC-BY-SA 4.0. Attribution: StrategyWiki contributors. Sole factual source for the 289 moves."
+  },
+  "buttons": [
+    {
+      "symbol": "A",
+      "label": "Weak Punch (soft press A button)"
+    },
+    {
+      "symbol": "B",
+      "label": "Weak Kick (soft press B button)"
+    },
+    {
+      "symbol": "C",
+      "label": "Strong Punch (hard press A button)"
+    },
+    {
+      "symbol": "D",
+      "label": "Strong Kick (hard press B button)"
+    }
+  ],
+  "button_groups": [
+    {
+      "symbol": "P",
+      "label": "Any Punch",
+      "members": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "symbol": "K",
+      "label": "Any Kick",
+      "members": [
+        "B",
+        "D"
+      ]
+    }
+  ],
+  "generated_at": "2026-07-29T00:00:00Z",
+  "characters": [
+    {
+      "id": "ngpc-kofr2-kyo",
+      "name": "Kyo Kusanagi"
+    }
+  ],
+  "moves": [
+    {
+      "id": "ngpc-kofr2-kyo-throw-hatsugane",
+      "name": "Hatsugane",
+      "category": "throw",
+      "character_id": "ngpc-kofr2-kyo",
+      "source_raw": "(close) {{cade|Left}} or {{cade|Right}}{{plus}}{{cade|Punch}}",
+      "source_dialect": "strategywiki-mediawiki-template",
+      "activation": {
+        "kind": "by_player_input"
+      },
+      "input_expressions": [
+        {
+          "parse_status": "parsed",
+          "expression": {
+            "kind": "contextual",
+            "requirements": [
+              {
+                "kind": "spatial",
+                "value": "near_opponent"
+              }
+            ],
+            "input": {
+              "kind": "alternative",
+              "options": [
+                {
+                  "kind": "sequence",
+                  "steps": [
+                    {
+                      "kind": "direction",
+                      "direction": "back",
+                      "relative": true
+                    },
+                    {
+                      "kind": "button",
+                      "symbol": "P"
+                    }
+                  ]
+                },
+                {
+                  "kind": "sequence",
+                  "steps": [
+                    {
+                      "kind": "direction",
+                      "direction": "forward",
+                      "relative": true
+                    },
+                    {
+                      "kind": "button",
+                      "symbol": "P"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

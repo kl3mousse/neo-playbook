@@ -18,6 +18,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -39,6 +42,10 @@ dependencies:
   package_info_plus: ^10.2.0
   google_fonts: ^8.1.0
   flutter_native_splash: ^2.4.6
+  # experimental/gold_moves_profile_v1 spike (v1.0.0): typed models
+  # and SHA-256 bundle verification.
+  meta: ^1.15.0
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:
@@ -73,11 +80,15 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # ARB → generated Localizations classes (see l10n.yaml).
+  generate: true
+
   assets:
     - assets/images/
     - assets/foxxy/
     - assets/foxxy/sd/
     - assets/foxxy/loadingscreens/
+    - assets/experimental/gold_moves_profile_v1/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

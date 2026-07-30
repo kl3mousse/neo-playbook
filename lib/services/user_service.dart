@@ -395,8 +395,8 @@ class UserService {
     final extension = contentType.contains('png')
         ? 'png'
         : contentType.contains('webp')
-            ? 'webp'
-            : 'jpg';
+        ? 'webp'
+        : 'jpg';
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final safeName = (fileName ?? 'photo').replaceAll(
       RegExp(r'[^A-Za-z0-9_-]'),
@@ -404,10 +404,10 @@ class UserService {
     );
     final storagePath =
         'collection_items/${user.uid}/$itemId/${timestamp}_$safeName.$extension';
-    await FirebaseStorage.instance.ref().child(storagePath).putData(
-      bytes,
-      SettableMetadata(contentType: contentType),
-    );
+    await FirebaseStorage.instance
+        .ref()
+        .child(storagePath)
+        .putData(bytes, SettableMetadata(contentType: contentType));
     return storagePath;
   }
 

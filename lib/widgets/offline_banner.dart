@@ -58,13 +58,11 @@ class _OfflineBannerState extends State<OfflineBanner> {
           ? Container(
               width: double.infinity,
               color: AppColors.accent.withValues(alpha: 0.92),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cloud_off,
-                      size: 14, color: AppColors.textPrimary),
+                  Icon(Icons.cloud_off, size: 14, color: AppColors.textPrimary),
                   SizedBox(width: 8),
                   Text(
                     "You're offline — showing cached data",

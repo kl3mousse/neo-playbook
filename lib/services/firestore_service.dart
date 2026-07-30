@@ -21,7 +21,10 @@ class FirestoreService {
 
   /// Stream all games ordered by title.
   static Stream<List<Game>> gamesStream() {
-    return _gamesRef.orderBy('title').snapshots().map(
+    return _gamesRef
+        .orderBy('title')
+        .snapshots()
+        .map(
           (snapshot) =>
               snapshot.docs.map((doc) => Game.fromFirestore(doc)).toList(),
         );
@@ -39,9 +42,11 @@ class FirestoreService {
     final lower = query.toLowerCase();
     return gamesStream().map(
       (games) => games
-          .where((g) =>
-              g.title.toLowerCase().contains(lower) ||
-              (g.altTitle?.toLowerCase().contains(lower) ?? false))
+          .where(
+            (g) =>
+                g.title.toLowerCase().contains(lower) ||
+                (g.altTitle?.toLowerCase().contains(lower) ?? false),
+          )
           .toList(),
     );
   }

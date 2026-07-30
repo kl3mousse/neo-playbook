@@ -67,12 +67,12 @@ class _GamesListScreenState extends State<GamesListScreen> {
   }
 
   Future<void> _persistFilters(GameFilters f) => PrefsService.setFilters(
-        genre: f.genre,
-        publisher: f.publisher,
-        players: f.playerCount,
-        yearStart: f.yearRange?.start.round(),
-        yearEnd: f.yearRange?.end.round(),
-      );
+    genre: f.genre,
+    publisher: f.publisher,
+    players: f.playerCount,
+    yearStart: f.yearRange?.start.round(),
+    yearEnd: f.yearRange?.end.round(),
+  );
 
   @override
   void dispose() {
@@ -110,10 +110,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
       appBar: AppBar(
         title: const Text(
           'Games',
-          style: TextStyle(
-            fontFamily: 'Doto',
-            fontWeight: FontWeight.w800,
-          ),
+          style: TextStyle(fontFamily: 'Doto', fontWeight: FontWeight.w800),
         ),
         actions: [
           IconButton(
@@ -155,18 +152,20 @@ class _GamesListScreenState extends State<GamesListScreen> {
           _lastGames = allGames;
 
           // Derive available platforms from data
-          final availablePlatforms = allGames
-              .map((g) => g.platform)
-              .where((p) => p.isNotEmpty)
-              .toSet()
-              .toList()
-            ..sort();
+          final availablePlatforms =
+              allGames
+                  .map((g) => g.platform)
+                  .where((p) => p.isNotEmpty)
+                  .toSet()
+                  .toList()
+                ..sort();
 
           // Auto-select first platform if none set or selection no longer valid
           final effectivePlatform =
-              (_selectedPlatform != null && availablePlatforms.contains(_selectedPlatform))
-                  ? _selectedPlatform!
-                  : (availablePlatforms.isNotEmpty ? availablePlatforms.first : '');
+              (_selectedPlatform != null &&
+                  availablePlatforms.contains(_selectedPlatform))
+              ? _selectedPlatform!
+              : (availablePlatforms.isNotEmpty ? availablePlatforms.first : '');
 
           // Filter games by selected platform
           final platformGames = allGames
@@ -211,8 +210,9 @@ class _GamesListScreenState extends State<GamesListScreen> {
                           boxShadow: _searchFocused
                               ? [
                                   BoxShadow(
-                                    color: ComboFoxColors.neonBlue
-                                        .withValues(alpha: 0.20),
+                                    color: ComboFoxColors.neonBlue.withValues(
+                                      alpha: 0.20,
+                                    ),
                                     blurRadius: 16,
                                     spreadRadius: 1,
                                   ),
@@ -252,8 +252,9 @@ class _GamesListScreenState extends State<GamesListScreen> {
                         borderRadius: BorderRadius.circular(16),
                         border: (_showFilters || _filters.hasActiveFilters)
                             ? Border.all(
-                                color: ComboFoxColors.neonBlue
-                                    .withValues(alpha: 0.6),
+                                color: ComboFoxColors.neonBlue.withValues(
+                                  alpha: 0.6,
+                                ),
                               )
                             : null,
                       ),
@@ -314,12 +315,13 @@ class _GamesListScreenState extends State<GamesListScreen> {
                           if (_filters.hasActiveFilters)
                             TextButton(
                               onPressed: () {
-                                setState(
-                                    () => _filters = GameFilters.empty());
+                                setState(() => _filters = GameFilters.empty());
                                 _persistFilters(GameFilters.empty());
                               },
-                              child: const Text('Clear filters',
-                                  style: TextStyle(fontSize: 12)),
+                              child: const Text(
+                                'Clear filters',
+                                style: TextStyle(fontSize: 12),
+                              ),
                             ),
                         ],
                       ),
@@ -328,7 +330,8 @@ class _GamesListScreenState extends State<GamesListScreen> {
                     if (filteredGames.isEmpty)
                       const Expanded(
                         child: Center(
-                            child: Text('No games match your filters.')),
+                          child: Text('No games match your filters.'),
+                        ),
                       )
                     else
                       // Games list (single column, full width)
@@ -340,11 +343,16 @@ class _GamesListScreenState extends State<GamesListScreen> {
                               // Give the new stream a moment to emit
                               // before dismissing the indicator.
                               await Future<void>.delayed(
-                                  const Duration(milliseconds: 350));
+                                const Duration(milliseconds: 350),
+                              );
                             },
                             child: ListView.separated(
                               padding: const EdgeInsets.fromLTRB(
-                                  12, 12, 12, 88),
+                                12,
+                                12,
+                                12,
+                                88,
+                              ),
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: filteredGames.length,
                               separatorBuilder: (_, _) =>
@@ -353,8 +361,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
                                 final game = filteredGames[index];
                                 return GameCard(
                                   game: game,
-                                  onTap: () =>
-                                      context.push('/game/${game.id}'),
+                                  onTap: () => context.push('/game/${game.id}'),
                                 );
                               },
                             ),
@@ -425,16 +432,18 @@ class _PlatformStripState extends State<_PlatformStrip> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           children: widget.platforms
-              .map((p) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Center(
-                      child: SystemChip(
-                        platformKey: p,
-                        isSelected: _effective == p,
-                        onTap: () => _handleTap(p),
-                      ),
+              .map(
+                (p) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Center(
+                    child: SystemChip(
+                      platformKey: p,
+                      isSelected: _effective == p,
+                      onTap: () => _handleTap(p),
                     ),
-                  ))
+                  ),
+                ),
+              )
               .toList(),
         ),
       ),
@@ -486,8 +495,7 @@ class _ErrorRetry extends StatelessWidget {
                     const SizedBox(height: 12),
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      childrenPadding:
-                          const EdgeInsets.only(bottom: 8, top: 4),
+                      childrenPadding: const EdgeInsets.only(bottom: 8, top: 4),
                       title: Text(
                         'Details',
                         style: Theme.of(context).textTheme.bodySmall,
@@ -495,9 +503,7 @@ class _ErrorRetry extends StatelessWidget {
                       children: [
                         SelectableText(
                           '$error',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppColors.textSecondary),
                         ),
                       ],

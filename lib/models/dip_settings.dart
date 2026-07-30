@@ -32,7 +32,8 @@ class DipSimpleSetting {
     return DipSimpleSetting(
       description: map['description'] as String? ?? '',
       defaultValue: map['default_value'] as int? ?? 0,
-      valueDescriptions: (map['value_descriptions'] as List<dynamic>?)
+      valueDescriptions:
+          (map['value_descriptions'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -55,14 +56,18 @@ class RegionDipSettings {
   factory RegionDipSettings.fromMap(Map<String, dynamic> map) {
     return RegionDipSettings(
       gameName: map['game_name'] as String? ?? '',
-      specialSettings: (map['special_settings'] as List<dynamic>?)
-              ?.map((e) =>
-                  DipSpecialSetting.fromMap(Map<String, dynamic>.from(e)))
+      specialSettings:
+          (map['special_settings'] as List<dynamic>?)
+              ?.map(
+                (e) => DipSpecialSetting.fromMap(Map<String, dynamic>.from(e)),
+              )
               .toList() ??
           [],
-      simpleSettings: (map['simple_settings'] as List<dynamic>?)
-              ?.map((e) =>
-                  DipSimpleSetting.fromMap(Map<String, dynamic>.from(e)))
+      simpleSettings:
+          (map['simple_settings'] as List<dynamic>?)
+              ?.map(
+                (e) => DipSimpleSetting.fromMap(Map<String, dynamic>.from(e)),
+              )
               .toList() ??
           [],
     );
@@ -103,24 +108,29 @@ class DipSettingsData {
   });
 
   factory DipSettingsData.fromFirestore(
-      DocumentSnapshot<Map<String, dynamic>> doc) {
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? {};
 
     // Parse regions
     final regionsRaw = data['regions'] as Map<String, dynamic>? ?? {};
-    final regions = regionsRaw.map((key, value) => MapEntry(
-          key,
-          RegionDipSettings.fromMap(Map<String, dynamic>.from(value)),
-        ));
+    final regions = regionsRaw.map(
+      (key, value) => MapEntry(
+        key,
+        RegionDipSettings.fromMap(Map<String, dynamic>.from(value)),
+      ),
+    );
 
     // Parse debug DIPs (bank → array of DebugSwitch)
     final debugRaw = data['debug_dips'] as Map<String, dynamic>? ?? {};
-    final debugDips = debugRaw.map((bankKey, bankValue) => MapEntry(
-          bankKey,
-          (bankValue as List<dynamic>)
-              .map((e) => DebugSwitch.fromMap(Map<String, dynamic>.from(e)))
-              .toList(),
-        ));
+    final debugDips = debugRaw.map(
+      (bankKey, bankValue) => MapEntry(
+        bankKey,
+        (bankValue as List<dynamic>)
+            .map((e) => DebugSwitch.fromMap(Map<String, dynamic>.from(e)))
+            .toList(),
+      ),
+    );
 
     return DipSettingsData(
       id: doc.id,

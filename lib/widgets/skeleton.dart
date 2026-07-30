@@ -16,14 +16,10 @@ class Skeleton extends StatefulWidget {
   });
 
   const Skeleton.line({super.key, this.width, this.height = 14})
-      : borderRadius = const BorderRadius.all(Radius.circular(6));
+    : borderRadius = const BorderRadius.all(Radius.circular(6));
 
-  const Skeleton.block({
-    super.key,
-    this.width,
-    this.height,
-    double radius = 16,
-  }) : borderRadius = const BorderRadius.all(Radius.circular(16));
+  const Skeleton.block({super.key, this.width, this.height, double radius = 16})
+    : borderRadius = const BorderRadius.all(Radius.circular(16));
 
   @override
   State<Skeleton> createState() => _SkeletonState();

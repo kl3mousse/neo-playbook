@@ -19,9 +19,7 @@ import 'input_token.dart';
 void _openExecution(BuildContext context, MoveEntry move) {
   Navigator.push(
     context,
-    MaterialPageRoute(
-      builder: (_) => ExecutionModeScreen(move: move),
-    ),
+    MaterialPageRoute(builder: (_) => ExecutionModeScreen(move: move)),
   );
 }
 
@@ -29,13 +27,13 @@ void _openExecution(BuildContext context, MoveEntry move) {
 
 Color categoryColor(String category) {
   return switch (category) {
-    'throw'   => AppColors.catThrow,
+    'throw' => AppColors.catThrow,
     'command' => AppColors.catCommand,
     'special' => AppColors.catSpecial,
-    'super'   => AppColors.catDM,
-    'ultra'   => AppColors.catSDM,
-    'other'   => Colors.amber,
-    _         => Colors.transparent,
+    'super' => AppColors.catDM,
+    'ultra' => AppColors.catSDM,
+    'other' => Colors.amber,
+    _ => Colors.transparent,
   };
 }
 
@@ -54,7 +52,8 @@ class MoveRow extends StatelessWidget {
 
     if (isInfo) {
       final nameSpans = tokeniseInput(move.name, context);
-      final hasTokens = nameSpans.any((s) => s is WidgetSpan) ||
+      final hasTokens =
+          nameSpans.any((s) => s is WidgetSpan) ||
           RegExp(r'_[A-Z]|\^[SMsm*!]').hasMatch(move.name);
 
       if (hasTokens) {
@@ -69,10 +68,7 @@ class MoveRow extends StatelessWidget {
               final text = (span as TextSpan).text ?? '';
               return Text(
                 text,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               );
             }).toList(),
           ),
@@ -307,10 +303,9 @@ class MoveListView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             commandData.title,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(fontStyle: FontStyle.italic),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
           ),
         ),
         const SizedBox(height: 8),
@@ -438,10 +433,7 @@ class MoveLegend extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
               const SizedBox(width: 4),
               Text(

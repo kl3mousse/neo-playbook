@@ -154,9 +154,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       _isSignUp = !_isSignUp;
                       _error = null;
                     }),
-                    child: Text(_isSignUp
-                        ? 'Already have an account? Sign In'
-                        : 'Don\'t have an account? Sign Up'),
+                    child: Text(
+                      _isSignUp
+                          ? 'Already have an account? Sign In'
+                          : 'Don\'t have an account? Sign Up',
+                    ),
                   ),
                   if (widget.onSkip != null) ...[
                     const SizedBox(height: 8),

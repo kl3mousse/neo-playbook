@@ -18,7 +18,15 @@ class _SubmitScoreSheetState extends State<SubmitScoreSheet> {
   String? _proofName;
   bool _submitting = false;
 
-  final _platforms = ['MVS', 'AES', 'NGCD', 'CPS1', 'CPS2', 'Emulator', 'Other'];
+  final _platforms = [
+    'MVS',
+    'AES',
+    'NGCD',
+    'CPS1',
+    'CPS2',
+    'Emulator',
+    'Other',
+  ];
 
   Future<void> _pickPhoto() async {
     final picker = ImagePicker();
@@ -57,15 +65,15 @@ class _SubmitScoreSheetState extends State<SubmitScoreSheet> {
   Future<void> _submit() async {
     final score = int.tryParse(_scoreController.text.trim());
     if (score == null || score <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a valid score')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Enter a valid score')));
       return;
     }
     if (_proofBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Photo proof is required')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Photo proof is required')));
       return;
     }
 
@@ -80,9 +88,9 @@ class _SubmitScoreSheetState extends State<SubmitScoreSheet> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -109,8 +117,10 @@ class _SubmitScoreSheetState extends State<SubmitScoreSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Submit Score',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Submit Score',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 12),
             // Score input
             TextField(
@@ -138,8 +148,7 @@ class _SubmitScoreSheetState extends State<SubmitScoreSheet> {
             ),
             const SizedBox(height: 12),
             // Photo proof
-            Text('Proof Photo *',
-                style: Theme.of(context).textTheme.bodySmall),
+            Text('Proof Photo *', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -166,8 +175,10 @@ class _SubmitScoreSheetState extends State<SubmitScoreSheet> {
                   fit: BoxFit.cover,
                 ),
               ),
-              Text(_proofName ?? 'Photo selected',
-                  style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                _proofName ?? 'Photo selected',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
             const SizedBox(height: 16),
             SizedBox(

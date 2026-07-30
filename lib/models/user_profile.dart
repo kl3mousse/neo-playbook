@@ -27,7 +27,9 @@ class UserProfile {
     this.updatedAt,
   });
 
-  factory UserProfile.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory UserProfile.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? {};
     final rawLinks = data['social_links'];
     final links = <SocialLink>[];
@@ -54,25 +56,25 @@ class UserProfile {
   }
 
   Map<String, dynamic> toFirestore() => {
-        'display_name': displayName,
-        'email': email,
-        if (photoUrl != null) 'photo_url': photoUrl,
-        'bio': bio,
-        'social_links': socialLinks.map((l) => l.toMap()).toList(),
-        'preferred_language': preferredLanguage,
-        'default_currency': defaultCurrency,
-        'updated_at': FieldValue.serverTimestamp(),
-      };
+    'display_name': displayName,
+    'email': email,
+    if (photoUrl != null) 'photo_url': photoUrl,
+    'bio': bio,
+    'social_links': socialLinks.map((l) => l.toMap()).toList(),
+    'preferred_language': preferredLanguage,
+    'default_currency': defaultCurrency,
+    'updated_at': FieldValue.serverTimestamp(),
+  };
 
   Map<String, dynamic> toFirestoreCreate() => {
-        'display_name': displayName,
-        'email': email,
-        if (photoUrl != null) 'photo_url': photoUrl,
-        'bio': bio,
-        'social_links': socialLinks.map((l) => l.toMap()).toList(),
-        'preferred_language': preferredLanguage,
-        'default_currency': defaultCurrency,
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
-      };
+    'display_name': displayName,
+    'email': email,
+    if (photoUrl != null) 'photo_url': photoUrl,
+    'bio': bio,
+    'social_links': socialLinks.map((l) => l.toMap()).toList(),
+    'preferred_language': preferredLanguage,
+    'default_currency': defaultCurrency,
+    'created_at': FieldValue.serverTimestamp(),
+    'updated_at': FieldValue.serverTimestamp(),
+  };
 }

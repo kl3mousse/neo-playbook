@@ -32,15 +32,15 @@ class ComboFoxColors {
 
 /// Neon glow BoxShadow with the given color.
 BoxShadow neonGlow(Color color) => BoxShadow(
-      color: color.withValues(alpha: 0.6),
-      blurRadius: 12,
-      spreadRadius: 1,
-    );
+  color: color.withValues(alpha: 0.6),
+  blurRadius: 12,
+  spreadRadius: 1,
+);
 
 /// Neon-bordered BoxDecoration with glow. Use `.copyWith(color: ...)` to add
 /// a fill color.
 BoxDecoration neonBorder(Color color) => BoxDecoration(
-      border: Border.all(color: color, width: 1.5),
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [neonGlow(color)],
-    );
+  border: Border.all(color: color, width: 1.5),
+  borderRadius: BorderRadius.circular(12),
+  boxShadow: [neonGlow(color)],
+);

@@ -194,10 +194,10 @@ class Game {
       description: data['description'] as String?,
       images: imagesMap,
       roms: romsList,
-      features: GameFeatures.fromMap(
-          data['features'] as Map<String, dynamic>?),
+      features: GameFeatures.fromMap(data['features'] as Map<String, dynamic>?),
       contentLinks: ContentLinks.fromMap(
-          data['content_links'] as Map<String, dynamic>?),
+        data['content_links'] as Map<String, dynamic>?,
+      ),
       syncedAt: parseTimestamp(data['synced_at']),
     );
   }

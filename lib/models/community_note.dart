@@ -43,7 +43,9 @@ class CommunityNote {
     this.updatedAt,
   });
 
-  factory CommunityNote.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory CommunityNote.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? {};
     return CommunityNote(
       id: doc.id,
@@ -59,13 +61,13 @@ class CommunityNote {
   }
 
   Map<String, dynamic> toFirestoreCreate() => {
-        'game_id': gameId,
-        'user_id': userId,
-        'user_name': userName,
-        'category': category.value,
-        'text': text,
-        'upvotes': 0,
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
-      };
+    'game_id': gameId,
+    'user_id': userId,
+    'user_name': userName,
+    'category': category.value,
+    'text': text,
+    'upvotes': 0,
+    'created_at': FieldValue.serverTimestamp(),
+    'updated_at': FieldValue.serverTimestamp(),
+  };
 }

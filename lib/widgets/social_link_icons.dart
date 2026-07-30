@@ -62,19 +62,12 @@ final Map<String, _KnownSite> _knownSites = {
       icon: PhosphorIconsRegular.gameController,
     ),
   ),
-  'hfsplay': _KnownSite(
-    const ['hfsplay.fr'],
-    const SocialSite(
-      label: 'HFS Play',
-      icon: PhosphorIconsRegular.trophy,
-    ),
-  ),
+  'hfsplay': _KnownSite(const [
+    'hfsplay.fr',
+  ], const SocialSite(label: 'HFS Play', icon: PhosphorIconsRegular.trophy)),
   'shmups': _KnownSite(
     const ['shmups.system11.org', 'system11.org'],
-    const SocialSite(
-      label: 'Shmups Forum',
-      icon: PhosphorIconsRegular.rocket,
-    ),
+    const SocialSite(label: 'Shmups Forum', icon: PhosphorIconsRegular.rocket),
   ),
   'srk': _KnownSite(
     const ['shoryuken.com', 'forums.shoryuken.com'],
@@ -99,14 +92,13 @@ final Map<String, _KnownSite> _knownSites = {
   ),
 
   // ── Social networks ──────────────────────────────────────────────
-  'x': _KnownSite(
-    const ['x.com', 'twitter.com'],
-    const SocialSite(label: 'X', icon: PhosphorIconsRegular.xLogo),
-  ),
-  'github': _KnownSite(
-    const ['github.com'],
-    const SocialSite(label: 'GitHub', icon: PhosphorIconsRegular.githubLogo),
-  ),
+  'x': _KnownSite(const [
+    'x.com',
+    'twitter.com',
+  ], const SocialSite(label: 'X', icon: PhosphorIconsRegular.xLogo)),
+  'github': _KnownSite(const [
+    'github.com',
+  ], const SocialSite(label: 'GitHub', icon: PhosphorIconsRegular.githubLogo)),
   'youtube': _KnownSite(
     const ['youtube.com', 'youtu.be'],
     const SocialSite(
@@ -163,13 +155,9 @@ final Map<String, _KnownSite> _knownSites = {
       brandColor: Color(0xFF0A66C2),
     ),
   ),
-  'tiktok': _KnownSite(
-    const ['tiktok.com'],
-    const SocialSite(
-      label: 'TikTok',
-      icon: PhosphorIconsRegular.tiktokLogo,
-    ),
-  ),
+  'tiktok': _KnownSite(const [
+    'tiktok.com',
+  ], const SocialSite(label: 'TikTok', icon: PhosphorIconsRegular.tiktokLogo)),
   'telegram': _KnownSite(
     const ['t.me', 'telegram.me', 'telegram.org'],
     const SocialSite(
@@ -185,8 +173,7 @@ final Map<String, _KnownSite> _knownSites = {
       icon: PhosphorIconsRegular.mastodonLogo,
     ),
   ),
-  'bluesky': _KnownSite(
-    const ['bsky.app'],
-    const SocialSite(label: 'Bluesky', icon: PhosphorIconsRegular.butterfly),
-  ),
+  'bluesky': _KnownSite(const [
+    'bsky.app',
+  ], const SocialSite(label: 'Bluesky', icon: PhosphorIconsRegular.butterfly)),
 };

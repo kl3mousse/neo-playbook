@@ -60,8 +60,9 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
   final List<String> _removedPhotoPaths = [];
   final List<_PendingPhoto> _newPhotos = [];
 
-  static final _knownPlatformIds =
-      allPlatformTemplates.map((t) => t.id).toList();
+  static final _knownPlatformIds = allPlatformTemplates
+      .map((t) => t.id)
+      .toList();
 
   /// True when the game being added belongs to the Neo Geo hardware family,
   /// which means we show a dedicated format picker instead of the generic dropdown.
@@ -78,9 +79,9 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     final rawPlatform =
         e?.platform ?? draft?.platformId ?? widget.initialPlatform ?? 'mvs';
     _platform = rawPlatform;
-    _customPlatformLabel =
-        draft?.customPlatformLabel ?? e?.customPlatformLabel;
-    _isCustomPlatform = _customPlatformLabel != null ||
+    _customPlatformLabel = draft?.customPlatformLabel ?? e?.customPlatformLabel;
+    _isCustomPlatform =
+        _customPlatformLabel != null ||
         (!_knownPlatformIds.contains(rawPlatform) && rawPlatform.isNotEmpty);
     if (_customPlatformLabel != null) {
       _customPlatformLabelController.text = _customPlatformLabel!;
@@ -93,9 +94,8 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     _priceController = TextEditingController(
       text: e?.purchasePrice?.toStringAsFixed(2) ?? '',
     );
-    _currency = e?.purchaseCurrency ??
-        PrefsService.getDefaultCurrency() ??
-        'USD';
+    _currency =
+        e?.purchaseCurrency ?? PrefsService.getDefaultCurrency() ?? 'USD';
     _notesController = TextEditingController(text: e?.notes ?? '');
     _existingPhotoPaths = List<String>.from(e?.imagePaths ?? const []);
 
@@ -324,7 +324,9 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
               ),
             ] else ...[
               DropdownButtonFormField<String>(
-                key: ValueKey('platform-${_isCustomPlatform ? '_other' : _platform}'),
+                key: ValueKey(
+                  'platform-${_isCustomPlatform ? '_other' : _platform}',
+                ),
                 isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Platform',
@@ -333,10 +335,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                 initialValue: _isCustomPlatform ? '_other' : _platform,
                 items: [
                   for (final t in allPlatformTemplates)
-                    DropdownMenuItem(
-                      value: t.id,
-                      child: Text(t.displayName),
-                    ),
+                    DropdownMenuItem(value: t.id, child: Text(t.displayName)),
                   const DropdownMenuItem(
                     value: '_other',
                     child: Text('Other…'),

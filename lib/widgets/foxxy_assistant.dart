@@ -35,9 +35,10 @@ class _FoxxyAssistantState extends State<FoxxyAssistant>
       vsync: this,
       duration: const Duration(milliseconds: 280),
     );
-    _blinkAnim = Tween<double>(begin: 1.0, end: 0.6).animate(
-      CurvedAnimation(parent: _blinkCtrl, curve: Curves.easeInOut),
-    );
+    _blinkAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.6,
+    ).animate(CurvedAnimation(parent: _blinkCtrl, curve: Curves.easeInOut));
     _startBlinkLoop();
   }
 
@@ -68,9 +69,9 @@ class _FoxxyAssistantState extends State<FoxxyAssistant>
         Container(
           constraints: const BoxConstraints(maxWidth: 170),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: neonBorder(ComboFoxColors.neonPurple).copyWith(
-            color: ComboFoxColors.surface,
-          ),
+          decoration: neonBorder(
+            ComboFoxColors.neonPurple,
+          ).copyWith(color: ComboFoxColors.surface),
           child: Text(
             "Let's train\nthose combos!",
             style: GoogleFonts.pressStart2p(
@@ -84,10 +85,8 @@ class _FoxxyAssistantState extends State<FoxxyAssistant>
         // Foxxy image — falls back to emoji placeholder when asset not found
         AnimatedBuilder(
           animation: _blinkAnim,
-          builder: (context, child) => Opacity(
-            opacity: _blinkAnim.value,
-            child: child,
-          ),
+          builder: (context, child) =>
+              Opacity(opacity: _blinkAnim.value, child: child),
           child: SizedBox(
             width: 60,
             height: 60,

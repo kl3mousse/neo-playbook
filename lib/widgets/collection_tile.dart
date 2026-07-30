@@ -22,10 +22,8 @@ class CollectionTile extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => CollectionItemDetailScreen(
-              itemId: item.id,
-              initialItem: item,
-            ),
+            builder: (_) =>
+                CollectionItemDetailScreen(itemId: item.id, initialItem: item),
           ),
         ),
         subtitle: Text(
@@ -126,9 +124,6 @@ class _Trailing extends StatelessWidget {
       trailingItems.add(const Icon(Icons.chevron_right));
     }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: trailingItems,
-    );
+    return Row(mainAxisSize: MainAxisSize.min, children: trailingItems);
   }
 }

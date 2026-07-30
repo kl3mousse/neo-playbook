@@ -128,15 +128,16 @@ class _FaveGamesSection extends StatelessWidget {
 
             final allGames = {for (final g in gamesSnap.data!) g.id: g};
             final statusByGameId = {
-              for (final f in favorites) f.gameId: f.status
+              for (final f in favorites) f.gameId: f.status,
             };
 
-            final games = favorites
-                .map((f) => allGames[f.gameId])
-                .where((g) => g != null)
-                .cast<Game>()
-                .toList()
-              ..sort((a, b) => a.title.compareTo(b.title));
+            final games =
+                favorites
+                    .map((f) => allGames[f.gameId])
+                    .where((g) => g != null)
+                    .cast<Game>()
+                    .toList()
+                  ..sort((a, b) => a.title.compareTo(b.title));
 
             return _SectionShell(
               emoji: '❤️',
@@ -291,9 +292,9 @@ class _SectionShell extends StatelessWidget {
             leading: Text(emoji, style: const TextStyle(fontSize: 20)),
             title: Text(
               '$title$countLabel',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             childrenPadding: EdgeInsets.zero,
             children: [child],

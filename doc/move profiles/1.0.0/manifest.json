@@ -1,0 +1,61 @@
+{
+  "contract": {
+    "name": "combofox-moves-profile",
+    "version": "1.0.0",
+    "gold_schema_version": "1.0.0"
+  },
+  "silver_schema_version": "0.2.0",
+  "dataset_id": "ngpc-kofr2",
+  "build_id": "2026-07-29",
+  "generated_at": "2026-07-29T00:00:00Z",
+  "source_profile_id": "ngpc-kofr2-v2",
+  "profile_id": "ngpc-kofr2-v2",
+  "profile_revision": 1,
+  "counts": {
+    "characters": 23,
+    "moves": 289,
+    "moves_parsed": 286,
+    "moves_partial": 0,
+    "moves_unparsed": 0,
+    "moves_automatic": 3,
+    "moves_contextual_trigger": 0
+  },
+  "attribution_display_text": "Move data from strategywiki-kofr2-moves (https://strategywiki.org/wiki/King_of_Fighters_R-2/Moves). Licensed under CC BY-SA 4.0. CC-BY-SA 4.0. Attribution: StrategyWiki contributors. Sole factual source for the 289 moves.",
+  "files": [
+    {
+      "path": "CONSUMER_SPEC.md",
+      "sha256": "87c71490afeee6f932525b89ab5168b8722c1156ffaba80908297219de8af9a0",
+      "bytes": 17632
+    },
+    {
+      "path": "HANDOFF.md",
+      "sha256": "e3d505aa6799e20bd47b332d97e5c7d79020d21ed3c256e875d44491adb5e25a",
+      "bytes": 7243
+    },
+    {
+      "path": "examples/activation-automatic.profile.json",
+      "sha256": "f60d274e9dc3820b5d2ee238639f0e627491d3af588130066d332fb26df5d120",
+      "bytes": 5755
+    },
+    {
+      "path": "examples/minimal.profile.json",
+      "sha256": "eec3c1491d3e6debc6d7b71487f7bdc0c9429045664a28c162020f68630c3a3f",
+      "bytes": 3785
+    },
+    {
+      "path": "profile.json",
+      "sha256": "5e1b2f8597929502470e4b0b19492142fa5b85d07a8875c95ef4133cdee94b24",
+      "bytes": 291163
+    },
+    {
+      "path": "rendering-samples.json",
+      "sha256": "1b6c765d40b17579d3022c7bdea3700737c852b8ffde684ba31bfbcb29a986cd",
+      "bytes": 4227
+    },
+    {
+      "path": "schema.json",
+      "sha256": "206dd174689fe4864c911ed2f35c1dc694e375eb72545d678074a6f0466be8fd",
+      "bytes": 18315
+    }
+  ]
+}

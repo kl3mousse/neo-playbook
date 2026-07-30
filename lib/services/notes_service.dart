@@ -24,8 +24,10 @@ class NotesService {
         .orderBy('upvotes', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => CommunityNote.fromFirestore(d)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((d) => CommunityNote.fromFirestore(d)).toList(),
+        );
   }
 
   /// Add a new community note.

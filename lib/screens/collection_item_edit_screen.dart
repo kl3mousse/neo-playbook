@@ -198,8 +198,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       }
       // Preserve/refresh the human-readable custom platform label so the
       // saved item keeps a friendly platform name for off-catalog entries.
-      if (newCustomPlatformLabel != null &&
-          newCustomPlatformLabel.isNotEmpty) {
+      if (newCustomPlatformLabel != null && newCustomPlatformLabel.isNotEmpty) {
         _platformFields['custom_platform_label'] = newCustomPlatformLabel;
       } else if (platformChanged) {
         _platformFields.remove('custom_platform_label');
@@ -235,7 +234,8 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       // Clean component map: drop entries that are absent and empty.
       final cleanedComponents = <String, ComponentState>{};
       _components.forEach((key, state) {
-        final isEmpty = !state.present &&
+        final isEmpty =
+            !state.present &&
             state.originality == null &&
             state.condition == null &&
             (state.serialNumber == null || state.serialNumber!.isEmpty) &&
@@ -370,10 +370,7 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
-          if (_wasUnverified) ...[
-            _draftBanner(),
-            const SizedBox(height: 16),
-          ],
+          if (_wasUnverified) ...[_draftBanner(), const SizedBox(height: 16)],
           _linkedGameSection(palette),
           const SizedBox(height: 16),
           _visibilitySection(),
@@ -397,9 +394,9 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
             style: OutlinedButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
               side: BorderSide(
-                color: Theme.of(context).colorScheme.error.withValues(
-                  alpha: 0.6,
-                ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.error.withValues(alpha: 0.6),
               ),
               minimumSize: const Size.fromHeight(48),
             ),
@@ -838,7 +835,9 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
               child: Text(
                 spec.label,
                 style: TextStyle(
-                  fontWeight: spec.important ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: spec.important
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                 ),
               ),
             ),
@@ -884,9 +883,10 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
               border: OutlineInputBorder(),
             ),
             onChanged: (v) {
-              _components[spec.key] = (_components[spec.key] ??
-                      const ComponentState())
-                  .copyWith(serialNumber: v.trim());
+              _components[spec.key] =
+                  (_components[spec.key] ?? const ComponentState()).copyWith(
+                    serialNumber: v.trim(),
+                  );
             },
           ),
           const SizedBox(height: 12),
@@ -898,9 +898,10 @@ class _CollectionItemEditScreenState extends State<CollectionItemEditScreen> {
             ),
             maxLines: 2,
             onChanged: (v) {
-              _components[spec.key] = (_components[spec.key] ??
-                      const ComponentState())
-                  .copyWith(notes: v.trim());
+              _components[spec.key] =
+                  (_components[spec.key] ?? const ComponentState()).copyWith(
+                    notes: v.trim(),
+                  );
             },
           ),
         ],
@@ -1135,4 +1136,3 @@ class _ExistingPhoto extends StatelessWidget {
     );
   }
 }
-

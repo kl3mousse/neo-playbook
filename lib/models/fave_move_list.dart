@@ -25,7 +25,8 @@ class FaveMoveList {
   });
 
   factory FaveMoveList.fromFirestore(
-      DocumentSnapshot<Map<String, dynamic>> doc) {
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? {};
     return FaveMoveList(
       id: doc.id,
@@ -39,13 +40,13 @@ class FaveMoveList {
   }
 
   Map<String, dynamic> toFirestoreCreate() => {
-        'game_id': gameId,
-        'game_title': gameTitle,
-        'rom_name': romName,
-        'section_title': sectionTitle,
-        if (sectionSubtitle != null) 'section_subtitle': sectionSubtitle,
-        'added_at': FieldValue.serverTimestamp(),
-      };
+    'game_id': gameId,
+    'game_title': gameTitle,
+    'rom_name': romName,
+    'section_title': sectionTitle,
+    if (sectionSubtitle != null) 'section_subtitle': sectionSubtitle,
+    'added_at': FieldValue.serverTimestamp(),
+  };
 
   /// Build a stable document ID from romName + sectionTitle.
   static String docId(String romName, String sectionTitle) {

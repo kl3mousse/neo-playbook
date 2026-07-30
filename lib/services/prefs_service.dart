@@ -34,9 +34,8 @@ class PrefsService {
   static const _kFilterYearEnd = 'games.filter.yearEnd';
 
   static String? getPlatform() => _p.getString(_kPlatform);
-  static Future<void> setPlatform(String? v) => v == null
-      ? _p.remove(_kPlatform)
-      : _p.setString(_kPlatform, v);
+  static Future<void> setPlatform(String? v) =>
+      v == null ? _p.remove(_kPlatform) : _p.setString(_kPlatform, v);
 
   static String? getSortOption() => _p.getString(_kSortOption);
   static Future<void> setSortOption(String v) => _p.setString(_kSortOption, v);

@@ -1,0 +1,208 @@
+{
+  "gold_schema_version": "1.0.0",
+  "silver_schema_version": "0.2.0",
+  "id": "ngpc-kofr2-v2.example-activation",
+  "profile_revision": 1,
+  "applies_to": {
+    "game_id": "ngpc-kofr2",
+    "platform": "neogeo_pocket_color",
+    "region": "world",
+    "rom_ids": [
+      "kofr2",
+      "kofr2d",
+      "kofr2d2"
+    ],
+    "notation_frame": "player_relative"
+  },
+  "attribution": {
+    "primary_source": {
+      "name": "strategywiki-kofr2-moves",
+      "url": "https://strategywiki.org/wiki/King_of_Fighters_R-2/Moves",
+      "version": "2024-10-11",
+      "license": "CC BY-SA 4.0",
+      "notes": "CC-BY-SA 4.0. Attribution: StrategyWiki contributors. Sole factual source for the 289 moves."
+    },
+    "additional_sources": [
+      {
+        "name": "snk-wiki-kofr2",
+        "url": "https://snk.fandom.com/wiki/King_of_Fighters_R-2",
+        "role": "context_only",
+        "notes": "Used for character roster confirmation only. No move data extracted."
+      },
+      {
+        "name": "mame-ngpc",
+        "url": null,
+        "role": "metadata",
+        "notes": "Platform / release metadata only. No move data extracted."
+      }
+    ],
+    "display_text": "Move data from strategywiki-kofr2-moves (https://strategywiki.org/wiki/King_of_Fighters_R-2/Moves). Licensed under CC BY-SA 4.0. CC-BY-SA 4.0. Attribution: StrategyWiki contributors. Sole factual source for the 289 moves."
+  },
+  "buttons": [
+    {
+      "symbol": "A",
+      "label": "Weak Punch (soft press A button)"
+    },
+    {
+      "symbol": "B",
+      "label": "Weak Kick (soft press B button)"
+    },
+    {
+      "symbol": "C",
+      "label": "Strong Punch (hard press A button)"
+    },
+    {
+      "symbol": "D",
+      "label": "Strong Kick (hard press B button)"
+    }
+  ],
+  "button_groups": [
+    {
+      "symbol": "P",
+      "label": "Any Punch",
+      "members": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "symbol": "K",
+      "label": "Any Kick",
+      "members": [
+        "B",
+        "D"
+      ]
+    }
+  ],
+  "generated_at": "2026-07-29T00:00:00Z",
+  "characters": [
+    {
+      "id": "ngpc-kofr2-kyo",
+      "name": "Kyo Kusanagi"
+    }
+  ],
+  "moves": [
+    {
+      "id": "ngpc-kofr2-kyo-spc-nue-tumi",
+      "name": "910 Shiki: Nue Tumi",
+      "category": "special",
+      "character_id": "ngpc-kofr2-kyo",
+      "source_raw": "{{cade|Qcb}}{{plus}}{{cade|Punch}}",
+      "source_dialect": "strategywiki-mediawiki-template",
+      "activation": {
+        "kind": "by_player_input"
+      },
+      "input_expressions": [
+        {
+          "parse_status": "parsed",
+          "expression": {
+            "kind": "sequence",
+            "steps": [
+              {
+                "kind": "motion",
+                "shape": "quarter_circle_back"
+              },
+              {
+                "kind": "button",
+                "symbol": "P"
+              }
+            ]
+          }
+        }
+      ],
+      "follow_ups": [
+        {
+          "move_id": "ngpc-kofr2-kyo-spc-arashin",
+          "relation": "follow_up"
+        },
+        {
+          "move_id": "ngpc-kofr2-kyo-spc-migiri-ugachi-low",
+          "relation": "follow_up"
+        }
+      ]
+    },
+    {
+      "id": "ngpc-kofr2-kyo-dm-mu-shiki",
+      "name": "Saishuu Kessen Ougi \"Mu Shiki\"",
+      "category": "desperation",
+      "character_id": "ngpc-kofr2-kyo",
+      "source_raw": "{{cade|Qcf}}{{cade|Qcf}}{{plus}}{{cade|Punch}}",
+      "source_dialect": "strategywiki-mediawiki-template",
+      "activation": {
+        "kind": "by_player_input"
+      },
+      "input_expressions": [
+        {
+          "parse_status": "parsed",
+          "expression": {
+            "kind": "sequence",
+            "steps": [
+              {
+                "kind": "motion",
+                "shape": "double_quarter_circle_forward"
+              },
+              {
+                "kind": "button",
+                "symbol": "P"
+              }
+            ]
+          }
+        }
+      ],
+      "follow_ups": [
+        {
+          "move_id": "ngpc-kofr2-kyo-dm-desperation-taunt",
+          "relation": "follow_up"
+        }
+      ]
+    },
+    {
+      "id": "ngpc-kofr2-kyo-spc-arashin",
+      "name": "Arashin",
+      "category": "special",
+      "character_id": "ngpc-kofr2-kyo",
+      "source_raw": "(Mid Hit — automatic)",
+      "source_dialect": "strategywiki-mediawiki-template",
+      "activation": {
+        "kind": "automatic_after_move",
+        "trigger": {
+          "kind": "on_mid_hit",
+          "description": "(Mid Hit — automatic)",
+          "parent_move_id": "ngpc-kofr2-kyo-spc-nue-tumi"
+        }
+      }
+    },
+    {
+      "id": "ngpc-kofr2-kyo-spc-migiri-ugachi-low",
+      "name": "Ge-Shiki: Migiri Ugachi (low)",
+      "category": "special",
+      "character_id": "ngpc-kofr2-kyo",
+      "source_raw": "(Low Hit — automatic)",
+      "source_dialect": "strategywiki-mediawiki-template",
+      "activation": {
+        "kind": "automatic_after_move",
+        "trigger": {
+          "kind": "on_low_hit",
+          "description": "(Low Hit — automatic)",
+          "parent_move_id": "ngpc-kofr2-kyo-spc-nue-tumi"
+        }
+      }
+    },
+    {
+      "id": "ngpc-kofr2-kyo-dm-desperation-taunt",
+      "name": "Desperation Taunt",
+      "category": "desperation",
+      "character_id": "ngpc-kofr2-kyo",
+      "source_raw": "{{cade|Tap}}{{cade|Punch}} (after any DM/SDM — automatic on activation)",
+      "source_dialect": "strategywiki-mediawiki-template",
+      "activation": {
+        "kind": "automatic_after_move",
+        "trigger": {
+          "kind": "on_activation",
+          "description": "{{cade|Tap}}{{cade|Punch}} (after any DM/SDM — automatic on activation)",
+          "parent_move_id": "ngpc-kofr2-kyo-dm-mu-shiki"
+        }
+      }
+    }
+  ]
+}

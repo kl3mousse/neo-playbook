@@ -1,0 +1,574 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://combofox.dev/schemas/gold/moves-profile/v1.0.0/profile.schema.json",
+  "title": "ComboFox Gold Moves Profile v1.0.0",
+  "description": "Runtime-facing projection of a Silver Moves Profile. Consumer contract — kept semantically stable across Silver revisions of the same minor version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gold_schema_version",
+    "silver_schema_version",
+    "id",
+    "profile_revision",
+    "applies_to",
+    "attribution",
+    "buttons",
+    "characters",
+    "moves"
+  ],
+  "properties": {
+    "gold_schema_version": { "type": "string", "const": "1.0.0" },
+    "silver_schema_version": { "type": "string" },
+    "id": { "$ref": "#/$defs/identifier" },
+    "profile_revision": { "type": "integer", "minimum": 0 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "applies_to": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "notation_frame"],
+      "properties": {
+        "game_id": { "type": ["string", "null"] },
+        "platform": { "type": "string" },
+        "region": { "type": ["string", "null"] },
+        "rom_ids": { "type": "array", "items": { "type": "string" } },
+        "notation_frame": {
+          "description": "Directional relativity policy for the whole profile. Consumers MUST honour this when rendering directions.",
+          "enum": ["player_relative", "stick_absolute", "mixed_explicit"]
+        }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_source", "display_text"],
+      "properties": {
+        "primary_source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "url": { "type": ["string", "null"] },
+            "version": { "type": ["string", "null"] },
+            "license": { "type": ["string", "null"] },
+            "notes": { "type": ["string", "null"] }
+          }
+        },
+        "additional_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "role"],
+            "properties": {
+              "name": { "type": "string" },
+              "url": { "type": ["string", "null"] },
+              "role": {
+                "enum": ["secondary_facts", "context_only", "metadata"]
+              },
+              "notes": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "display_text": {
+          "description": "Human-readable attribution string, pre-formatted for display in UI credits. Consumers MUST render this verbatim.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "buttons": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/button" }
+    },
+    "button_groups": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/button_group" }
+    },
+    "characters": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/character" }
+    },
+    "moves": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/move" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "button": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbol", "label"],
+      "properties": {
+        "symbol": { "type": "string", "minLength": 1, "maxLength": 12 },
+        "label": { "type": "string" }
+      }
+    },
+    "button_group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbol", "label", "members"],
+      "properties": {
+        "symbol": { "type": "string", "minLength": 1, "maxLength": 12 },
+        "label": { "type": "string" },
+        "members": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "name": { "type": "string" }
+      }
+    },
+    "move": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "category", "activation"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "character_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/identifier" },
+            { "type": "null" }
+          ]
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "aliases": { "type": "array", "items": { "type": "string" } },
+        "category": {
+          "enum": [
+            "normal",
+            "command_normal",
+            "throw",
+            "special",
+            "super",
+            "desperation",
+            "super_desperation",
+            "climax",
+            "movement",
+            "system",
+            "cheat",
+            "info",
+            "unknown"
+          ]
+        },
+        "gauge": { "type": ["string", "null"] },
+        "source_raw": {
+          "description": "Verbatim source notation for this move (from the primary source). Kept as fallback for rendering when parsing is partial or unparsed, and for traceability.",
+          "type": ["string", "null"]
+        },
+        "source_dialect": {
+          "description": "Identifier of the dialect used by source_raw (e.g. strategywiki-mediawiki-template, combofox_relative, numpad).",
+          "type": ["string", "null"]
+        },
+        "activation": { "$ref": "#/$defs/activation" },
+        "input_expressions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/input_expression_wrapper" }
+        },
+        "annotations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/annotation" }
+        },
+        "follow_ups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["move_id"],
+            "properties": {
+              "move_id": { "$ref": "#/$defs/identifier" },
+              "relation": {
+                "enum": ["cancel", "chain", "follow_up", "variant", "extension"]
+              }
+            }
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "required": ["input_expressions"],
+          "properties": { "input_expressions": { "minItems": 1 } }
+        },
+        {
+          "properties": {
+            "activation": {
+              "properties": {
+                "kind": {
+                  "enum": ["automatic_after_move", "contextual_trigger", "unknown"]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "input_expression_wrapper": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parse_status"],
+      "properties": {
+        "parse_status": {
+          "description": "Rolled-up parse status. If any node in the subtree is 'partial' or 'fallback', this MUST be at least 'partial'.",
+          "enum": ["parsed", "partial", "unparsed"]
+        },
+        "expression": { "$ref": "#/$defs/expression" },
+        "source_raw": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "parse_status": { "const": "parsed" } } },
+          "then": { "required": ["expression"] }
+        },
+        {
+          "if": { "properties": { "parse_status": { "const": "partial" } } },
+          "then": { "required": ["expression", "source_raw"] }
+        },
+        {
+          "if": { "properties": { "parse_status": { "const": "unparsed" } } },
+          "then": {
+            "required": ["source_raw"],
+            "not": { "required": ["expression"] }
+          }
+        }
+      ]
+    },
+    "activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "by_player_input",
+            "automatic_after_move",
+            "contextual_trigger",
+            "unknown"
+          ]
+        },
+        "trigger": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "enum": [
+                "on_hit",
+                "on_mid_hit",
+                "on_low_hit",
+                "on_high_hit",
+                "on_wall_hit",
+                "on_counter_hit",
+                "on_block",
+                "on_landing",
+                "on_wakeup",
+                "on_activation",
+                "near_wall",
+                "custom"
+              ]
+            },
+            "description": { "type": ["string", "null"] },
+            "parent_move_id": { "type": ["string", "null"] }
+          }
+        },
+        "description": { "type": ["string", "null"] }
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "hit_property",
+            "damage_modifier",
+            "stock_cost",
+            "guard_property",
+            "positioning",
+            "custom"
+          ]
+        },
+        "value": {},
+        "description": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "hit_property" } } },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "high", "mid", "low", "overhead",
+                  "reverse_high", "reverse_mid", "reverse_low",
+                  "unblockable", "throw", "counter_hit_only", "air_only"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "guard_property" } } },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": ["high", "mid", "low", "unblockable", "throw"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "expression": {
+      "oneOf": [
+        { "$ref": "#/$defs/expr_sequence" },
+        { "$ref": "#/$defs/expr_alternative" },
+        { "$ref": "#/$defs/expr_simultaneous" },
+        { "$ref": "#/$defs/expr_button" },
+        { "$ref": "#/$defs/expr_direction" },
+        { "$ref": "#/$defs/expr_motion" },
+        { "$ref": "#/$defs/expr_neutral" },
+        { "$ref": "#/$defs/expr_charge" },
+        { "$ref": "#/$defs/expr_hold" },
+        { "$ref": "#/$defs/expr_release" },
+        { "$ref": "#/$defs/expr_repeat" },
+        { "$ref": "#/$defs/expr_contextual" },
+        { "$ref": "#/$defs/expr_optional" },
+        { "$ref": "#/$defs/expr_fallback" }
+      ]
+    },
+    "parse_status_local": {
+      "enum": ["parsed", "partial"]
+    },
+    "expr_sequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "steps"],
+      "properties": {
+        "kind": { "const": "sequence" },
+        "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/expression" } },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_alternative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "options"],
+      "properties": {
+        "kind": { "const": "alternative" },
+        "options": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/expression" } },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_simultaneous": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "inputs"],
+      "properties": {
+        "kind": { "const": "simultaneous" },
+        "inputs": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/expression" } },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_button": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "symbol"],
+      "properties": {
+        "kind": { "const": "button" },
+        "symbol": { "type": "string", "minLength": 1 },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_direction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "direction"],
+      "properties": {
+        "kind": { "const": "direction" },
+        "direction": {
+          "enum": [
+            "neutral", "forward", "back", "up", "down",
+            "up_forward", "up_back", "down_forward", "down_back", "any"
+          ]
+        },
+        "relative": { "type": "boolean" },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_motion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "shape"],
+      "properties": {
+        "kind": { "const": "motion" },
+        "shape": {
+          "enum": [
+            "quarter_circle_forward", "quarter_circle_back",
+            "half_circle_forward", "half_circle_back",
+            "dragon_punch_forward", "dragon_punch_back",
+            "reverse_dragon_punch_forward", "reverse_dragon_punch_back",
+            "full_circle",
+            "double_quarter_circle_forward", "double_quarter_circle_back",
+            "pretzel_forward", "pretzel_back"
+          ]
+        },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_neutral": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "const": "neutral" },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_charge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "charge_direction", "then"],
+      "properties": {
+        "kind": { "const": "charge" },
+        "charge_direction": { "enum": ["back", "down", "down_back", "forward", "down_forward"] },
+        "duration_ms": { "type": ["integer", "null"], "minimum": 0 },
+        "then": { "$ref": "#/$defs/expression" },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_hold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "input"],
+      "properties": {
+        "kind": { "const": "hold" },
+        "input": { "$ref": "#/$defs/expression" },
+        "duration_ms": { "type": ["integer", "null"], "minimum": 0 },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "input"],
+      "properties": {
+        "kind": { "const": "release" },
+        "input": { "$ref": "#/$defs/expression" },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_repeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "input"],
+      "properties": {
+        "kind": { "const": "repeat" },
+        "input": { "$ref": "#/$defs/expression" },
+        "count": { "type": ["integer", "null"], "minimum": 2 },
+        "mash": { "type": "boolean" },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_contextual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "requirements", "input"],
+      "properties": {
+        "kind": { "const": "contextual" },
+        "requirements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/requirement" } },
+        "input": { "$ref": "#/$defs/expression" },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_optional": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "input"],
+      "properties": {
+        "kind": { "const": "optional" },
+        "input": { "$ref": "#/$defs/expression" },
+        "parse_status": { "$ref": "#/$defs/parse_status_local" }
+      }
+    },
+    "expr_fallback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source_raw"],
+      "properties": {
+        "kind": { "const": "fallback" },
+        "source_raw": { "type": "string", "minLength": 1 }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["state", "spatial", "phase", "stance", "custom"] },
+        "value": { "type": ["string", "null"] },
+        "description": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "state" } } },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "airborne", "grounded", "on_landing",
+                  "while_running", "while_walking", "while_dashing", "while_crouching"
+                ]
+              }
+            },
+            "required": ["value"]
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "spatial" } } },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "near_opponent", "far_from_opponent",
+                  "in_corner", "against_wall", "near_wall", "midscreen"
+                ]
+              }
+            },
+            "required": ["value"]
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "phase" } } },
+          "then": {
+            "properties": {
+              "value": { "enum": ["on_wakeup", "on_block", "on_hit", "when_thrown"] }
+            },
+            "required": ["value"]
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "stance" } } },
+          "then": {
+            "properties": { "value": { "type": "string", "minLength": 1 } },
+            "required": ["value"]
+          }
+        }
+      ]
+    }
+  }
+}
