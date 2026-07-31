@@ -1111,6 +1111,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{source} — {license}'**
   String labProvenanceComposedCredit(String source, String license);
+
+  /// No description provided for @goldMoveListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move List'**
+  String get goldMoveListTitle;
+
+  /// No description provided for @goldProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold profile'**
+  String get goldProfileLabel;
+
+  /// No description provided for @goldCharactersMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'{characters} characters · {moves} moves'**
+  String goldCharactersMoves(int characters, int moves);
+
+  /// No description provided for @goldSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by move, alias or character'**
+  String get goldSearchHint;
+
+  /// No description provided for @goldNotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Notation'**
+  String get goldNotation;
+
+  /// No description provided for @goldDensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Density'**
+  String get goldDensity;
+
+  /// No description provided for @goldPictograms.
+  ///
+  /// In en, this message translates to:
+  /// **'ComboFox pictograms'**
+  String get goldPictograms;
+
+  /// No description provided for @goldNumpad.
+  ///
+  /// In en, this message translates to:
+  /// **'Numpad'**
+  String get goldNumpad;
+
+  /// No description provided for @goldClassic2d.
+  ///
+  /// In en, this message translates to:
+  /// **'2D classic'**
+  String get goldClassic2d;
+
+  /// No description provided for @goldAccessible.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessible text'**
+  String get goldAccessible;
+
+  /// No description provided for @goldCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get goldCompact;
+
+  /// No description provided for @goldComfortable.
+  ///
+  /// In en, this message translates to:
+  /// **'Comfortable'**
+  String get goldComfortable;
+
+  /// No description provided for @goldLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading move list…'**
+  String get goldLoading;
+
+  /// No description provided for @goldLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this move list.'**
+  String get goldLoadError;
+
+  /// No description provided for @goldRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get goldRetry;
+
+  /// No description provided for @goldNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No moves found.'**
+  String get goldNoResults;
+
+  /// No description provided for @goldMovesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} moves'**
+  String goldMovesCount(int count);
+
+  /// No description provided for @goldBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark character'**
+  String get goldBookmark;
+
+  /// No description provided for @goldRemoveBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get goldRemoveBookmark;
+
+  /// No description provided for @goldSignInBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to bookmark characters'**
+  String get goldSignInBookmark;
+
+  /// No description provided for @goldSourcesAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources & attribution'**
+  String get goldSourcesAttribution;
+
+  /// No description provided for @goldOpenSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source'**
+  String get goldOpenSource;
+
+  /// No description provided for @goldAttributionText.
+  ///
+  /// In en, this message translates to:
+  /// **'Attribution text'**
+  String get goldAttributionText;
+
+  /// No description provided for @goldCharacterMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This character is no longer available in the move list.'**
+  String get goldCharacterMissing;
 }
 
 class _AppLocalizationsDelegate

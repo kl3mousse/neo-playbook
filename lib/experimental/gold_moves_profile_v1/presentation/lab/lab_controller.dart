@@ -2,19 +2,20 @@ import 'package:flutter/foundation.dart';
 
 import '../../domain/move.dart';
 import '../../domain/profile.dart';
+import '../gold_rendering_options.dart';
 
 /// Notation displayed in the Lab move card and in the move list.
-enum LabNotation { pictograms, numpad, classic2d, accessible }
+typedef LabNotation = GoldNotation;
 
 /// Language used by the accessible text renderer inside the Lab.
-enum LabAccessibleLocale { en, fr }
+typedef LabAccessibleLocale = GoldAccessibleLocale;
 
 /// Global theme brightness override for the Lab (does not modify the
 /// user's global preferences).
 enum LabThemeMode { dark, light, system }
 
 /// Vertical density for the move list.
-enum LabDensity { comfortable, compact }
+typedef LabDensity = GoldDensity;
 
 /// Discrete simulated text-scale values available in the Lab.
 enum LabTextScale { s100, s130, s160, s200 }

@@ -541,4 +541,82 @@ class AppLocalizationsFr extends AppLocalizations {
   String labProvenanceComposedCredit(String source, String license) {
     return '$source — $license';
   }
+
+  @override
+  String get goldMoveListTitle => 'Liste des coups';
+
+  @override
+  String get goldProfileLabel => 'Profil Gold';
+
+  @override
+  String goldCharactersMoves(int characters, int moves) {
+    return '$characters personnages · $moves moves';
+  }
+
+  @override
+  String get goldSearchHint => 'Rechercher par move, alias ou personnage';
+
+  @override
+  String get goldNotation => 'Notation';
+
+  @override
+  String get goldDensity => 'Densité';
+
+  @override
+  String get goldPictograms => 'Pictogrammes ComboFox';
+
+  @override
+  String get goldNumpad => 'Numpad';
+
+  @override
+  String get goldClassic2d => '2D classique';
+
+  @override
+  String get goldAccessible => 'Texte accessible';
+
+  @override
+  String get goldCompact => 'Compacte';
+
+  @override
+  String get goldComfortable => 'Confortable';
+
+  @override
+  String get goldLoading => 'Chargement de la liste des coups…';
+
+  @override
+  String get goldLoadError => 'Impossible de charger cette liste de coups.';
+
+  @override
+  String get goldRetry => 'Réessayer';
+
+  @override
+  String get goldNoResults => 'Aucun move trouvé.';
+
+  @override
+  String goldMovesCount(int count) {
+    return '$count moves';
+  }
+
+  @override
+  String get goldBookmark => 'Ajouter le personnage aux favoris';
+
+  @override
+  String get goldRemoveBookmark => 'Retirer le personnage des favoris';
+
+  @override
+  String get goldSignInBookmark =>
+      'Connectez-vous pour ajouter des personnages aux favoris';
+
+  @override
+  String get goldSourcesAttribution => 'Sources et attribution';
+
+  @override
+  String get goldOpenSource => 'Ouvrir la source';
+
+  @override
+  String get goldAttributionText => 'Texte d’attribution';
+
+  @override
+  String get goldCharacterMissing =>
+      'Ce personnage n’est plus disponible dans la liste des coups.';
 }

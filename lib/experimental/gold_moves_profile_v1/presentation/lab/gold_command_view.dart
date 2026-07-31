@@ -7,7 +7,7 @@ import '../../domain/expression.dart';
 import '../../domain/move.dart';
 import '../../rendering/renderers/accessible_en_renderer.dart';
 import '../../rendering/renderers/accessible_fr_renderer.dart';
-import 'lab_controller.dart';
+import '../gold_rendering_options.dart';
 import 'lab_localization.dart';
 
 /// Compact, group-preserving pictogram renderer for a [MoveGold]
@@ -25,7 +25,7 @@ import 'lab_localization.dart';
 class GoldCommandView extends StatelessWidget {
   final MoveGold move;
   final ButtonCatalog buttons;
-  final LabAccessibleLocale locale;
+  final GoldAccessibleLocale locale;
   final bool mirrorForFacingLeft;
 
   const GoldCommandView({
@@ -77,7 +77,7 @@ class GoldCommandView extends StatelessWidget {
   }
 
   String _accessibleSentence() {
-    return (locale == LabAccessibleLocale.en
+    return (locale == GoldAccessibleLocale.en
             ? AccessibleEnRenderer().render(move)
             : AccessibleFrRenderer().render(move)) ??
         '';

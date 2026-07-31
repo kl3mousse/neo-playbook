@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/move_list.dart';
+import '../experimental/gold_moves_profile_v1/domain/profile.dart';
+import '../l10n/generated/app_localizations.dart';
+import '../services/bundled_gold_profile_resolver.dart';
 import '../services/firestore_service.dart';
+import '../widgets/gold_move_list_view.dart';
 import '../widgets/move_list_widget.dart';
 
 /// Dedicated screen for viewing a single character's move list.
@@ -55,57 +59,140 @@ class CharacterMovesScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: FutureBuilder<CommandData?>(
-        future: FirestoreService.getCommandData([romName]),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: _isGoldFavorite
+          ? _GoldCharacterMovesBody(
+              gameId: gameId,
+              gameTitle: gameTitle,
+              romName: romName,
+              sectionTitle: sectionTitle,
+            )
+          : FutureBuilder<CommandData?>(
+              future: FirestoreService.getCommandData([romName]),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          final commandData = snapshot.data;
-          if (commandData == null) {
-            return const Center(child: Text('Move list not found'));
-          }
+                final commandData = snapshot.data;
+                if (commandData == null) {
+                  return const Center(child: Text('Move list not found'));
+                }
 
-          final commonSections = commandData.sections
-              .where((s) => s.sectionType != 'other')
-              .toList();
-          final targetSection = commandData.sections
-              .where((s) => s.sectionType == 'other' && s.title == sectionTitle)
-              .toList();
+                final commonSections = commandData.sections
+                    .where((s) => s.sectionType != 'other')
+                    .toList();
+                final targetSection = commandData.sections
+                    .where(
+                      (s) =>
+                          s.sectionType == 'other' && s.title == sectionTitle,
+                    )
+                    .toList();
 
-          if (targetSection.isEmpty) {
-            return const Center(
-              child: Text('Character not found in move list'),
-            );
-          }
+                if (targetSection.isEmpty) {
+                  return const Center(
+                    child: Text('Character not found in move list'),
+                  );
+                }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Common sections (collapsed)
+                      for (final s in commonSections) SectionBlock(section: s),
+
+                      const SizedBox(height: 8),
+
+                      // Target character section (expanded)
+                      SectionBlock(
+                        section: targetSection.first,
+                        gameId: gameId,
+                        gameTitle: gameTitle,
+                        romName: commandData.id,
+                        initiallyExpanded: true,
+                      ),
+
+                      const SizedBox(height: 8),
+                      const MoveLegend(),
+                    ],
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
+  bool get _isGoldFavorite => const BundledGoldProfileResolver().supports(
+    gameId: gameId,
+    romIds: [romName],
+  );
+}
+
+class _GoldCharacterMovesBody extends StatefulWidget {
+  final String gameId;
+  final String gameTitle;
+  final String romName;
+  final String sectionTitle;
+
+  const _GoldCharacterMovesBody({
+    required this.gameId,
+    required this.gameTitle,
+    required this.romName,
+    required this.sectionTitle,
+  });
+
+  @override
+  State<_GoldCharacterMovesBody> createState() =>
+      _GoldCharacterMovesBodyState();
+}
+
+class _GoldCharacterMovesBodyState extends State<_GoldCharacterMovesBody> {
+  static const _resolver = BundledGoldProfileResolver();
+  late Future<ProfileGold?> _profile;
+
+  @override
+  void initState() {
+    super.initState();
+    _profile = _load();
+  }
+
+  Future<ProfileGold?> _load() =>
+      _resolver.resolve(gameId: widget.gameId, romIds: [widget.romName]);
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return FutureBuilder<ProfileGold?>(
+      future: _profile,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || snapshot.data == null) {
+          return Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Common sections (collapsed)
-                for (final s in commonSections) SectionBlock(section: s),
-
-                const SizedBox(height: 8),
-
-                // Target character section (expanded)
-                SectionBlock(
-                  section: targetSection.first,
-                  gameId: gameId,
-                  gameTitle: gameTitle,
-                  romName: commandData.id,
-                  initiallyExpanded: true,
+                Text(l.goldLoadError),
+                TextButton(
+                  onPressed: () => setState(() => _profile = _load()),
+                  child: Text(l.goldRetry),
                 ),
-
-                const SizedBox(height: 8),
-                const MoveLegend(),
               ],
             ),
           );
-        },
-      ),
+        }
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: GoldMoveListView(
+            profile: snapshot.data!,
+            gameId: widget.gameId,
+            gameTitle: widget.gameTitle,
+            onlyCharacterName: widget.sectionTitle,
+          ),
+        );
+      },
     );
   }
 }

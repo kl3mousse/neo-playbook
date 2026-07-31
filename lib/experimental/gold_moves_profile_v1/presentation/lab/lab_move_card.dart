@@ -13,6 +13,7 @@ import '../../rendering/renderers/accessible_fr_renderer.dart';
 import '../../rendering/renderers/activation_hint_renderer.dart';
 import '../../rendering/renderers/classic_2d_renderer.dart';
 import '../../rendering/renderers/numpad_renderer.dart';
+import '../gold_rendering_options.dart';
 import 'gold_command_view.dart';
 import 'lab_controller.dart';
 import 'lab_localization.dart';
@@ -27,14 +28,15 @@ import 'lab_localization.dart';
 /// padding: Compact drops requirements chips, annotations,
 /// follow-ups, and the character-name row so a whole card fits in a
 /// single visual line on a narrow phone.
-class LabMoveCard extends StatelessWidget {
+class GoldProfileMoveCard extends StatelessWidget {
   final MoveGold move;
   final CharacterSpec? character;
   final ButtonCatalog buttons;
-  final LabNotation notation;
-  final LabAccessibleLocale locale;
-  final LabDensity density;
+  final GoldNotation notation;
+  final GoldAccessibleLocale locale;
+  final GoldDensity density;
   final VoidCallback? onParentMoveTap;
+  final String? automaticParentName;
   final VoidCallback? onTap;
   final bool selected;
 
@@ -44,15 +46,16 @@ class LabMoveCard extends StatelessWidget {
   /// settings sheet can flip this on for auditing.
   final bool showTechnicalDetails;
 
-  const LabMoveCard({
+  const GoldProfileMoveCard({
     super.key,
     required this.move,
     required this.buttons,
     required this.notation,
     required this.locale,
-    this.density = LabDensity.comfortable,
+    this.density = GoldDensity.comfortable,
     this.character,
     this.onParentMoveTap,
+    this.automaticParentName,
     this.onTap,
     this.selected = false,
     this.showTechnicalDetails = false,
@@ -63,7 +66,7 @@ class LabMoveCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final isAuto = move.activation.kind == ActivationKind.automaticAfterMove;
     final accent = _categoryColor(move.category);
-    final isCompact = density == LabDensity.compact;
+    final isCompact = density == GoldDensity.compact;
     final pad = isCompact ? const EdgeInsets.all(6) : const EdgeInsets.all(12);
 
     return ArcadePanel(
@@ -252,24 +255,46 @@ class LabMoveCard extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 4),
+            Text(
+              l.commandNoInputNeeded,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: isCompact ? 11 : 12,
+              ),
+            ),
             if (!isCompact) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
                 hint,
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              ),
-              if (parentId.isNotEmpty && onParentMoveTap != null) ...[
-                const SizedBox(height: 6),
-                TextButton.icon(
-                  onPressed: onParentMoveTap,
-                  icon: const Icon(Icons.arrow_upward, size: 16),
-                  label: Text(l.labAutomaticJumpToParent),
-                  style: TextButton.styleFrom(
-                    minimumSize: const Size(0, 32),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
                 ),
-              ],
+              ),
+            ],
+            if (automaticParentName != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                l.labAutomaticFollowUpOf(automaticParentName!),
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: isCompact ? 11 : 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+            if (parentId.isNotEmpty && onParentMoveTap != null) ...[
+              const SizedBox(height: 4),
+              TextButton.icon(
+                onPressed: onParentMoveTap,
+                icon: Icon(Icons.arrow_upward, size: isCompact ? 14 : 16),
+                label: Text(l.labAutomaticJumpToParent),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(0, 28),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              ),
             ],
           ],
         ),
@@ -279,7 +304,7 @@ class LabMoveCard extends StatelessWidget {
 
   String _accessibleHint(AppLocalizations l) {
     final ah = ActivationHintRenderer();
-    final raw = locale == LabAccessibleLocale.en
+    final raw = locale == GoldAccessibleLocale.en
         ? ah.renderEn(move)
         : ah.renderFr(move);
     return raw ?? l.labAutomaticExplanation;
@@ -290,28 +315,28 @@ class LabMoveCard extends StatelessWidget {
   /// (mission §6).
   Widget _inputSection(BuildContext context, AppLocalizations l) {
     switch (notation) {
-      case LabNotation.pictograms:
+      case GoldNotation.pictograms:
         return GoldCommandView(move: move, buttons: buttons, locale: locale);
-      case LabNotation.numpad:
+      case GoldNotation.numpad:
         final t = NumpadRenderer().render(move);
         return _textBlock(
           t == null || t.isEmpty ? '—' : t,
           _accessibleSentence(),
         );
-      case LabNotation.classic2d:
+      case GoldNotation.classic2d:
         final t = Classic2dRenderer().render(move);
         return _textBlock(
           t == null || t.isEmpty ? '—' : t,
           _accessibleSentence(),
         );
-      case LabNotation.accessible:
+      case GoldNotation.accessible:
         final t = _accessibleSentence();
         return _textBlock(t.isEmpty ? '—' : t, t, monospace: false);
     }
   }
 
   String _accessibleSentence() {
-    return (locale == LabAccessibleLocale.en
+    return (locale == GoldAccessibleLocale.en
             ? AccessibleEnRenderer().render(move)
             : AccessibleFrRenderer().render(move)) ??
         '';
@@ -565,3 +590,7 @@ class _AutoBadge extends StatelessWidget {
     );
   }
 }
+
+/// Compatibility name retained for the validation UI while the renderer is
+/// now also used by the production move-list screen.
+typedef LabMoveCard = GoldProfileMoveCard;

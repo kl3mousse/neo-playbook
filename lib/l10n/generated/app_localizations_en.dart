@@ -541,4 +541,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String labProvenanceComposedCredit(String source, String license) {
     return '$source — $license';
   }
+
+  @override
+  String get goldMoveListTitle => 'Move List';
+
+  @override
+  String get goldProfileLabel => 'Gold profile';
+
+  @override
+  String goldCharactersMoves(int characters, int moves) {
+    return '$characters characters · $moves moves';
+  }
+
+  @override
+  String get goldSearchHint => 'Search by move, alias or character';
+
+  @override
+  String get goldNotation => 'Notation';
+
+  @override
+  String get goldDensity => 'Density';
+
+  @override
+  String get goldPictograms => 'ComboFox pictograms';
+
+  @override
+  String get goldNumpad => 'Numpad';
+
+  @override
+  String get goldClassic2d => '2D classic';
+
+  @override
+  String get goldAccessible => 'Accessible text';
+
+  @override
+  String get goldCompact => 'Compact';
+
+  @override
+  String get goldComfortable => 'Comfortable';
+
+  @override
+  String get goldLoading => 'Loading move list…';
+
+  @override
+  String get goldLoadError => 'Could not load this move list.';
+
+  @override
+  String get goldRetry => 'Retry';
+
+  @override
+  String get goldNoResults => 'No moves found.';
+
+  @override
+  String goldMovesCount(int count) {
+    return '$count moves';
+  }
+
+  @override
+  String get goldBookmark => 'Bookmark character';
+
+  @override
+  String get goldRemoveBookmark => 'Remove bookmark';
+
+  @override
+  String get goldSignInBookmark => 'Sign in to bookmark characters';
+
+  @override
+  String get goldSourcesAttribution => 'Sources & attribution';
+
+  @override
+  String get goldOpenSource => 'Open source';
+
+  @override
+  String get goldAttributionText => 'Attribution text';
+
+  @override
+  String get goldCharacterMissing =>
+      'This character is no longer available in the move list.';
 }

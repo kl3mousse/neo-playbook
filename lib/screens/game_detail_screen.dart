@@ -5,6 +5,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../experimental/gold_moves_profile_v1/domain/profile.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../main.dart' show selectedTabIndex;
 import '../models/game.dart';
 import '../models/move_list.dart';
@@ -22,7 +24,9 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/notes_service.dart';
 import '../services/scores_service.dart';
+import '../services/bundled_gold_profile_resolver.dart';
 import '../widgets/move_list_widget.dart';
+import '../widgets/gold_move_list_view.dart';
 import '../widgets/dip_settings_widget.dart';
 import '../widgets/add_note_sheet.dart';
 import '../widgets/submit_score_sheet.dart';
@@ -127,7 +131,11 @@ class GameDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Move List
-                  if (game.features.hasMoveLists && game.roms.isNotEmpty)
+                  if ((game.features.hasMoveLists && game.roms.isNotEmpty) ||
+                      const BundledGoldProfileResolver().supports(
+                        gameId: game.id,
+                        romIds: game.roms.map((rom) => rom.romName),
+                      ))
                     ArcadePanel(
                       isActive: true,
                       padding: EdgeInsets.zero,
@@ -1110,8 +1118,8 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-/// Async loader that fetches command data from Firestore for a game's rom names.
-class _MoveListLoader extends StatelessWidget {
+/// Selects the bundled Gold profile before the legacy Firestore move list.
+class _MoveListLoader extends StatefulWidget {
   final List<String> romNames;
   final String gameId;
   final String gameTitle;
@@ -1123,9 +1131,26 @@ class _MoveListLoader extends StatelessWidget {
   });
 
   @override
+  State<_MoveListLoader> createState() => _MoveListLoaderState();
+}
+
+class _MoveListLoaderState extends State<_MoveListLoader> {
+  static const _goldResolver = BundledGoldProfileResolver();
+  late Future<ProfileGold?> _goldProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _goldProfile = _resolveGold();
+  }
+
+  Future<ProfileGold?> _resolveGold() =>
+      _goldResolver.resolve(gameId: widget.gameId, romIds: widget.romNames);
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<CommandData?>(
-      future: FirestoreService.getCommandData(romNames),
+    return FutureBuilder<ProfileGold?>(
+      future: _goldProfile,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
@@ -1133,17 +1158,50 @@ class _MoveListLoader extends StatelessWidget {
             child: Center(child: CircularProgressIndicator()),
           );
         }
-
-        final commandData = snapshot.data;
-        if (commandData == null || commandData.sections.isEmpty) {
-          return const SizedBox.shrink();
+        if (snapshot.hasError) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(AppLocalizations.of(context).goldLoadError),
+                TextButton(
+                  onPressed: () =>
+                      setState(() => _goldProfile = _resolveGold()),
+                  child: Text(AppLocalizations.of(context).goldRetry),
+                ),
+              ],
+            ),
+          );
+        }
+        final profile = snapshot.data;
+        if (profile != null) {
+          return GoldMoveListView(
+            profile: profile,
+            gameId: widget.gameId,
+            gameTitle: widget.gameTitle,
+          );
         }
 
-        return MoveListView(
-          commandData: commandData,
-          gameId: gameId,
-          gameTitle: gameTitle,
-          romName: commandData.id,
+        return FutureBuilder<CommandData?>(
+          future: FirestoreService.getCommandData(widget.romNames),
+          builder: (context, legacy) {
+            if (legacy.connectionState == ConnectionState.waiting) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            final commandData = legacy.data;
+            if (commandData == null || commandData.sections.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return MoveListView(
+              commandData: commandData,
+              gameId: widget.gameId,
+              gameTitle: widget.gameTitle,
+              romName: commandData.id,
+            );
+          },
         );
       },
     );
