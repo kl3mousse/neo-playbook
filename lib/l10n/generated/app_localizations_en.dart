@@ -618,4 +618,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get goldCharacterMissing =>
       'This character is no longer available in the move list.';
+
+  @override
+  String get goldDisplayPreferences => 'Move-list display';
+
+  @override
+  String get goldDisplayPreferencesSubtitle => 'Notation and density';
+
+  @override
+  String get goldNotationPictogramsHelp =>
+      'Visual arrows and button symbols. Best when you want to read commands at a glance.';
+
+  @override
+  String get goldNotationNumpadHelp =>
+      'Uses keyboard directions: 2 = down, 3 = down-forward, 6 = forward. The example is 236 P.';
+
+  @override
+  String get goldNotationClassicHelp =>
+      'Uses fighting-game shorthand: QCF means quarter-circle forward. The example is QCF + P.';
+
+  @override
+  String get goldNotationAccessibleHelp =>
+      'Writes the command as a complete sentence, designed for screen readers and plain-language reading.';
+
+  @override
+  String get goldDensityHelp => 'Choose how much context appears on each move.';
+
+  @override
+  String get goldCompactHelp =>
+      'A concise layout for scanning many moves quickly.';
+
+  @override
+  String get goldComfortableHelp =>
+      'More spacing plus requirements and annotations when they are available.';
+
+  @override
+  String get goldAccessibleExample => 'Quarter-circle forward, then Punch';
 }

@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user_profile.dart';
 import '../models/user_favorite.dart';
 import '../models/fave_move_list.dart';
+import '../experimental/gold_moves_profile_v1/presentation/gold_rendering_options.dart';
 import '../models/collection_item.dart';
 import '../models/social_link.dart';
 import 'auth_service.dart';
@@ -62,6 +63,13 @@ class UserService {
     if (doc.exists) {
       final profile = UserProfile.fromFirestore(doc);
       await PrefsService.setPreferredLanguage(profile.preferredLanguage);
+      await PrefsService.setDefaultCurrency(profile.defaultCurrency);
+      await PrefsService.setGoldMoveNotation(
+        GoldNotationStorage.parse(profile.goldMoveNotation),
+      );
+      await PrefsService.setGoldMoveDensity(
+        GoldDensityStorage.parse(profile.goldMoveDensity),
+      );
       return profile;
     }
 
@@ -70,6 +78,9 @@ class UserService {
       displayName: user.displayName ?? '',
       email: user.email ?? '',
       preferredLanguage: PrefsService.getPreferredLanguage() ?? '',
+      defaultCurrency: PrefsService.getDefaultCurrency() ?? 'USD',
+      goldMoveNotation: PrefsService.getGoldMoveNotation().storageValue,
+      goldMoveDensity: PrefsService.getGoldMoveDensity().storageValue,
     );
     await _usersRef.doc(user.uid).set(profile.toFirestoreCreate());
     final created = await _usersRef.doc(user.uid).get();
@@ -120,6 +131,23 @@ class UserService {
       'default_currency': currency,
       'updated_at': FieldValue.serverTimestamp(),
     });
+  }
+
+  /// Persists Gold move-list presentation choices locally first, then mirrors
+  /// them to the signed-in user's existing profile document.
+  static Future<void> updateGoldMovePreferences({
+    required GoldNotation notation,
+    required GoldDensity density,
+  }) async {
+    await PrefsService.setGoldMoveNotation(notation);
+    await PrefsService.setGoldMoveDensity(density);
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    await _usersRef.doc(user.uid).set({
+      'gold_move_notation': notation.storageValue,
+      'gold_move_density': density.storageValue,
+      'updated_at': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   // ── Support and Feedback ─────────────────────────────────────────────

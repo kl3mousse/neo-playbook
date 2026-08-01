@@ -1255,6 +1255,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This character is no longer available in the move list.'**
   String get goldCharacterMissing;
+
+  /// No description provided for @goldDisplayPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Move-list display'**
+  String get goldDisplayPreferences;
+
+  /// No description provided for @goldDisplayPreferencesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notation and density'**
+  String get goldDisplayPreferencesSubtitle;
+
+  /// No description provided for @goldNotationPictogramsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Visual arrows and button symbols. Best when you want to read commands at a glance.'**
+  String get goldNotationPictogramsHelp;
+
+  /// No description provided for @goldNotationNumpadHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses keyboard directions: 2 = down, 3 = down-forward, 6 = forward. The example is 236 P.'**
+  String get goldNotationNumpadHelp;
+
+  /// No description provided for @goldNotationClassicHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses fighting-game shorthand: QCF means quarter-circle forward. The example is QCF + P.'**
+  String get goldNotationClassicHelp;
+
+  /// No description provided for @goldNotationAccessibleHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Writes the command as a complete sentence, designed for screen readers and plain-language reading.'**
+  String get goldNotationAccessibleHelp;
+
+  /// No description provided for @goldDensityHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how much context appears on each move.'**
+  String get goldDensityHelp;
+
+  /// No description provided for @goldCompactHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A concise layout for scanning many moves quickly.'**
+  String get goldCompactHelp;
+
+  /// No description provided for @goldComfortableHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'More spacing plus requirements and annotations when they are available.'**
+  String get goldComfortableHelp;
+
+  /// No description provided for @goldAccessibleExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarter-circle forward, then Punch'**
+  String get goldAccessibleExample;
 }
 
 class _AppLocalizationsDelegate

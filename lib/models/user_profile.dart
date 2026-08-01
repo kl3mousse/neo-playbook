@@ -11,6 +11,8 @@ class UserProfile {
   final List<SocialLink> socialLinks;
   final String preferredLanguage;
   final String defaultCurrency;
+  final String goldMoveNotation;
+  final String goldMoveDensity;
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
 
@@ -23,6 +25,8 @@ class UserProfile {
     this.socialLinks = const <SocialLink>[],
     this.preferredLanguage = '',
     this.defaultCurrency = 'USD',
+    this.goldMoveNotation = 'pictograms',
+    this.goldMoveDensity = 'compact',
     this.createdAt,
     this.updatedAt,
   });
@@ -50,6 +54,8 @@ class UserProfile {
       socialLinks: links,
       preferredLanguage: data['preferred_language'] as String? ?? '',
       defaultCurrency: data['default_currency'] as String? ?? 'USD',
+      goldMoveNotation: data['gold_move_notation'] as String? ?? 'pictograms',
+      goldMoveDensity: data['gold_move_density'] as String? ?? 'compact',
       createdAt: parseTimestamp(data['created_at']),
       updatedAt: parseTimestamp(data['updated_at']),
     );
@@ -63,6 +69,8 @@ class UserProfile {
     'social_links': socialLinks.map((l) => l.toMap()).toList(),
     'preferred_language': preferredLanguage,
     'default_currency': defaultCurrency,
+    'gold_move_notation': goldMoveNotation,
+    'gold_move_density': goldMoveDensity,
     'updated_at': FieldValue.serverTimestamp(),
   };
 
@@ -74,6 +82,8 @@ class UserProfile {
     'social_links': socialLinks.map((l) => l.toMap()).toList(),
     'preferred_language': preferredLanguage,
     'default_currency': defaultCurrency,
+    'gold_move_notation': goldMoveNotation,
+    'gold_move_density': goldMoveDensity,
     'created_at': FieldValue.serverTimestamp(),
     'updated_at': FieldValue.serverTimestamp(),
   };

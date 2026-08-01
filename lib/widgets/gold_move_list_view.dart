@@ -8,6 +8,7 @@ import '../experimental/gold_moves_profile_v1/presentation/gold_profile_move_car
 import '../experimental/gold_moves_profile_v1/presentation/gold_rendering_options.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/prefs_service.dart';
 import '../services/user_service.dart';
 import '../theme/app_theme.dart';
 import 'arcade_panel.dart';
@@ -35,11 +36,18 @@ class GoldMoveListView extends StatefulWidget {
 }
 
 class _GoldMoveListViewState extends State<GoldMoveListView> {
-  GoldNotation _notation = GoldNotation.pictograms;
-  GoldDensity _density = GoldDensity.compact;
+  late GoldNotation _notation;
+  late GoldDensity _density;
   String _query = '';
   String? _parentMoveId;
   final Set<String> _expanded = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _notation = PrefsService.getGoldMoveNotation();
+    _density = PrefsService.getGoldMoveDensity();
+  }
 
   List<CharacterSpec> get _characters {
     final requested = widget.onlyCharacterName;
@@ -274,22 +282,7 @@ class _GoldMoveListViewState extends State<GoldMoveListView> {
   Widget _optionsMenu(AppLocalizations l) {
     return PopupMenuButton<String>(
       tooltip: l.goldNotation,
-      onSelected: (value) => setState(() {
-        switch (value) {
-          case 'pictograms':
-            _notation = GoldNotation.pictograms;
-          case 'numpad':
-            _notation = GoldNotation.numpad;
-          case 'classic':
-            _notation = GoldNotation.classic2d;
-          case 'accessible':
-            _notation = GoldNotation.accessible;
-          case 'compact':
-            _density = GoldDensity.compact;
-          case 'comfortable':
-            _density = GoldDensity.comfortable;
-        }
-      }),
+      onSelected: _selectOption,
       itemBuilder: (_) => [
         PopupMenuItem(enabled: false, child: Text(l.goldNotation)),
         PopupMenuItem(value: 'pictograms', child: Text(l.goldPictograms)),
@@ -301,6 +294,29 @@ class _GoldMoveListViewState extends State<GoldMoveListView> {
         PopupMenuItem(value: 'comfortable', child: Text(l.goldComfortable)),
       ],
       icon: const Icon(Icons.tune),
+    );
+  }
+
+  Future<void> _selectOption(String value) async {
+    setState(() {
+      switch (value) {
+        case 'pictograms':
+          _notation = GoldNotation.pictograms;
+        case 'numpad':
+          _notation = GoldNotation.numpad;
+        case 'classic':
+          _notation = GoldNotation.classic2d;
+        case 'accessible':
+          _notation = GoldNotation.accessible;
+        case 'compact':
+          _density = GoldDensity.compact;
+        case 'comfortable':
+          _density = GoldDensity.comfortable;
+      }
+    });
+    await UserService.updateGoldMovePreferences(
+      notation: _notation,
+      density: _density,
     );
   }
 

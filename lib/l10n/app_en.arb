@@ -227,5 +227,15 @@
   "goldSourcesAttribution": "Sources & attribution",
   "goldOpenSource": "Open source",
   "goldAttributionText": "Attribution text",
-  "goldCharacterMissing": "This character is no longer available in the move list."
+  "goldCharacterMissing": "This character is no longer available in the move list.",
+  "goldDisplayPreferences": "Move-list display",
+  "goldDisplayPreferencesSubtitle": "Notation and density",
+  "goldNotationPictogramsHelp": "Visual arrows and button symbols. Best when you want to read commands at a glance.",
+  "goldNotationNumpadHelp": "Uses keyboard directions: 2 = down, 3 = down-forward, 6 = forward. The example is 236 P.",
+  "goldNotationClassicHelp": "Uses fighting-game shorthand: QCF means quarter-circle forward. The example is QCF + P.",
+  "goldNotationAccessibleHelp": "Writes the command as a complete sentence, designed for screen readers and plain-language reading.",
+  "goldDensityHelp": "Choose how much context appears on each move.",
+  "goldCompactHelp": "A concise layout for scanning many moves quickly.",
+  "goldComfortableHelp": "More spacing plus requirements and annotations when they are available.",
+  "goldAccessibleExample": "Quarter-circle forward, then Punch"
 }

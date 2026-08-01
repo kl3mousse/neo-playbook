@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../experimental/gold_moves_profile_v1/presentation/gold_rendering_options.dart';
+
 /// Lightweight wrapper around [SharedPreferences] for app-local state
 /// that should survive relaunches but never hit Firestore: filter/sort
 /// preferences, recent-game history, note-submit throttle, etc.
@@ -133,6 +135,23 @@ class PrefsService {
   /// for fast synchronous access.
   static Future<void> setDefaultCurrency(String currency) =>
       _p.setString(_kDefaultCurrency, currency);
+
+  // ── Gold move-list display ────────────────────────────────────────
+
+  static const _kGoldMoveNotation = 'user.goldMoveNotation';
+  static const _kGoldMoveDensity = 'user.goldMoveDensity';
+
+  static GoldNotation getGoldMoveNotation() =>
+      GoldNotationStorage.parse(_p.getString(_kGoldMoveNotation));
+
+  static GoldDensity getGoldMoveDensity() =>
+      GoldDensityStorage.parse(_p.getString(_kGoldMoveDensity));
+
+  static Future<void> setGoldMoveNotation(GoldNotation notation) =>
+      _p.setString(_kGoldMoveNotation, notation.storageValue);
+
+  static Future<void> setGoldMoveDensity(GoldDensity density) =>
+      _p.setString(_kGoldMoveDensity, density.storageValue);
 
   // ── Collection preferences ────────────────────────────────────────
 

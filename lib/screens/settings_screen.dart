@@ -9,6 +9,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/prefs_service.dart';
 import '../services/user_service.dart';
+import 'move_display_preferences_screen.dart';
 
 /// App settings: about, caches, recent history, offline status.
 class SettingsScreen extends StatefulWidget {
@@ -185,6 +186,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 await UserService.updateDefaultCurrency(picked);
                 setState(() => _defaultCurrency = picked);
               },
+            ),
+            ListTile(
+              leading: const Icon(Icons.tune),
+              title: Text(AppLocalizations.of(context).goldDisplayPreferences),
+              subtitle: Text(
+                AppLocalizations.of(context).goldDisplayPreferencesSubtitle,
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MoveDisplayPreferencesScreen(),
+                ),
+              ),
             ),
           ],
 

@@ -223,5 +223,15 @@
   "goldSourcesAttribution": "Sources et attribution",
   "goldOpenSource": "Ouvrir la source",
   "goldAttributionText": "Texte d’attribution",
-  "goldCharacterMissing": "Ce personnage n’est plus disponible dans la liste des coups."
+  "goldCharacterMissing": "Ce personnage n’est plus disponible dans la liste des coups.",
+  "goldDisplayPreferences": "Affichage des listes de coups",
+  "goldDisplayPreferencesSubtitle": "Notation et densité",
+  "goldNotationPictogramsHelp": "Des flèches et symboles de boutons visuels. Idéal pour lire une commande d’un coup d’œil.",
+  "goldNotationNumpadHelp": "Utilise les directions du pavé numérique : 2 = bas, 3 = bas-avant, 6 = avant. L’exemple est 236 P.",
+  "goldNotationClassicHelp": "Utilise les raccourcis des jeux de combat : QCF signifie quart de cercle avant. L’exemple est QCF + P.",
+  "goldNotationAccessibleHelp": "Écrit la commande sous forme de phrase complète, pensée pour les lecteurs d’écran et une lecture directe.",
+  "goldDensityHelp": "Choisis la quantité de contexte affichée sur chaque move.",
+  "goldCompactHelp": "Une mise en page concise pour parcourir rapidement beaucoup de moves.",
+  "goldComfortableHelp": "Plus d’espace, avec les conditions et annotations lorsqu’elles sont disponibles.",
+  "goldAccessibleExample": "Quart de cercle avant, puis Poing"
 }

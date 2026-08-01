@@ -619,4 +619,41 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get goldCharacterMissing =>
       'Ce personnage n’est plus disponible dans la liste des coups.';
+
+  @override
+  String get goldDisplayPreferences => 'Affichage des listes de coups';
+
+  @override
+  String get goldDisplayPreferencesSubtitle => 'Notation et densité';
+
+  @override
+  String get goldNotationPictogramsHelp =>
+      'Des flèches et symboles de boutons visuels. Idéal pour lire une commande d’un coup d’œil.';
+
+  @override
+  String get goldNotationNumpadHelp =>
+      'Utilise les directions du pavé numérique : 2 = bas, 3 = bas-avant, 6 = avant. L’exemple est 236 P.';
+
+  @override
+  String get goldNotationClassicHelp =>
+      'Utilise les raccourcis des jeux de combat : QCF signifie quart de cercle avant. L’exemple est QCF + P.';
+
+  @override
+  String get goldNotationAccessibleHelp =>
+      'Écrit la commande sous forme de phrase complète, pensée pour les lecteurs d’écran et une lecture directe.';
+
+  @override
+  String get goldDensityHelp =>
+      'Choisis la quantité de contexte affichée sur chaque move.';
+
+  @override
+  String get goldCompactHelp =>
+      'Une mise en page concise pour parcourir rapidement beaucoup de moves.';
+
+  @override
+  String get goldComfortableHelp =>
+      'Plus d’espace, avec les conditions et annotations lorsqu’elles sont disponibles.';
+
+  @override
+  String get goldAccessibleExample => 'Quart de cercle avant, puis Poing';
 }
