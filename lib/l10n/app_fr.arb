@@ -213,6 +213,8 @@
   "goldComfortable": "Confortable",
   "goldLoading": "Chargement de la liste des coups…",
   "goldLoadError": "Impossible de charger cette liste de coups.",
+  "goldLoadOffline": "Cette liste de coups n’est pas disponible hors ligne. Vérifiez votre connexion puis réessayez.",
+  "goldLoadUnsupported": "Cette liste de coups nécessite une version plus récente de l’application.",
   "goldRetry": "Réessayer",
   "goldNoResults": "Aucun move trouvé.",
   "goldMovesCount": "{count} moves",

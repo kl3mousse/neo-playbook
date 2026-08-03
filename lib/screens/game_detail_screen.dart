@@ -5,7 +5,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../experimental/gold_moves_profile_v1/domain/profile.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../main.dart' show selectedTabIndex;
 import '../models/game.dart';
@@ -24,7 +23,7 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/notes_service.dart';
 import '../services/scores_service.dart';
-import '../services/bundled_gold_profile_resolver.dart';
+import '../services/gold_moves_repository.dart';
 import '../widgets/move_list_widget.dart';
 import '../widgets/gold_move_list_view.dart';
 import '../widgets/dip_settings_widget.dart';
@@ -132,7 +131,7 @@ class GameDetailScreen extends StatelessWidget {
 
                   // Move List
                   if ((game.features.hasMoveLists && game.roms.isNotEmpty) ||
-                      const BundledGoldProfileResolver().supports(
+                      PublishedGoldMovesSource.supports(
                         gameId: game.id,
                         romIds: game.roms.map((rom) => rom.romName),
                       ))
@@ -1118,7 +1117,7 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-/// Selects the bundled Gold profile before the legacy Firestore move list.
+/// Selects a published Gold profile before the legacy Firestore move list.
 class _MoveListLoader extends StatefulWidget {
   final List<String> romNames;
   final String gameId;
@@ -1135,22 +1134,33 @@ class _MoveListLoader extends StatefulWidget {
 }
 
 class _MoveListLoaderState extends State<_MoveListLoader> {
-  static const _goldResolver = BundledGoldProfileResolver();
-  late Future<ProfileGold?> _goldProfile;
+  static final _goldRepository = GoldMovesRepository();
+  Future<GoldMovesPublishedProfile>? _publishedProfile;
+
+  String? get _publishedGameId => PublishedGoldMovesSource.publishedGameId(
+    gameId: widget.gameId,
+    romIds: widget.romNames,
+  );
 
   @override
   void initState() {
     super.initState();
-    _goldProfile = _resolveGold();
+    _publishedProfile = _loadPublishedProfile();
   }
 
-  Future<ProfileGold?> _resolveGold() =>
-      _goldResolver.resolve(gameId: widget.gameId, romIds: widget.romNames);
+  Future<GoldMovesPublishedProfile>? _loadPublishedProfile() {
+    final gameId = _publishedGameId;
+    return gameId == null ? null : _goldRepository.loadProfile(gameId);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ProfileGold?>(
-      future: _goldProfile,
+    final publishedProfile = _publishedProfile;
+    if (publishedProfile == null) {
+      return _buildLegacyMoveList();
+    }
+    return FutureBuilder<GoldMovesPublishedProfile>(
+      future: publishedProfile,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
@@ -1163,49 +1173,65 @@ class _MoveListLoaderState extends State<_MoveListLoader> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Text(AppLocalizations.of(context).goldLoadError),
+                Text(
+                  _goldLoadMessage(
+                    AppLocalizations.of(context),
+                    snapshot.error,
+                  ),
+                ),
                 TextButton(
-                  onPressed: () =>
-                      setState(() => _goldProfile = _resolveGold()),
+                  onPressed: () {
+                    setState(() {
+                      _publishedProfile = _loadPublishedProfile();
+                    });
+                  },
                   child: Text(AppLocalizations.of(context).goldRetry),
                 ),
               ],
             ),
           );
         }
-        final profile = snapshot.data;
-        if (profile != null) {
-          return GoldMoveListView(
-            profile: profile,
-            gameId: widget.gameId,
-            gameTitle: widget.gameTitle,
-          );
-        }
-
-        return FutureBuilder<CommandData?>(
-          future: FirestoreService.getCommandData(widget.romNames),
-          builder: (context, legacy) {
-            if (legacy.connectionState == ConnectionState.waiting) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            final commandData = legacy.data;
-            if (commandData == null || commandData.sections.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return MoveListView(
-              commandData: commandData,
-              gameId: widget.gameId,
-              gameTitle: widget.gameTitle,
-              romName: commandData.id,
-            );
-          },
+        return GoldMoveListView(
+          profile: snapshot.data!.profile,
+          gameId: widget.gameId,
+          gameTitle: widget.gameTitle,
         );
       },
     );
   }
+
+  Widget _buildLegacyMoveList() => FutureBuilder<CommandData?>(
+    future: FirestoreService.getCommandData(widget.romNames),
+    builder: (context, legacy) {
+      if (legacy.connectionState == ConnectionState.waiting) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+      final commandData = legacy.data;
+      if (commandData == null || commandData.sections.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      return MoveListView(
+        commandData: commandData,
+        gameId: widget.gameId,
+        gameTitle: widget.gameTitle,
+        romName: commandData.id,
+      );
+    },
+  );
+}
+
+String _goldLoadMessage(AppLocalizations l, Object? error) {
+  if (error is GoldMovesRepositoryException) {
+    return switch (error.kind) {
+      GoldMovesFailureKind.unavailable => l.goldLoadOffline,
+      GoldMovesFailureKind.unsupportedContract => l.goldLoadUnsupported,
+      _ => l.goldLoadError,
+    };
+  }
+  return l.goldLoadError;
 }
 
 /// Async loader that fetches DIP settings from Firestore for a game's rom names.

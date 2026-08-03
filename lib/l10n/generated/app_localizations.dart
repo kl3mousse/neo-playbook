@@ -1196,6 +1196,18 @@ abstract class AppLocalizations {
   /// **'Could not load this move list.'**
   String get goldLoadError;
 
+  /// No description provided for @goldLoadOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'This move list is unavailable offline. Check your connection and try again.'**
+  String get goldLoadOffline;
+
+  /// No description provided for @goldLoadUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This move list needs a newer version of the app.'**
+  String get goldLoadUnsupported;
+
   /// No description provided for @goldRetry.
   ///
   /// In en, this message translates to:

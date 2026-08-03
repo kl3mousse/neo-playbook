@@ -217,6 +217,8 @@
   "goldComfortable": "Comfortable",
   "goldLoading": "Loading move list…",
   "goldLoadError": "Could not load this move list.",
+  "goldLoadOffline": "This move list is unavailable offline. Check your connection and try again.",
+  "goldLoadUnsupported": "This move list needs a newer version of the app.",
   "goldRetry": "Retry",
   "goldNoResults": "No moves found.",
   "goldMovesCount": "{count} moves",

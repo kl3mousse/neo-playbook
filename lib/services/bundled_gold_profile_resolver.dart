@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import '../experimental/gold_moves_profile_v1/domain/profile.dart';
 import '../experimental/gold_moves_profile_v1/parsing/asset_loader.dart';
 
-/// Resolves the one production-ready Gold Moves Profile bundled with ComboFox.
+/// Resolves the bundled Gold Moves Profile fixture used by the Lab and tests.
 ///
 /// The mapping deliberately remains explicit while Gold is only used for KOF
-/// R-2. This keeps the production route independent from Firestore and avoids
-/// prematurely introducing a registry for future profiles.
+/// R-2. Production game and favorite screens use [GoldMovesRepository]
+/// instead; this resolver deliberately remains an explicit fixture helper.
 class BundledGoldProfileResolver {
   static const String kofR2GameId = 'ngpc-kofr2';
   static const String kofR2ProfileId = 'ngpc-kofr2-v2';

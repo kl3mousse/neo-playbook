@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/move_list.dart';
-import '../experimental/gold_moves_profile_v1/domain/profile.dart';
 import '../l10n/generated/app_localizations.dart';
-import '../services/bundled_gold_profile_resolver.dart';
+import '../services/gold_moves_repository.dart';
 import '../services/firestore_service.dart';
 import '../widgets/gold_move_list_view.dart';
 import '../widgets/move_list_widget.dart';
@@ -123,10 +122,8 @@ class CharacterMovesScreen extends StatelessWidget {
     );
   }
 
-  bool get _isGoldFavorite => const BundledGoldProfileResolver().supports(
-    gameId: gameId,
-    romIds: [romName],
-  );
+  bool get _isGoldFavorite =>
+      PublishedGoldMovesSource.supports(gameId: gameId, romIds: [romName]);
 }
 
 class _GoldCharacterMovesBody extends StatefulWidget {
@@ -148,8 +145,8 @@ class _GoldCharacterMovesBody extends StatefulWidget {
 }
 
 class _GoldCharacterMovesBodyState extends State<_GoldCharacterMovesBody> {
-  static const _resolver = BundledGoldProfileResolver();
-  late Future<ProfileGold?> _profile;
+  static final _goldRepository = GoldMovesRepository();
+  late Future<GoldMovesPublishedProfile> _profile;
 
   @override
   void initState() {
@@ -157,13 +154,19 @@ class _GoldCharacterMovesBodyState extends State<_GoldCharacterMovesBody> {
     _profile = _load();
   }
 
-  Future<ProfileGold?> _load() =>
-      _resolver.resolve(gameId: widget.gameId, romIds: [widget.romName]);
+  Future<GoldMovesPublishedProfile> _load() {
+    final publishedGameId = PublishedGoldMovesSource.publishedGameId(
+      gameId: widget.gameId,
+      romIds: [widget.romName],
+    );
+    // The body is only constructed for a supported source.
+    return _goldRepository.loadProfile(publishedGameId!);
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return FutureBuilder<ProfileGold?>(
+    return FutureBuilder<GoldMovesPublishedProfile>(
       future: _profile,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -174,9 +177,13 @@ class _GoldCharacterMovesBodyState extends State<_GoldCharacterMovesBody> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(l.goldLoadError),
+                Text(_goldCharacterLoadMessage(l, snapshot.error)),
                 TextButton(
-                  onPressed: () => setState(() => _profile = _load()),
+                  onPressed: () {
+                    setState(() {
+                      _profile = _load();
+                    });
+                  },
                   child: Text(l.goldRetry),
                 ),
               ],
@@ -186,7 +193,7 @@ class _GoldCharacterMovesBodyState extends State<_GoldCharacterMovesBody> {
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: GoldMoveListView(
-            profile: snapshot.data!,
+            profile: snapshot.data!.profile,
             gameId: widget.gameId,
             gameTitle: widget.gameTitle,
             onlyCharacterName: widget.sectionTitle,
@@ -195,4 +202,15 @@ class _GoldCharacterMovesBodyState extends State<_GoldCharacterMovesBody> {
       },
     );
   }
+}
+
+String _goldCharacterLoadMessage(AppLocalizations l, Object? error) {
+  if (error is GoldMovesRepositoryException) {
+    return switch (error.kind) {
+      GoldMovesFailureKind.unavailable => l.goldLoadOffline,
+      GoldMovesFailureKind.unsupportedContract => l.goldLoadUnsupported,
+      _ => l.goldLoadError,
+    };
+  }
+  return l.goldLoadError;
 }

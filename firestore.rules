@@ -31,6 +31,19 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Published Gold move-list profiles: anyone can read, admin can publish.
+    // Version documents live in a subcollection and therefore need their own
+    // explicit rule.
+    match /move_profiles/{gameId} {
+      allow read: if true;
+      allow write: if isAdmin();
+
+      match /versions/{profileId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
     // User profiles: owner can read/write own profile
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;

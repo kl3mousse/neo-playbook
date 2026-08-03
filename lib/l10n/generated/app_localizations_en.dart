@@ -587,6 +587,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goldLoadError => 'Could not load this move list.';
 
   @override
+  String get goldLoadOffline =>
+      'This move list is unavailable offline. Check your connection and try again.';
+
+  @override
+  String get goldLoadUnsupported =>
+      'This move list needs a newer version of the app.';
+
+  @override
   String get goldRetry => 'Retry';
 
   @override

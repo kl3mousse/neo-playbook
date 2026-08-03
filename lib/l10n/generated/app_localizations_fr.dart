@@ -587,6 +587,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get goldLoadError => 'Impossible de charger cette liste de coups.';
 
   @override
+  String get goldLoadOffline =>
+      'Cette liste de coups n’est pas disponible hors ligne. Vérifiez votre connexion puis réessayez.';
+
+  @override
+  String get goldLoadUnsupported =>
+      'Cette liste de coups nécessite une version plus récente de l’application.';
+
+  @override
   String get goldRetry => 'Réessayer';
 
   @override
