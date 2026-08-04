@@ -1425,23 +1425,6 @@ class _HeroHeaderState extends State<_HeroHeader>
               ],
             ),
           ),
-          // INSERT COIN flicker text
-          Positioned(
-            top: 8,
-            left: 16,
-            child: AnimatedBuilder(
-              animation: _flickerAnim,
-              builder: (context, child) =>
-                  Opacity(opacity: _flickerAnim.value, child: child),
-              child: Text(
-                '// INSERT COIN //',
-                style: GoogleFonts.pressStart2p(
-                  fontSize: 7,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
