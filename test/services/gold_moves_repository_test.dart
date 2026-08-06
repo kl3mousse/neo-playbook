@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../experimental/gold_moves_profile_v1/utils/fixture_loader.dart';
 
 void main() {
-  const gameId = PublishedGoldMovesSource.kofR2GameId;
+  const gameId = 'ngpc-kofr2';
   const profileId = 'ngpc-kofr2-v2';
   const checksum =
       '5e1b2f8597929502470e4b0b19492142fa5b85d07a8875c95ef4133cdee94b24';
@@ -140,24 +140,6 @@ void main() {
           GoldMovesFailureKind.unavailable,
         ),
       ),
-    );
-  });
-
-  test('matches KOF R-2 by catalog ID before legacy ROM IDs', () {
-    expect(PublishedGoldMovesSource.publishedGameId(gameId: gameId), gameId);
-    expect(
-      PublishedGoldMovesSource.publishedGameId(
-        gameId: 'old-catalog-entry',
-        romIds: const ['kofr2d2'],
-      ),
-      gameId,
-    );
-    expect(
-      PublishedGoldMovesSource.supports(
-        gameId: 'ngpc-samsho2',
-        romIds: const ['samsho2'],
-      ),
-      isFalse,
     );
   });
 }

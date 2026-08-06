@@ -4,11 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../main.dart' show selectedTabIndex;
 import '../models/game.dart';
-import '../models/move_list.dart';
 import '../models/dip_settings.dart';
 import '../models/community_note.dart';
 import '../models/game_score.dart';
@@ -24,7 +22,6 @@ import '../services/user_service.dart';
 import '../services/notes_service.dart';
 import '../services/scores_service.dart';
 import '../services/gold_moves_repository.dart';
-import '../widgets/move_list_widget.dart';
 import '../widgets/gold_move_list_view.dart';
 import '../widgets/dip_settings_widget.dart';
 import '../widgets/add_note_sheet.dart';
@@ -130,16 +127,11 @@ class GameDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Move List
-                  if ((game.features.hasMoveLists && game.roms.isNotEmpty) ||
-                      PublishedGoldMovesSource.supports(
-                        gameId: game.id,
-                        romIds: game.roms.map((rom) => rom.romName),
-                      ))
+                  if (game.features.hasMoveLists)
                     ArcadePanel(
                       isActive: true,
                       padding: EdgeInsets.zero,
                       child: _MoveListLoader(
-                        romNames: game.roms.map((r) => r.romName).toList(),
                         gameId: game.id,
                         gameTitle: game.title,
                       ),
@@ -1117,17 +1109,12 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-/// Selects a published Gold profile before the legacy Firestore move list.
+/// Loads a published Gold profile for a move-list-enabled game.
 class _MoveListLoader extends StatefulWidget {
-  final List<String> romNames;
   final String gameId;
   final String gameTitle;
 
-  const _MoveListLoader({
-    required this.romNames,
-    required this.gameId,
-    required this.gameTitle,
-  });
+  const _MoveListLoader({required this.gameId, required this.gameTitle});
 
   @override
   State<_MoveListLoader> createState() => _MoveListLoaderState();
@@ -1137,30 +1124,16 @@ class _MoveListLoaderState extends State<_MoveListLoader> {
   static final _goldRepository = GoldMovesRepository();
   Future<GoldMovesPublishedProfile>? _publishedProfile;
 
-  String? get _publishedGameId => PublishedGoldMovesSource.publishedGameId(
-    gameId: widget.gameId,
-    romIds: widget.romNames,
-  );
-
   @override
   void initState() {
     super.initState();
-    _publishedProfile = _loadPublishedProfile();
-  }
-
-  Future<GoldMovesPublishedProfile>? _loadPublishedProfile() {
-    final gameId = _publishedGameId;
-    return gameId == null ? null : _goldRepository.loadProfile(gameId);
+    _publishedProfile = _goldRepository.loadProfile(widget.gameId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final publishedProfile = _publishedProfile;
-    if (publishedProfile == null) {
-      return _buildLegacyMoveList();
-    }
     return FutureBuilder<GoldMovesPublishedProfile>(
-      future: publishedProfile,
+      future: _publishedProfile,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
@@ -1182,7 +1155,9 @@ class _MoveListLoaderState extends State<_MoveListLoader> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      _publishedProfile = _loadPublishedProfile();
+                      _publishedProfile = _goldRepository.loadProfile(
+                        widget.gameId,
+                      );
                     });
                   },
                   child: Text(AppLocalizations.of(context).goldRetry),
@@ -1199,28 +1174,6 @@ class _MoveListLoaderState extends State<_MoveListLoader> {
       },
     );
   }
-
-  Widget _buildLegacyMoveList() => FutureBuilder<CommandData?>(
-    future: FirestoreService.getCommandData(widget.romNames),
-    builder: (context, legacy) {
-      if (legacy.connectionState == ConnectionState.waiting) {
-        return const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Center(child: CircularProgressIndicator()),
-        );
-      }
-      final commandData = legacy.data;
-      if (commandData == null || commandData.sections.isEmpty) {
-        return const SizedBox.shrink();
-      }
-      return MoveListView(
-        commandData: commandData,
-        gameId: widget.gameId,
-        gameTitle: widget.gameTitle,
-        romName: commandData.id,
-      );
-    },
-  );
 }
 
 String _goldLoadMessage(AppLocalizations l, Object? error) {

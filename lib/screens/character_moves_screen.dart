@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../models/move_list.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../services/gold_moves_repository.dart';
-import '../services/firestore_service.dart';
 import '../widgets/gold_move_list_view.dart';
-import '../widgets/move_list_widget.dart';
 
 /// Dedicated screen for viewing a single character's move list.
 ///
@@ -58,72 +55,14 @@ class CharacterMovesScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: _isGoldFavorite
-          ? _GoldCharacterMovesBody(
-              gameId: gameId,
-              gameTitle: gameTitle,
-              romName: romName,
-              sectionTitle: sectionTitle,
-            )
-          : FutureBuilder<CommandData?>(
-              future: FirestoreService.getCommandData([romName]),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final commandData = snapshot.data;
-                if (commandData == null) {
-                  return const Center(child: Text('Move list not found'));
-                }
-
-                final commonSections = commandData.sections
-                    .where((s) => s.sectionType != 'other')
-                    .toList();
-                final targetSection = commandData.sections
-                    .where(
-                      (s) =>
-                          s.sectionType == 'other' && s.title == sectionTitle,
-                    )
-                    .toList();
-
-                if (targetSection.isEmpty) {
-                  return const Center(
-                    child: Text('Character not found in move list'),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Common sections (collapsed)
-                      for (final s in commonSections) SectionBlock(section: s),
-
-                      const SizedBox(height: 8),
-
-                      // Target character section (expanded)
-                      SectionBlock(
-                        section: targetSection.first,
-                        gameId: gameId,
-                        gameTitle: gameTitle,
-                        romName: commandData.id,
-                        initiallyExpanded: true,
-                      ),
-
-                      const SizedBox(height: 8),
-                      const MoveLegend(),
-                    ],
-                  ),
-                );
-              },
-            ),
+      body: _GoldCharacterMovesBody(
+        gameId: gameId,
+        gameTitle: gameTitle,
+        romName: romName,
+        sectionTitle: sectionTitle,
+      ),
     );
   }
-
-  bool get _isGoldFavorite =>
-      PublishedGoldMovesSource.supports(gameId: gameId, romIds: [romName]);
 }
 
 class _GoldCharacterMovesBody extends StatefulWidget {
@@ -155,12 +94,7 @@ class _GoldCharacterMovesBodyState extends State<_GoldCharacterMovesBody> {
   }
 
   Future<GoldMovesPublishedProfile> _load() {
-    final publishedGameId = PublishedGoldMovesSource.publishedGameId(
-      gameId: widget.gameId,
-      romIds: [widget.romName],
-    );
-    // The body is only constructed for a supported source.
-    return _goldRepository.loadProfile(publishedGameId!);
+    return _goldRepository.loadProfile(widget.gameId);
   }
 
   @override

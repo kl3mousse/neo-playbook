@@ -5,34 +5,6 @@ import '../experimental/gold_moves_profile_v1/domain/profile.dart';
 import '../experimental/gold_moves_profile_v1/parsing/profile_parser.dart';
 import 'firestore_service.dart';
 
-/// The stable Firestore entry point for a published Gold profile.
-///
-/// Keep this decision in one place: KOF R-2 uses the published profile and
-/// never falls back to command.dat or to the bundled lab fixture.
-class PublishedGoldMovesSource {
-  static const kofR2GameId = 'ngpc-kofr2';
-  static const kofR2RomIds = {'kofr2', 'kofr2d', 'kofr2d2'};
-
-  const PublishedGoldMovesSource._();
-
-  static bool supports({
-    required String gameId,
-    Iterable<String> romIds = const [],
-  }) => publishedGameId(gameId: gameId, romIds: romIds) != null;
-
-  /// Catalog IDs are authoritative. ROM IDs only keep old bookmarked/catalog
-  /// records working until they have the dedicated game ID.
-  static String? publishedGameId({
-    required String gameId,
-    Iterable<String> romIds = const [],
-  }) {
-    if (gameId == kofR2GameId || romIds.any(kofR2RomIds.contains)) {
-      return kofR2GameId;
-    }
-    return null;
-  }
-}
-
 /// A minimal document abstraction makes the publication reader testable
 /// without a Firebase emulator.
 abstract interface class GoldMovesDataSource {
@@ -351,15 +323,6 @@ class GoldMovesRepository {
               failureKind: GoldMovesFailureKind.invalidProfile,
             ) !=
             automatic) {
-      throw const GoldMovesRepositoryException(
-        GoldMovesFailureKind.invalidProfile,
-      );
-    }
-    // This is the validated KOF R-2 publication, not a rendering concern.
-    if (gameId == PublishedGoldMovesSource.kofR2GameId &&
-        (profile.characters.length != 23 ||
-            profile.moves.length != 289 ||
-            automatic != 3)) {
       throw const GoldMovesRepositoryException(
         GoldMovesFailureKind.invalidProfile,
       );
