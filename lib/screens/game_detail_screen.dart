@@ -126,16 +126,11 @@ class GameDetailScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Move List
-                  if (game.features.hasMoveLists)
-                    ArcadePanel(
-                      isActive: true,
-                      padding: EdgeInsets.zero,
-                      child: _MoveListLoader(
-                        gameId: game.id,
-                        gameTitle: game.title,
-                      ),
-                    ),
+                  // Move List — loader self-contains the panel and hides when no profile exists.
+                  _MoveListLoader(
+                    gameId: game.id,
+                    gameTitle: game.title,
+                  ),
 
                   const SizedBox(height: 24),
 
@@ -1136,40 +1131,58 @@ class _MoveListLoaderState extends State<_MoveListLoader> {
       future: _publishedProfile,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Text(
-                  _goldLoadMessage(
-                    AppLocalizations.of(context),
-                    snapshot.error,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _publishedProfile = _goldRepository.loadProfile(
-                        widget.gameId,
-                      );
-                    });
-                  },
-                  child: Text(AppLocalizations.of(context).goldRetry),
-                ),
-              ],
+          return ArcadePanel(
+            isActive: true,
+            padding: EdgeInsets.zero,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
             ),
           );
         }
-        return GoldMoveListView(
-          profile: snapshot.data!.profile,
-          gameId: widget.gameId,
-          gameTitle: widget.gameTitle,
+        if (snapshot.hasError) {
+          // No profile published for this game yet — hide the section.
+          if (snapshot.error is GoldMovesRepositoryException &&
+              (snapshot.error as GoldMovesRepositoryException).kind ==
+                  GoldMovesFailureKind.manifestNotFound) {
+            return const SizedBox.shrink();
+          }
+          return ArcadePanel(
+            isActive: true,
+            padding: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text(
+                    _goldLoadMessage(
+                      AppLocalizations.of(context),
+                      snapshot.error,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _publishedProfile = _goldRepository.loadProfile(
+                          widget.gameId,
+                        );
+                      });
+                    },
+                    child: Text(AppLocalizations.of(context).goldRetry),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return ArcadePanel(
+          isActive: true,
+          padding: EdgeInsets.zero,
+          child: GoldMoveListView(
+            profile: snapshot.data!.profile,
+            gameId: widget.gameId,
+            gameTitle: widget.gameTitle,
+          ),
         );
       },
     );
