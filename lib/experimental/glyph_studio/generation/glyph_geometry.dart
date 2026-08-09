@@ -207,12 +207,18 @@ class MotionGeometryBuilder {
     'motion_hcb' => _hcf().horizontalMirror(spec.canvasSize.toDouble()),
     'motion_dpf' => _dpf(),
     'motion_dpb' => _dpf().horizontalMirror(spec.canvasSize.toDouble()),
+    'motion_rdpf' => _rdpf(),
+    'motion_rdpb' => _rdpf().horizontalMirror(spec.canvasSize.toDouble()),
     'motion_dqcf' => _dqcf(),
     'motion_dqcb' => _dqcf().horizontalMirror(spec.canvasSize.toDouble()),
     'motion_charge_bf' => _chargeBf(),
     'motion_charge_du' => _chargeDu(),
     'motion_360' => _rotation(1),
     'motion_720' => _rotation(2),
+    'motion_pretzel_f' => _pretzelForward(),
+    'motion_pretzel_b' => _pretzelForward().horizontalMirror(
+      spec.canvasSize.toDouble(),
+    ),
     _ => throw ArgumentError('Unknown motion id: $id'),
   };
 
@@ -272,6 +278,47 @@ class MotionGeometryBuilder {
     sequence: const [
       SemanticDirection.f,
       SemanticDirection.d,
+      SemanticDirection.df,
+    ],
+    finalDirection: SemanticDirection.df,
+    neutralPoint: _centerPoint,
+  );
+
+  MotionGeometry _rdpf() => MotionGeometry(
+    paths: [
+      MotionPathGeometry(_centerPoint, [
+        MotionLine(_point(SemanticDirection.f)),
+        MotionLine(_point(SemanticDirection.df)),
+        MotionLine(_point(SemanticDirection.d)),
+      ]),
+    ],
+    sequence: const [
+      SemanticDirection.f,
+      SemanticDirection.df,
+      SemanticDirection.d,
+    ],
+    finalDirection: SemanticDirection.d,
+    neutralPoint: _centerPoint,
+  );
+
+  MotionGeometry _pretzelForward() => MotionGeometry(
+    paths: [
+      MotionPathGeometry(_point(SemanticDirection.db), [
+        MotionLine(_point(SemanticDirection.f)),
+        MotionLine(_point(SemanticDirection.df)),
+        MotionLine(_point(SemanticDirection.d)),
+        MotionLine(_point(SemanticDirection.db)),
+        MotionLine(_point(SemanticDirection.b)),
+        MotionLine(_point(SemanticDirection.df)),
+      ]),
+    ],
+    sequence: const [
+      SemanticDirection.db,
+      SemanticDirection.f,
+      SemanticDirection.df,
+      SemanticDirection.d,
+      SemanticDirection.db,
+      SemanticDirection.b,
       SemanticDirection.df,
     ],
     finalDirection: SemanticDirection.df,

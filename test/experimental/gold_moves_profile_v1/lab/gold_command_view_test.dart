@@ -6,9 +6,9 @@ import 'package:combofox/experimental/gold_moves_profile_v1/domain/button.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/domain/expression.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/domain/move.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/domain/parse_status.dart';
+import 'package:combofox/experimental/gold_moves_profile_v1/presentation/gold_glyph_assets.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/gold_command_view.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/lab_controller.dart';
-import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/motion_glyph.dart';
 import 'package:combofox/l10n/generated/app_localizations.dart';
 
 /// Test-only button catalog covering the four canonical KOF buttons
@@ -133,8 +133,7 @@ void main() {
     // No overflow errors were reported.
     final exception = tester.takeException();
     expect(exception, isNull);
-    // The 236 motion pill is present and visible.
-    expect(find.text('236'), findsWidgets);
+    expect(_glyph('assets/glyphs/directions/dir_d.svg'), findsWidgets);
   });
 
   testWidgets('pictograms omit textual sequence separators', (tester) async {
@@ -164,7 +163,7 @@ void main() {
     expect(find.text('B'), findsOneWidget);
   });
 
-  testWidgets('direction pictograms use consistent Material arrow icons', (
+  testWidgets('direction pictograms use the published direction SVGs', (
     tester,
   ) async {
     final move = _makeMove(
@@ -190,19 +189,18 @@ void main() {
       ),
     );
 
-    for (final icon in const [
-      Icons.arrow_forward,
-      Icons.arrow_back,
-      Icons.arrow_upward,
-      Icons.arrow_downward,
-      Icons.north_east,
-      Icons.north_west,
-      Icons.south_east,
-      Icons.south_west,
+    for (final id in const [
+      'dir_f',
+      'dir_b',
+      'dir_u',
+      'dir_d',
+      'dir_uf',
+      'dir_ub',
+      'dir_df',
+      'dir_db',
     ]) {
-      expect(find.byIcon(icon), findsOneWidget);
+      expect(_glyph('assets/glyphs/directions/$id.svg'), findsOneWidget);
     }
-    expect(find.text('↙'), findsNothing);
   });
 
   testWidgets('motion glyph mode draws every supported joystick motion', (
@@ -222,14 +220,15 @@ void main() {
           move: move,
           buttons: _buttons,
           locale: LabAccessibleLocale.en,
-          useMotionGlyphs: true,
+          visualNotation: GoldVisualNotation.motionGlyphs,
         ),
         width: 360,
       ),
     );
 
-    expect(find.byType(MotionGlyph), findsNWidgets(MotionShape.values.length));
-    expect(find.text('236'), findsNothing);
+    for (final shape in MotionShape.values) {
+      expect(_glyph(GoldGlyphAssets.motion(shape)), findsOneWidget);
+    }
     expect(tester.takeException(), isNull);
   });
 
@@ -251,16 +250,204 @@ void main() {
           move: move,
           buttons: _buttons,
           locale: LabAccessibleLocale.en,
-          useMotionGlyphs: true,
+          visualNotation: GoldVisualNotation.motionGlyphs,
         ),
       ),
     );
 
-    expect(find.byType(MotionGlyph), findsOneWidget);
-    expect(find.byIcon(Icons.arrow_downward), findsNothing);
-    expect(find.byIcon(Icons.south_east), findsNothing);
-    expect(find.byIcon(Icons.arrow_forward), findsNothing);
+    expect(_glyph('assets/glyphs/motions/motion_qcf.svg'), findsOneWidget);
+    expect(_glyph('assets/glyphs/directions/dir_d.svg'), findsNothing);
     expect(find.text('A'), findsOneWidget);
+  });
+
+  testWidgets('motion glyph mode folds directional reverse DP', (tester) async {
+    final move = _makeMove(
+      name: 'Reverse DP',
+      expression: SequenceExpr(const [
+        DirectionExpr(GoldDirection.forward),
+        DirectionExpr(GoldDirection.downForward),
+        DirectionExpr(GoldDirection.down),
+      ]),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+          visualNotation: GoldVisualNotation.motionGlyphs,
+        ),
+      ),
+    );
+
+    expect(_glyph('assets/glyphs/motions/motion_rdpf.svg'), findsOneWidget);
+    expect(_glyph('assets/glyphs/directions/dir_f.svg'), findsNothing);
+  });
+
+  testWidgets('arrow mode expands a named motion into direction SVGs', (
+    tester,
+  ) async {
+    final move = _makeMove(
+      name: 'Named Fireball',
+      expression: const MotionExpr(MotionShape.quarterCircleForward),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+        ),
+      ),
+    );
+
+    expect(_glyph('assets/glyphs/directions/dir_d.svg'), findsOneWidget);
+    expect(_glyph('assets/glyphs/directions/dir_df.svg'), findsOneWidget);
+    expect(_glyph('assets/glyphs/directions/dir_f.svg'), findsOneWidget);
+    expect(_glyph('assets/glyphs/motions/motion_qcf.svg'), findsNothing);
+  });
+
+  testWidgets('facing-left swaps relative motion assets', (tester) async {
+    final move = _makeMove(
+      name: 'Mirrored Fireball',
+      expression: const MotionExpr(MotionShape.quarterCircleForward),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+          mirrorForFacingLeft: true,
+          visualNotation: GoldVisualNotation.motionGlyphs,
+        ),
+      ),
+    );
+
+    expect(_glyph('assets/glyphs/motions/motion_qcb.svg'), findsOneWidget);
+    expect(_glyph('assets/glyphs/motions/motion_qcf.svg'), findsNothing);
+  });
+
+  testWidgets('visual operators omit then and use other operator SVGs', (
+    tester,
+  ) async {
+    final move = _makeMove(
+      name: 'Operators',
+      expression: SequenceExpr(const [
+        SimultaneousExpr([ButtonExpr('A'), ButtonExpr('B')]),
+        HoldExpr(input: ButtonExpr('C')),
+        ReleaseExpr(input: ButtonExpr('D')),
+      ]),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+        ),
+      ),
+    );
+
+    expect(_glyph(GoldGlyphAssets.operator(GoldGlyphOperator.plus)), findsOne);
+    expect(
+      _glyph(GoldGlyphAssets.operator(GoldGlyphOperator.then)),
+      findsNothing,
+    );
+    expect(_glyph(GoldGlyphAssets.operator(GoldGlyphOperator.hold)), findsOne);
+    expect(
+      _glyph(GoldGlyphAssets.operator(GoldGlyphOperator.release)),
+      findsOne,
+    );
+  });
+
+  testWidgets('motion mode consumes charge release direction once', (
+    tester,
+  ) async {
+    final move = _makeMove(
+      name: 'Charge',
+      expression: ChargeExpr(
+        chargeDirection: ChargeDirection.back,
+        then: SequenceExpr(const [
+          DirectionExpr(GoldDirection.forward),
+          ButtonExpr('P'),
+        ]),
+      ),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+          visualNotation: GoldVisualNotation.motionGlyphs,
+        ),
+      ),
+    );
+
+    expect(
+      _glyph('assets/glyphs/motions/motion_charge_bf.svg'),
+      findsOneWidget,
+    );
+    expect(_glyph('assets/glyphs/directions/dir_f.svg'), findsNothing);
+    expect(find.text('P'), findsOneWidget);
+  });
+
+  testWidgets('motion mode recognizes down-to-up charge', (tester) async {
+    final move = _makeMove(
+      name: 'Flash Kick',
+      expression: ChargeExpr(
+        chargeDirection: ChargeDirection.down,
+        then: SequenceExpr(const [
+          DirectionExpr(GoldDirection.up),
+          ButtonExpr('K'),
+        ]),
+      ),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+          visualNotation: GoldVisualNotation.motionGlyphs,
+        ),
+      ),
+    );
+
+    expect(
+      _glyph('assets/glyphs/motions/motion_charge_du.svg'),
+      findsOneWidget,
+    );
+    expect(_glyph('assets/glyphs/directions/dir_u.svg'), findsNothing);
+    expect(find.text('K'), findsOneWidget);
+  });
+
+  testWidgets('neutral, any, and unknown button retain readable fallbacks', (
+    tester,
+  ) async {
+    final move = _makeMove(
+      name: 'Fallbacks',
+      expression: SequenceExpr(const [
+        DirectionExpr(GoldDirection.neutral),
+        DirectionExpr(GoldDirection.any),
+        ButtonExpr('Z'),
+      ]),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.circle), findsOneWidget);
+    expect(find.byIcon(Icons.all_inclusive), findsOneWidget);
+    expect(find.text('Z'), findsOneWidget);
+    expect(_glyph('assets/glyphs/buttons/btn_z.svg'), findsNothing);
   });
 
   testWidgets('accessible sentence is used as the single semantic label', (
@@ -371,3 +558,5 @@ void main() {
     expect(find.textContaining('BC ~ 236B'), findsOneWidget);
   });
 }
+
+Finder _glyph(String assetPath) => find.byKey(ValueKey('glyph:$assetPath'));

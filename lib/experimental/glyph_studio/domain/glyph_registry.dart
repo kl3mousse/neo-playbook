@@ -78,6 +78,18 @@ class GlyphRegistry {
       'Dragon punch back',
     ),
     GlyphDefinition(
+      'motion_rdpf',
+      GlyphCategory.motions,
+      'motion_rdpf.svg',
+      'Reverse dragon punch forward',
+    ),
+    GlyphDefinition(
+      'motion_rdpb',
+      GlyphCategory.motions,
+      'motion_rdpb.svg',
+      'Reverse dragon punch back',
+    ),
+    GlyphDefinition(
       'motion_360',
       GlyphCategory.motions,
       'motion_360.svg',
@@ -112,6 +124,18 @@ class GlyphRegistry {
       GlyphCategory.motions,
       'motion_dqcb.svg',
       'Double quarter circle back',
+    ),
+    GlyphDefinition(
+      'motion_pretzel_f',
+      GlyphCategory.motions,
+      'motion_pretzel_f.svg',
+      'Pretzel forward',
+    ),
+    GlyphDefinition(
+      'motion_pretzel_b',
+      GlyphCategory.motions,
+      'motion_pretzel_b.svg',
+      'Pretzel back',
     ),
     ..._buttonDefinitions,
     GlyphDefinition('op_plus', GlyphCategory.operators, 'op_plus.svg', 'Plus'),

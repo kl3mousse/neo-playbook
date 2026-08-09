@@ -56,6 +56,10 @@ The studio provides live parameter controls, grouped glyph previews, realistic
 Saving the spec does not publish assets; **Publish set** explicitly validates
 and writes the complete inventory. Both actions require a native desktop run.
 
+Published SVGs are used by production move lists in the **Arrow icons** and
+**Motion glyphs** notation modes. Numpad, 2D classic, and Accessible text retain
+their notation-specific textual rendering.
+
 - Design spec: `tool/glyph_studio/glyph_spec.json`
 - Typed registry and generator: `lib/experimental/glyph_studio/`
 - Generated assets: `assets/glyphs/`

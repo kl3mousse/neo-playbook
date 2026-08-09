@@ -125,6 +125,42 @@ void main() {
     _expectHorizontalMirror(dpf, dpb);
   });
 
+  test('reverse dragon punches preserve F-DF-D progression and mirror', () {
+    final generator = SvgGlyphGenerator();
+    final forward = generator.geometryForMotion('motion_rdpf');
+    final back = generator.geometryForMotion('motion_rdpb');
+
+    expect(forward.sequence, [
+      SemanticDirection.f,
+      SemanticDirection.df,
+      SemanticDirection.d,
+    ]);
+    expect(forward.paths.single.start.x, forward.neutralPoint.x);
+    expect(forward.paths.single.start.y, forward.neutralPoint.y);
+    expect(forward.paths.single.commands, hasLength(3));
+    expect(forward.finalDirection, SemanticDirection.d);
+    _expectHorizontalMirror(forward, back);
+  });
+
+  test('pretzels preserve their seven-direction sequence and mirror', () {
+    final generator = SvgGlyphGenerator();
+    final forward = generator.geometryForMotion('motion_pretzel_f');
+    final back = generator.geometryForMotion('motion_pretzel_b');
+
+    expect(forward.sequence, [
+      SemanticDirection.db,
+      SemanticDirection.f,
+      SemanticDirection.df,
+      SemanticDirection.d,
+      SemanticDirection.db,
+      SemanticDirection.b,
+      SemanticDirection.df,
+    ]);
+    expect(forward.paths.single.commands, hasLength(6));
+    expect(forward.finalDirection, SemanticDirection.df);
+    _expectHorizontalMirror(forward, back);
+  });
+
   test('double quarter circles finish forward and back', () {
     final generator = SvgGlyphGenerator();
     final dqcf = generator.geometryForMotion('motion_dqcf');
@@ -169,7 +205,9 @@ void main() {
       ('motion_qcf', 'motion_qcb'),
       ('motion_hcf', 'motion_hcb'),
       ('motion_dpf', 'motion_dpb'),
+      ('motion_rdpf', 'motion_rdpb'),
       ('motion_dqcf', 'motion_dqcb'),
+      ('motion_pretzel_f', 'motion_pretzel_b'),
     ]) {
       _expectHorizontalMirror(
         generator.geometryForMotion(pair.$1),

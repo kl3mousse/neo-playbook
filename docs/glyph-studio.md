@@ -20,7 +20,7 @@ dart run tool/glyph_studio/generate.dart
 flutter test test/experimental/glyph_studio/svg_glyph_generator_test.dart
 ```
 
-The command creates only `assets/glyphs/directions/`, `motions/`, `buttons/`, and `operators/`. Output is deterministic: no timestamps, IDs, metadata, fonts, raster images, or external references are emitted.
+The command creates only `assets/glyphs/directions/`, `motions/`, `buttons/`, and `operators/`. The 44-glyph inventory contains 8 directions, 16 motions, 16 button shells, and 4 operators. Output is deterministic: no timestamps, IDs, metadata, fonts, raster images, or external references are emitted.
 
 ## Naming and extension
 
@@ -34,6 +34,19 @@ pairs are horizontal mirrors of their forward definitions. A shared neutral
 point anchors each motion to the joystick center so quarter-circle orientation
 remains readable at compact sizes.
 
-Buttons deliberately publish a generic circular shell. Their labels are rendered by Flutter in the studio and can later be rendered as regular move-list text, avoiding SVG font dependencies while preserving ids such as `btn_a`, `btn_lp`, and `btn_3k`.
+Buttons deliberately publish a generic circular shell. ComboFox overlays their labels with Flutter text, avoiding SVG font dependencies while preserving ids such as `btn_a`, `btn_lp`, and `btn_3k`.
 
-The module is debug-only and does not migrate the production move-list renderer. The next integration step is to map Gold `RtMotion` and `RtButton` tokens to this registry and use `SvgPicture.asset` for published SVGs, while retaining accessible text fallbacks.
+## Move-list integration
+
+Published assets are consumed by the production Gold move-list renderer through
+`GoldGlyphAssets` and `GoldSvgGlyph`; production code does not call the debug
+generator. **Arrow icons** uses direction, button, and operator SVGs and expands
+named motions into directional steps. **Motion glyphs** uses motion, direction,
+button, and operator SVGs and folds recognized direction sequences into one
+motion. Both visual notations use plus, hold, and release operators; sequence
+order is implicit, so no "then" arrow is displayed. **Numpad**, **2D classic**,
+and **Accessible text** remain text-native.
+
+The visual renderer retains a single localized semantic sentence for screen
+readers. Neutral, any-direction, unknown-button, optional, repeat, and OR tokens
+keep readable text or Material fallbacks when no matching SVG exists.

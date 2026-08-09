@@ -13,6 +13,7 @@ import '../../rendering/renderers/accessible_fr_renderer.dart';
 import '../../rendering/renderers/activation_hint_renderer.dart';
 import '../../rendering/renderers/classic_2d_renderer.dart';
 import '../../rendering/renderers/numpad_renderer.dart';
+import '../gold_glyph_assets.dart';
 import '../gold_rendering_options.dart';
 import 'gold_command_view.dart';
 import 'lab_controller.dart';
@@ -316,13 +317,18 @@ class GoldProfileMoveCard extends StatelessWidget {
   Widget _inputSection(BuildContext context, AppLocalizations l) {
     switch (notation) {
       case GoldNotation.pictograms:
-        return GoldCommandView(move: move, buttons: buttons, locale: locale);
+        return GoldCommandView(
+          move: move,
+          buttons: buttons,
+          locale: locale,
+          visualNotation: GoldVisualNotation.arrowIcons,
+        );
       case GoldNotation.motionGlyphs:
         return GoldCommandView(
           move: move,
           buttons: buttons,
           locale: locale,
-          useMotionGlyphs: true,
+          visualNotation: GoldVisualNotation.motionGlyphs,
         );
       case GoldNotation.numpad:
         final t = NumpadRenderer().render(move);

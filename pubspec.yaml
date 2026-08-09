@@ -89,7 +89,10 @@ flutter:
     - assets/foxxy/sd/
     - assets/foxxy/loadingscreens/
     - assets/experimental/gold_moves_profile_v1/
-    - assets/glyphs/
+    - assets/glyphs/buttons/
+    - assets/glyphs/directions/
+    - assets/glyphs/motions/
+    - assets/glyphs/operators/
     - tool/glyph_studio/glyph_spec.json
 
   # An image asset can refer to one or more resolution-specific "variants", see

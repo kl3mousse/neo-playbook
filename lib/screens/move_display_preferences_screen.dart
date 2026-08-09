@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../experimental/gold_moves_profile_v1/domain/expression.dart';
+import '../experimental/gold_moves_profile_v1/presentation/gold_glyph_assets.dart';
 import '../experimental/gold_moves_profile_v1/presentation/gold_rendering_options.dart';
-import '../experimental/gold_moves_profile_v1/presentation/lab/motion_glyph.dart';
+import '../experimental/gold_moves_profile_v1/presentation/gold_svg_glyph.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../services/prefs_service.dart';
 import '../services/user_service.dart';
@@ -194,9 +195,11 @@ class _MotionGlyphExample extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      MotionGlyph(
-        shape: MotionShape.quarterCircleForward,
+      GoldSvgGlyph(
+        assetPath: GoldGlyphAssets.motion(MotionShape.quarterCircleForward),
+        tooltip: 'Quarter circle forward',
         color: AppColors.textPrimary,
+        fallback: const Text('QCF'),
       ),
       const SizedBox(width: 8),
       const Text('+ P', style: TextStyle(fontFamily: 'monospace')),
