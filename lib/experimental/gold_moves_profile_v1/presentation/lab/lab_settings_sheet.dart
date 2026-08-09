@@ -94,6 +94,11 @@ class LabSettingsSheet extends StatelessWidget {
           () => controller.setNotation(LabNotation.pictograms),
         ),
         _chip(
+          l.labNotationMotionGlyphs,
+          controller.notation == LabNotation.motionGlyphs,
+          () => controller.setNotation(LabNotation.motionGlyphs),
+        ),
+        _chip(
           l.labNotationNumpad,
           controller.notation == LabNotation.numpad,
           () => controller.setNotation(LabNotation.numpad),

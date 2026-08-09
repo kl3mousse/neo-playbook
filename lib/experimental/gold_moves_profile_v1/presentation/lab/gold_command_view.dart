@@ -9,6 +9,7 @@ import '../../rendering/renderers/accessible_en_renderer.dart';
 import '../../rendering/renderers/accessible_fr_renderer.dart';
 import '../gold_rendering_options.dart';
 import 'lab_localization.dart';
+import 'motion_glyph.dart';
 
 /// Compact, group-preserving pictogram renderer for a [MoveGold]
 /// command.
@@ -27,6 +28,7 @@ class GoldCommandView extends StatelessWidget {
   final ButtonCatalog buttons;
   final GoldAccessibleLocale locale;
   final bool mirrorForFacingLeft;
+  final bool useMotionGlyphs;
 
   const GoldCommandView({
     super.key,
@@ -34,6 +36,7 @@ class GoldCommandView extends StatelessWidget {
     required this.buttons,
     required this.locale,
     this.mirrorForFacingLeft = false,
+    this.useMotionGlyphs = false,
   });
 
   @override
@@ -84,14 +87,14 @@ class GoldCommandView extends StatelessWidget {
   }
 
   /// Top-level walker: unrolls a top [SequenceExpr] into one group per
-  /// step separated by localized "then" chips so a long combo can
-  /// break across lines between steps.
+  /// step so a long combo can break across lines between inputs. Sequence
+  /// order is already conveyed by the left-to-right pictogram layout, so
+  /// this deliberately omits textual "then" separators.
   List<Widget> _walkTop(Expression expr, AppLocalizations l) {
     if (expr is SequenceExpr) {
       final out = <Widget>[];
-      for (var i = 0; i < expr.steps.length; i++) {
-        if (i > 0) out.add(_SeparatorChip(l.commandSepThen));
-        out.add(_groupFor(expr.steps[i], l));
+      for (final step in _collapseDirectionalSteps(expr.steps)) {
+        out.add(_groupFor(step, l));
       }
       return out;
     }
@@ -126,12 +129,12 @@ class GoldCommandView extends StatelessWidget {
   List<Widget> _inline(Expression expr, AppLocalizations l) {
     switch (expr) {
       case SequenceExpr(:final steps):
-        // A nested sequence inside a group is unusual (top-level
-        // sequences are unrolled) but we render inline just in case.
+        // A nested sequence inside a group is unusual (top-level sequences
+        // are unrolled), but it follows the same compact, separator-free
+        // presentation as a top-level sequence.
         final out = <Widget>[];
-        for (var i = 0; i < steps.length; i++) {
-          if (i > 0) out.add(_SeparatorChip(l.commandSepThen));
-          out.addAll(_inline(steps[i], l));
+        for (final step in _collapseDirectionalSteps(steps)) {
+          out.addAll(_inline(step, l));
         }
         return out;
       case AlternativeExpr(:final options):
@@ -149,7 +152,9 @@ class GoldCommandView extends StatelessWidget {
         }
         return out;
       case MotionExpr(:final shape):
-        return [_MotionPill(shape)];
+        return [
+          useMotionGlyphs ? _MotionGlyphToken(shape) : _MotionPill(shape),
+        ];
       case DirectionExpr(:final direction):
         return [_DirectionToken(direction, mirror: mirrorForFacingLeft)];
       case ButtonExpr(:final symbol):
@@ -164,11 +169,7 @@ class GoldCommandView extends StatelessWidget {
       case NeutralExpr():
         return [const _NeutralToken()];
       case ChargeExpr(:final chargeDirection, :final then):
-        return [
-          _ChargeChip(chargeDirection),
-          _SeparatorChip(l.commandSepThen),
-          ..._inline(then, l),
-        ];
+        return [_ChargeChip(chargeDirection), ..._inline(then, l)];
       case HoldExpr(:final input):
         return [
           _ParenGroup.open(l.commandHoldOpen),
@@ -206,6 +207,132 @@ class GoldCommandView extends StatelessWidget {
         return [_UnknownChip('${l.commandUnknownInput} ($rawKind)')];
     }
   }
+
+  /// Folds common direction-by-direction inputs into a single motion glyph.
+  /// Profiles may represent a quarter circle either as a [MotionExpr] or as
+  /// three [DirectionExpr] values, so both forms need the same presentation.
+  List<Expression> _collapseDirectionalSteps(List<Expression> steps) {
+    if (!useMotionGlyphs) return steps;
+
+    final result = <Expression>[];
+    var index = 0;
+    while (index < steps.length) {
+      final match = _motionAt(steps, index);
+      if (match == null) {
+        result.add(steps[index]);
+        index++;
+      } else {
+        result.add(MotionExpr(match.shape));
+        index += match.directions.length;
+      }
+    }
+    return result;
+  }
+
+  _MotionPattern? _motionAt(List<Expression> steps, int start) {
+    for (final pattern in _motionPatterns) {
+      if (start + pattern.directions.length > steps.length) continue;
+      var matches = true;
+      for (var offset = 0; offset < pattern.directions.length; offset++) {
+        final step = steps[start + offset];
+        if (step is! DirectionExpr ||
+            step.direction != pattern.directions[offset]) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) return pattern;
+    }
+    return null;
+  }
+
+  static const _motionPatterns = <_MotionPattern>[
+    _MotionPattern(MotionShape.doubleQuarterCircleForward, [
+      GoldDirection.down,
+      GoldDirection.downForward,
+      GoldDirection.forward,
+      GoldDirection.down,
+      GoldDirection.downForward,
+      GoldDirection.forward,
+    ]),
+    _MotionPattern(MotionShape.doubleQuarterCircleBack, [
+      GoldDirection.down,
+      GoldDirection.downBack,
+      GoldDirection.back,
+      GoldDirection.down,
+      GoldDirection.downBack,
+      GoldDirection.back,
+    ]),
+    _MotionPattern(MotionShape.halfCircleForward, [
+      GoldDirection.back,
+      GoldDirection.downBack,
+      GoldDirection.down,
+      GoldDirection.downForward,
+      GoldDirection.forward,
+    ]),
+    _MotionPattern(MotionShape.halfCircleBack, [
+      GoldDirection.forward,
+      GoldDirection.downForward,
+      GoldDirection.down,
+      GoldDirection.downBack,
+      GoldDirection.back,
+    ]),
+    _MotionPattern(MotionShape.pretzelForward, [
+      GoldDirection.downBack,
+      GoldDirection.forward,
+      GoldDirection.downForward,
+      GoldDirection.down,
+      GoldDirection.downBack,
+      GoldDirection.back,
+      GoldDirection.downForward,
+    ]),
+    _MotionPattern(MotionShape.pretzelBack, [
+      GoldDirection.downForward,
+      GoldDirection.back,
+      GoldDirection.downBack,
+      GoldDirection.down,
+      GoldDirection.downForward,
+      GoldDirection.forward,
+      GoldDirection.upBack,
+    ]),
+    _MotionPattern(MotionShape.fullCircle, [
+      GoldDirection.forward,
+      GoldDirection.downForward,
+      GoldDirection.down,
+      GoldDirection.downBack,
+      GoldDirection.back,
+      GoldDirection.upBack,
+      GoldDirection.up,
+      GoldDirection.upForward,
+    ]),
+    _MotionPattern(MotionShape.dragonPunchForward, [
+      GoldDirection.forward,
+      GoldDirection.down,
+      GoldDirection.downForward,
+    ]),
+    _MotionPattern(MotionShape.dragonPunchBack, [
+      GoldDirection.back,
+      GoldDirection.down,
+      GoldDirection.downBack,
+    ]),
+    _MotionPattern(MotionShape.quarterCircleForward, [
+      GoldDirection.down,
+      GoldDirection.downForward,
+      GoldDirection.forward,
+    ]),
+    _MotionPattern(MotionShape.quarterCircleBack, [
+      GoldDirection.down,
+      GoldDirection.downBack,
+      GoldDirection.back,
+    ]),
+  ];
+}
+
+class _MotionPattern {
+  final MotionShape shape;
+  final List<GoldDirection> directions;
+
+  const _MotionPattern(this.shape, this.directions);
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -301,7 +428,7 @@ class _DirectionToken extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glyph = _arrow(mirror ? _mirrored(direction) : direction);
+    final displayDirection = mirror ? _mirrored(direction) : direction;
     return Container(
       width: 22,
       height: 22,
@@ -314,14 +441,10 @@ class _DirectionToken extends StatelessWidget {
           width: 0.5,
         ),
       ),
-      child: Text(
-        glyph,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          height: 1.0,
-        ),
+      child: Icon(
+        _icon(displayDirection),
+        color: AppColors.textPrimary,
+        size: 15,
       ),
     );
   }
@@ -336,17 +459,17 @@ class _DirectionToken extends StatelessWidget {
     _ => d,
   };
 
-  static String _arrow(GoldDirection d) => switch (d) {
-    GoldDirection.neutral => '●',
-    GoldDirection.forward => '→',
-    GoldDirection.back => '←',
-    GoldDirection.up => '↑',
-    GoldDirection.down => '↓',
-    GoldDirection.upForward => '↗',
-    GoldDirection.upBack => '↖',
-    GoldDirection.downForward => '↘',
-    GoldDirection.downBack => '↙',
-    GoldDirection.any => '✕',
+  static IconData _icon(GoldDirection d) => switch (d) {
+    GoldDirection.neutral => Icons.circle,
+    GoldDirection.forward => Icons.arrow_forward,
+    GoldDirection.back => Icons.arrow_back,
+    GoldDirection.up => Icons.arrow_upward,
+    GoldDirection.down => Icons.arrow_downward,
+    GoldDirection.upForward => Icons.north_east,
+    GoldDirection.upBack => Icons.north_west,
+    GoldDirection.downForward => Icons.south_east,
+    GoldDirection.downBack => Icons.south_west,
+    GoldDirection.any => Icons.all_inclusive,
   };
 }
 
@@ -396,18 +519,42 @@ class _MotionPill extends StatelessWidget {
   };
 }
 
+class _MotionGlyphToken extends StatelessWidget {
+  final MotionShape shape;
+  const _MotionGlyphToken(this.shape);
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: _MotionPill._numpadFor(shape),
+    child: Container(
+      width: 28,
+      height: 28,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.tokenBackground,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.6),
+          width: 0.8,
+        ),
+      ),
+      child: MotionGlyph(shape: shape, color: AppColors.textPrimary),
+    ),
+  );
+}
+
 class _ChargeChip extends StatelessWidget {
   final ChargeDirection direction;
   const _ChargeChip(this.direction);
 
   @override
   Widget build(BuildContext context) {
-    final arrow = switch (direction) {
-      ChargeDirection.back => '←',
-      ChargeDirection.down => '↓',
-      ChargeDirection.downBack => '↙',
-      ChargeDirection.forward => '→',
-      ChargeDirection.downForward => '↘',
+    final icon = switch (direction) {
+      ChargeDirection.back => Icons.arrow_back,
+      ChargeDirection.down => Icons.arrow_downward,
+      ChargeDirection.downBack => Icons.south_west,
+      ChargeDirection.forward => Icons.arrow_forward,
+      ChargeDirection.downForward => Icons.south_east,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
@@ -424,15 +571,7 @@ class _ChargeChip extends StatelessWidget {
         children: [
           const Icon(Icons.timelapse, size: 12, color: AppColors.accent),
           const SizedBox(width: 3),
-          Text(
-            arrow,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              height: 1.0,
-            ),
-          ),
+          Icon(icon, color: AppColors.textPrimary, size: 14),
         ],
       ),
     );

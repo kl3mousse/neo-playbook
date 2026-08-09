@@ -89,6 +89,8 @@ flutter:
     - assets/foxxy/sd/
     - assets/foxxy/loadingscreens/
     - assets/experimental/gold_moves_profile_v1/
+    - assets/glyphs/
+    - tool/glyph_studio/glyph_spec.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

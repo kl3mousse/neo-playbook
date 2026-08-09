@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "canvas": {
+    "size": 64,
+    "padding": 2.0,
+    "scale": 1.0
+  },
+  "stroke": {
+    "width": 4.2,
+    "lineCap": "round",
+    "lineJoin": "round"
+  },
+  "arrow": {
+    "headLength": 5.0,
+    "headWidth": 12.0
+  },
+  "motion": {
+    "curveRadius": 24.6,
+    "curveExtent": 1.7,
+    "repeatSeparation": 9.0,
+    "neutralRadius": 5.0
+  },
+  "button": {
+    "radius": 21.0,
+    "borderWidth": 4.0,
+    "labelSize": 15.4
+  },
+  "charge": {
+    "holdSize": 13.0,
+    "spacing": 8.0
+  }
+}

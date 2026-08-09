@@ -4,8 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('Gold display options have stable storage values and safe defaults', () {
     expect(GoldNotation.pictograms.storageValue, 'pictograms');
+    expect(GoldNotation.motionGlyphs.storageValue, 'motion_glyphs');
     expect(GoldNotation.classic2d.storageValue, 'classic2d');
     expect(GoldNotationStorage.parse('numpad'), GoldNotation.numpad);
+    expect(
+      GoldNotationStorage.parse('motion_glyphs'),
+      GoldNotation.motionGlyphs,
+    );
     expect(GoldNotationStorage.parse('unsupported'), GoldNotation.pictograms);
 
     expect(GoldDensity.compact.storageValue, 'compact');

@@ -8,6 +8,7 @@ import 'package:combofox/experimental/gold_moves_profile_v1/domain/move.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/domain/parse_status.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/gold_command_view.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/lab_controller.dart';
+import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/motion_glyph.dart';
 import 'package:combofox/l10n/generated/app_localizations.dart';
 
 /// Test-only button catalog covering the four canonical KOF buttons
@@ -134,6 +135,132 @@ void main() {
     expect(exception, isNull);
     // The 236 motion pill is present and visible.
     expect(find.text('236'), findsWidgets);
+  });
+
+  testWidgets('pictograms omit textual sequence separators', (tester) async {
+    final move = _makeMove(
+      name: 'Charge Combo',
+      expression: SequenceExpr(const [
+        DirectionExpr(GoldDirection.back),
+        ChargeExpr(
+          chargeDirection: ChargeDirection.downBack,
+          then: ButtonExpr('A'),
+        ),
+        ButtonExpr('B'),
+      ]),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+        ),
+      ),
+    );
+
+    expect(find.text('then'), findsNothing);
+    expect(find.text('A'), findsOneWidget);
+    expect(find.text('B'), findsOneWidget);
+  });
+
+  testWidgets('direction pictograms use consistent Material arrow icons', (
+    tester,
+  ) async {
+    final move = _makeMove(
+      name: 'Directions',
+      expression: SequenceExpr(const [
+        DirectionExpr(GoldDirection.forward),
+        DirectionExpr(GoldDirection.back),
+        DirectionExpr(GoldDirection.up),
+        DirectionExpr(GoldDirection.down),
+        DirectionExpr(GoldDirection.upForward),
+        DirectionExpr(GoldDirection.upBack),
+        DirectionExpr(GoldDirection.downForward),
+        DirectionExpr(GoldDirection.downBack),
+      ]),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+        ),
+      ),
+    );
+
+    for (final icon in const [
+      Icons.arrow_forward,
+      Icons.arrow_back,
+      Icons.arrow_upward,
+      Icons.arrow_downward,
+      Icons.north_east,
+      Icons.north_west,
+      Icons.south_east,
+      Icons.south_west,
+    ]) {
+      expect(find.byIcon(icon), findsOneWidget);
+    }
+    expect(find.text('↙'), findsNothing);
+  });
+
+  testWidgets('motion glyph mode draws every supported joystick motion', (
+    tester,
+  ) async {
+    final move = _makeMove(
+      name: 'Motion Gallery',
+      expression: AlternativeExpr(
+        MotionShape.values
+            .map<Expression>(MotionExpr.new)
+            .toList(growable: false),
+      ),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+          useMotionGlyphs: true,
+        ),
+        width: 360,
+      ),
+    );
+
+    expect(find.byType(MotionGlyph), findsNWidgets(MotionShape.values.length));
+    expect(find.text('236'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('motion glyph mode folds a directional QCF into one glyph', (
+    tester,
+  ) async {
+    final move = _makeMove(
+      name: 'Directional Fireball',
+      expression: SequenceExpr(const [
+        DirectionExpr(GoldDirection.down),
+        DirectionExpr(GoldDirection.downForward),
+        DirectionExpr(GoldDirection.forward),
+        ButtonExpr('A'),
+      ]),
+    );
+    await tester.pumpWidget(
+      wrap(
+        GoldCommandView(
+          move: move,
+          buttons: _buttons,
+          locale: LabAccessibleLocale.en,
+          useMotionGlyphs: true,
+        ),
+      ),
+    );
+
+    expect(find.byType(MotionGlyph), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_downward), findsNothing);
+    expect(find.byIcon(Icons.south_east), findsNothing);
+    expect(find.byIcon(Icons.arrow_forward), findsNothing);
+    expect(find.text('A'), findsOneWidget);
   });
 
   testWidgets('accessible sentence is used as the single semantic label', (

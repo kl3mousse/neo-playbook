@@ -8,6 +8,7 @@ import 'package:combofox/experimental/gold_moves_profile_v1/domain/move.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/domain/parse_status.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/lab_controller.dart';
 import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/lab_move_card.dart';
+import 'package:combofox/experimental/gold_moves_profile_v1/presentation/lab/motion_glyph.dart';
 import 'package:combofox/l10n/generated/app_localizations.dart';
 
 final ButtonCatalog _buttons = ButtonCatalog(
@@ -159,6 +160,23 @@ void main() {
       expect(find.textContaining('236'), findsOneWidget);
       // No coloured button chip for "A" alone (the "A" here appears
       // as part of the numpad string, not as a chip).
+    });
+
+    testWidgets('motion glyphs replace numpad motion pills', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          LabMoveCard(
+            move: _fireball(),
+            buttons: _buttons,
+            notation: LabNotation.motionGlyphs,
+            locale: LabAccessibleLocale.en,
+          ),
+        ),
+      );
+
+      expect(find.byType(MotionGlyph), findsOneWidget);
+      expect(find.text('236'), findsNothing);
+      expect(find.text('A'), findsOneWidget);
     });
 
     testWidgets('classic 2d mode does not render numpad', (tester) async {

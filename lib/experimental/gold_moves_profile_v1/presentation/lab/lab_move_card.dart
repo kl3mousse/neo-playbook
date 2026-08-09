@@ -317,6 +317,13 @@ class GoldProfileMoveCard extends StatelessWidget {
     switch (notation) {
       case GoldNotation.pictograms:
         return GoldCommandView(move: move, buttons: buttons, locale: locale);
+      case GoldNotation.motionGlyphs:
+        return GoldCommandView(
+          move: move,
+          buttons: buttons,
+          locale: locale,
+          useMotionGlyphs: true,
+        );
       case GoldNotation.numpad:
         final t = NumpadRenderer().render(move);
         return _textBlock(

@@ -109,7 +109,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labSectionNotation => 'Notation';
 
   @override
-  String get labNotationPictograms => 'ComboFox pictograms';
+  String get labNotationPictograms => 'Arrow icons';
+
+  @override
+  String get labNotationMotionGlyphs => 'Motion glyphs';
 
   @override
   String get labNotationNumpad => 'Numpad';
@@ -563,7 +566,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goldDensity => 'Density';
 
   @override
-  String get goldPictograms => 'ComboFox pictograms';
+  String get goldPictograms => 'Arrow icons';
+
+  @override
+  String get goldMotionGlyphs => 'Motion glyphs';
 
   @override
   String get goldNumpad => 'Numpad';
@@ -635,7 +641,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goldNotationPictogramsHelp =>
-      'Visual arrows and button symbols. Best when you want to read commands at a glance.';
+      'Visual direction arrows and button symbols. Best when you want to read commands at a glance.';
+
+  @override
+  String get goldNotationMotionGlyphsHelp =>
+      'Uses a single motion icon for familiar joystick inputs such as quarter-circles, dragon punches, and 360s.';
 
   @override
   String get goldNotationNumpadHelp =>

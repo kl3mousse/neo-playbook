@@ -286,6 +286,7 @@ class _GoldMoveListViewState extends State<GoldMoveListView> {
       itemBuilder: (_) => [
         PopupMenuItem(enabled: false, child: Text(l.goldNotation)),
         PopupMenuItem(value: 'pictograms', child: Text(l.goldPictograms)),
+        PopupMenuItem(value: 'motionGlyphs', child: Text(l.goldMotionGlyphs)),
         PopupMenuItem(value: 'numpad', child: Text(l.goldNumpad)),
         PopupMenuItem(value: 'classic', child: Text(l.goldClassic2d)),
         PopupMenuItem(value: 'accessible', child: Text(l.goldAccessible)),
@@ -302,6 +303,8 @@ class _GoldMoveListViewState extends State<GoldMoveListView> {
       switch (value) {
         case 'pictograms':
           _notation = GoldNotation.pictograms;
+        case 'motionGlyphs':
+          _notation = GoldNotation.motionGlyphs;
         case 'numpad':
           _notation = GoldNotation.numpad;
         case 'classic':

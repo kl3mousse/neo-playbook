@@ -108,7 +108,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get labSectionNotation => 'Notation';
 
   @override
-  String get labNotationPictograms => 'Pictogrammes ComboFox';
+  String get labNotationPictograms => 'Icônes de direction';
+
+  @override
+  String get labNotationMotionGlyphs => 'Glyphes de mouvement';
 
   @override
   String get labNotationNumpad => 'Numpad';
@@ -563,7 +566,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get goldDensity => 'Densité';
 
   @override
-  String get goldPictograms => 'Pictogrammes ComboFox';
+  String get goldPictograms => 'Icônes de direction';
+
+  @override
+  String get goldMotionGlyphs => 'Glyphes de mouvement';
 
   @override
   String get goldNumpad => 'Numpad';
@@ -636,7 +642,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get goldNotationPictogramsHelp =>
-      'Des flèches et symboles de boutons visuels. Idéal pour lire une commande d’un coup d’œil.';
+      'Des flèches de direction et symboles de boutons visuels. Idéal pour lire une commande d’un coup d’œil.';
+
+  @override
+  String get goldNotationMotionGlyphsHelp =>
+      'Utilise une seule icône de mouvement pour les manipulations de joystick familières comme les quarts de cercle, dragon punches et 360.';
 
   @override
   String get goldNotationNumpadHelp =>

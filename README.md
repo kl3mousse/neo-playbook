@@ -33,6 +33,45 @@ flutter run -d chrome
 flutter run
 ```
 
+## Glyph Studio
+
+Glyph Studio is a debug-only developer module for designing and publishing the
+parametric SVG glyphs used by fighting-game command notation. The typed design
+specification and geometry generator are the source of truth; the SVG files in
+`assets/glyphs/` are deterministic, committed build artifacts.
+
+Launch ComboFox for macOS from the repository root when you need **Save spec**
+or **Publish set** to write into the working tree:
+
+```bash
+flutter run -d macos
+```
+
+Navigate to `/debug/glyph-studio`. The route is available only in debug
+builds. Chrome can be used for previewing, but browser sandboxing prevents it
+from writing the design spec or generated assets into the repository.
+
+The studio provides live parameter controls, grouped glyph previews, realistic
+16–64 px size checks, light and dark surfaces, and composed command previews.
+Saving the spec does not publish assets; **Publish set** explicitly validates
+and writes the complete inventory. Both actions require a native desktop run.
+
+- Design spec: `tool/glyph_studio/glyph_spec.json`
+- Typed registry and generator: `lib/experimental/glyph_studio/`
+- Generated assets: `assets/glyphs/`
+- Full contributor guide: [`docs/glyph-studio.md`](docs/glyph-studio.md)
+
+Regenerate and validate the set from the repository root:
+
+```bash
+dart run tool/glyph_studio/generate.dart
+flutter test test/experimental/glyph_studio
+flutter analyze lib/experimental/glyph_studio lib/router.dart
+```
+
+Button SVGs contain a generic shell; labels such as `A`, `HP`, and `3K` are
+rendered by Flutter to avoid fragile SVG font dependencies.
+
 ## Build & Deploy
 
 ```bash
@@ -121,11 +160,14 @@ combofox/
 ├── test/                    # Flutter tests
 ├── assets/                  # Images, fonts
 │   ├── fonts/
+│   ├── glyphs/              # Generated fighting-game notation SVGs
 │   └── images/
+├── docs/                    # Developer and architecture documentation
 ├── functions/               # Firebase Cloud Functions (TypeScript, Node 20)
 │   ├── src/index.ts
 │   ├── package.json
 │   └── tsconfig.json
+├── tool/glyph_studio/       # Glyph design spec and deterministic publisher
 ├── pubspec.yaml             # Flutter dependencies
 ├── analysis_options.yaml    # Dart linter rules
 ├── firebase.json            # Firebase project config (hosting, firestore, storage, functions)

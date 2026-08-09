@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../experimental/gold_moves_profile_v1/domain/expression.dart';
 import '../experimental/gold_moves_profile_v1/presentation/gold_rendering_options.dart';
+import '../experimental/gold_moves_profile_v1/presentation/lab/motion_glyph.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../services/prefs_service.dart';
 import '../services/user_service.dart';
@@ -62,6 +64,12 @@ class _MoveDisplayPreferencesScreenState
                   example: '↓  ↘  →  +  P',
                 ),
                 _notationChoice(
+                  GoldNotation.motionGlyphs,
+                  l.goldMotionGlyphs,
+                  l.goldNotationMotionGlyphsHelp,
+                  exampleWidget: const _MotionGlyphExample(),
+                ),
+                _notationChoice(
                   GoldNotation.numpad,
                   l.goldNumpad,
                   l.goldNotationNumpadHelp,
@@ -114,12 +122,17 @@ class _MoveDisplayPreferencesScreenState
     GoldNotation value,
     String label,
     String explanation, {
-    required String example,
+    String? example,
+    Widget? exampleWidget,
   }) => Column(
     children: [
       RadioListTile(value: value, title: Text(label)),
       if (_notation == value)
-        _OptionExplanation(example: example, text: explanation),
+        _OptionExplanation(
+          example: example,
+          exampleWidget: exampleWidget,
+          text: explanation,
+        ),
     ],
   );
 
@@ -135,8 +148,13 @@ class _MoveDisplayPreferencesScreenState
 class _OptionExplanation extends StatelessWidget {
   final String text;
   final String? example;
+  final Widget? exampleWidget;
 
-  const _OptionExplanation({required this.text, this.example});
+  const _OptionExplanation({
+    required this.text,
+    this.example,
+    this.exampleWidget,
+  });
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -152,9 +170,13 @@ class _OptionExplanation extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (example != null) ...[
+            if (example != null || exampleWidget != null) ...[
               const SizedBox(height: 2),
-              Text(example!, style: const TextStyle(fontFamily: 'monospace')),
+              exampleWidget ??
+                  Text(
+                    example!,
+                    style: const TextStyle(fontFamily: 'monospace'),
+                  ),
             ],
             const SizedBox(height: 6),
             Text(text),
@@ -162,5 +184,22 @@ class _OptionExplanation extends StatelessWidget {
         ),
       ),
     ),
+  );
+}
+
+class _MotionGlyphExample extends StatelessWidget {
+  const _MotionGlyphExample();
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      MotionGlyph(
+        shape: MotionShape.quarterCircleForward,
+        color: AppColors.textPrimary,
+      ),
+      const SizedBox(width: 8),
+      const Text('+ P', style: TextStyle(fontFamily: 'monospace')),
+    ],
   );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'experimental/gold_moves_profile_v1/presentation/debug_harness/gold_moves_harness_screen.dart';
+import 'experimental/glyph_studio/presentation/glyph_studio_screen.dart';
 import 'models/game.dart';
 import 'screens/game_detail_screen.dart';
 import 'screens/feedback_screen.dart';
@@ -58,6 +59,7 @@ GoRouter buildAppRouter({required WidgetBuilder shellBuilder}) {
       ),
       // Debug-only routes (kDebugMode-guarded inside the helper).
       ...buildGoldHarnessRoutes(),
+      ...buildGlyphStudioRoutes(),
     ],
   );
 }

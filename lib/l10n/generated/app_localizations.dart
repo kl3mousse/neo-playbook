@@ -275,8 +275,14 @@ abstract class AppLocalizations {
   /// No description provided for @labNotationPictograms.
   ///
   /// In en, this message translates to:
-  /// **'ComboFox pictograms'**
+  /// **'Arrow icons'**
   String get labNotationPictograms;
+
+  /// No description provided for @labNotationMotionGlyphs.
+  ///
+  /// In en, this message translates to:
+  /// **'Motion glyphs'**
+  String get labNotationMotionGlyphs;
 
   /// No description provided for @labNotationNumpad.
   ///
@@ -1151,8 +1157,14 @@ abstract class AppLocalizations {
   /// No description provided for @goldPictograms.
   ///
   /// In en, this message translates to:
-  /// **'ComboFox pictograms'**
+  /// **'Arrow icons'**
   String get goldPictograms;
+
+  /// No description provided for @goldMotionGlyphs.
+  ///
+  /// In en, this message translates to:
+  /// **'Motion glyphs'**
+  String get goldMotionGlyphs;
 
   /// No description provided for @goldNumpad.
   ///
@@ -1283,8 +1295,14 @@ abstract class AppLocalizations {
   /// No description provided for @goldNotationPictogramsHelp.
   ///
   /// In en, this message translates to:
-  /// **'Visual arrows and button symbols. Best when you want to read commands at a glance.'**
+  /// **'Visual direction arrows and button symbols. Best when you want to read commands at a glance.'**
   String get goldNotationPictogramsHelp;
+
+  /// No description provided for @goldNotationMotionGlyphsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses a single motion icon for familiar joystick inputs such as quarter-circles, dragon punches, and 360s.'**
+  String get goldNotationMotionGlyphsHelp;
 
   /// No description provided for @goldNotationNumpadHelp.
   ///

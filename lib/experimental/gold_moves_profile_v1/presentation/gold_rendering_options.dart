@@ -1,9 +1,10 @@
 /// Presentation choices shared by the production list and the validation UI.
-enum GoldNotation { pictograms, numpad, classic2d, accessible }
+enum GoldNotation { pictograms, motionGlyphs, numpad, classic2d, accessible }
 
 extension GoldNotationStorage on GoldNotation {
   String get storageValue => switch (this) {
     GoldNotation.pictograms => 'pictograms',
+    GoldNotation.motionGlyphs => 'motion_glyphs',
     GoldNotation.numpad => 'numpad',
     GoldNotation.classic2d => 'classic2d',
     GoldNotation.accessible => 'accessible',
@@ -11,6 +12,7 @@ extension GoldNotationStorage on GoldNotation {
 
   static GoldNotation parse(String? value) => switch (value) {
     'numpad' => GoldNotation.numpad,
+    'motion_glyphs' => GoldNotation.motionGlyphs,
     'classic2d' => GoldNotation.classic2d,
     'accessible' => GoldNotation.accessible,
     _ => GoldNotation.pictograms,
