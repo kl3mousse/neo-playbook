@@ -26,5 +26,8 @@
     "eslint": "^8.57.0",
     "typescript": "^5.4.0"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "websocket-driver": ">=0.7.5"
+  }
 }
