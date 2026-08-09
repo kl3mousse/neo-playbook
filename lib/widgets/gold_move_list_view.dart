@@ -261,7 +261,7 @@ class _GoldMoveListViewState extends State<GoldMoveListView> {
       );
     }
     return StreamBuilder<bool>(
-      stream: UserService.isFaveMoveStream('ngpc-kofr2-v2', character.name),
+      stream: UserService.isFaveMoveStream(widget.gameId, character.name),
       builder: (context, snapshot) {
         final saved = snapshot.data ?? false;
         return IconButton(
@@ -271,7 +271,7 @@ class _GoldMoveListViewState extends State<GoldMoveListView> {
           onPressed: () => UserService.toggleFaveMove(
             gameId: widget.gameId,
             gameTitle: widget.gameTitle,
-            romName: 'ngpc-kofr2-v2',
+            romName: widget.gameId,
             sectionTitle: character.name,
           ),
         );
