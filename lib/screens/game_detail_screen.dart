@@ -101,6 +101,9 @@ class GameDetailScreen extends StatelessWidget {
                       ...game.genre.map(
                         (g) => _InfoChip(label: g, filled: true),
                       ),
+                      ...game.subPlatforms.map(
+                        (platform) => _InfoChip(label: platform),
+                      ),
                       _InfoChip(label: game.playersLabel),
                       if (game.type != null && game.type!.isNotEmpty)
                         _InfoChip(label: game.type!),
@@ -125,6 +128,11 @@ class GameDetailScreen extends StatelessWidget {
                     ),
 
                   const SizedBox(height: 24),
+
+                  if (game.variants.isNotEmpty) ...[
+                    _VariantsSection(variants: game.variants),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Move List — loader self-contains the panel and hides when no profile exists.
                   _MoveListLoader(
@@ -185,6 +193,11 @@ class GameDetailScreen extends StatelessWidget {
                           Text(
                             'ROM Versions',
                             style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${game.roms.length}',
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ),
@@ -1098,6 +1111,169 @@ class _InfoChip extends StatelessWidget {
           fontSize: 12,
           fontWeight: filled ? FontWeight.w600 : FontWeight.normal,
           color: filled ? AppColors.primary : AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+class _VariantsSection extends StatelessWidget {
+  final List<GameVariant> variants;
+
+  const _VariantsSection({required this.variants});
+
+  @override
+  Widget build(BuildContext context) {
+    final notedVariants = variants.where((variant) => variant.hasNotes).toList();
+    final compactVariants = variants
+        .where((variant) => !variant.hasNotes)
+        .toList();
+    final hasMajorVariants = notedVariants.isNotEmpty;
+
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      initiallyExpanded: false,
+      title: Row(
+        children: [
+          const Icon(Icons.auto_awesome, size: 20),
+          const SizedBox(width: 8),
+          const Expanded(child: NeonSectionHeader('Variants')),
+          Text(
+            hasMajorVariants
+                ? '${variants.length}, including ${notedVariants.length} key ones'
+                : '${variants.length}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+      children: [
+        if (hasMajorVariants) ...[
+          ...notedVariants.map((variant) => _VariantNoteRow(variant: variant)),
+          if (compactVariants.isNotEmpty)
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(bottom: 4),
+              title: Text(
+                'Other variants (${compactVariants.length})',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              children: [
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: compactVariants
+                      .map((variant) => _CompactVariantLabel(variant: variant))
+                      .toList(),
+                ),
+              ],
+            ),
+        ] else
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: compactVariants
+                .map((variant) => _CompactVariantLabel(variant: variant))
+                .toList(),
+          ),
+      ],
+    );
+  }
+}
+
+class _VariantNoteRow extends StatelessWidget {
+  final GameVariant variant;
+
+  const _VariantNoteRow({required this.variant});
+
+  @override
+  Widget build(BuildContext context) {
+    final metadata = [
+      if (variant.mameName != null) variant.mameName!,
+      if (variant.variantKind != null) variant.variantKind!,
+      if (variant.year != null) variant.year!,
+      if (variant.origin != null) variant.origin!,
+      if (variant.author != null) 'by ${variant.author}',
+    ].join(' · ');
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        color: AppColors.textSecondary.withValues(alpha: 0.06),
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.18),
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.tips_and_updates_outlined,
+            size: 18,
+            color: AppColors.primary,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  variant.displayName,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 3),
+                Text(variant.notes!),
+                if (metadata.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    metadata,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CompactVariantLabel extends StatelessWidget {
+  final GameVariant variant;
+
+  const _CompactVariantLabel({required this.variant});
+
+  @override
+  Widget build(BuildContext context) {
+    final suffix = [
+      if (variant.mameName != null) variant.mameName!,
+      if (variant.variantKind != null) variant.variantKind!,
+      if (variant.year != null) variant.year!,
+    ].join(' · ');
+    final label = suffix.isEmpty
+        ? variant.displayName
+        : '${variant.displayName} · $suffix';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.3),
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.textSecondary,
+          fontSize: 11,
         ),
       ),
     );

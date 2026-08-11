@@ -52,6 +52,51 @@ class GameRom {
   }
 }
 
+/// A catalog variant such as a hack, bootleg, or alternate release.
+class GameVariant {
+  final String? author;
+  final String? mameName;
+  final String? notes;
+  final String? origin;
+  final String? sourceUrl;
+  final String? title;
+  final String? variantKind;
+  final String? year;
+
+  const GameVariant({
+    this.author,
+    this.mameName,
+    this.notes,
+    this.origin,
+    this.sourceUrl,
+    this.title,
+    this.variantKind,
+    this.year,
+  });
+
+  factory GameVariant.fromMap(Map<String, dynamic> map) {
+    String? stringValue(String key) {
+      final value = map[key];
+      return value is String && value.trim().isNotEmpty ? value.trim() : null;
+    }
+
+    return GameVariant(
+      author: stringValue('author'),
+      mameName: stringValue('mame_name'),
+      notes: stringValue('notes'),
+      origin: stringValue('origin'),
+      sourceUrl: stringValue('source_url'),
+      title: stringValue('title'),
+      variantKind: stringValue('variant_kind'),
+      year: stringValue('year'),
+    );
+  }
+
+  String get displayName => title ?? mameName ?? 'Unnamed variant';
+
+  bool get hasNotes => notes != null;
+}
+
 /// Content availability flags.
 class GameFeatures {
   final bool hasMoveLists;
@@ -104,6 +149,7 @@ class Game {
   final String id;
   final String pageType;
   final String platform;
+  final List<String> subPlatforms;
   final int? hfsdbId;
   final int? ngmId;
   final String? igdbUrl;
@@ -118,6 +164,7 @@ class Game {
   final String? description;
   final Map<String, GameImage> images;
   final List<GameRom> roms;
+  final List<GameVariant> variants;
   final GameFeatures features;
   final ContentLinks contentLinks;
   final Timestamp? syncedAt;
@@ -126,6 +173,7 @@ class Game {
     required this.id,
     required this.pageType,
     required this.platform,
+    this.subPlatforms = const [],
     this.hfsdbId,
     this.ngmId,
     this.igdbUrl,
@@ -140,6 +188,7 @@ class Game {
     this.description,
     required this.images,
     required this.roms,
+    this.variants = const [],
     required this.features,
     required this.contentLinks,
     this.syncedAt,
@@ -174,10 +223,28 @@ class Game {
       genre = List<String>.from(data['genre']);
     }
 
+    final subPlatforms = data['sub_platform'] is List
+        ? (data['sub_platform'] as List)
+              .whereType<String>()
+              .map((value) => value.trim())
+              .where((value) => value.isNotEmpty)
+              .toList()
+        : <String>[];
+
+    final variants = <GameVariant>[];
+    if (data['variants'] is List) {
+      for (final variant in data['variants'] as List) {
+        if (variant is Map<String, dynamic>) {
+          variants.add(GameVariant.fromMap(variant));
+        }
+      }
+    }
+
     return Game(
       id: doc.id,
       pageType: data['page_type'] as String? ?? 'game',
       platform: data['platform'] as String? ?? '',
+      subPlatforms: subPlatforms,
       hfsdbId: data['hfsdb_id'] as int?,
       ngmId: data['platform_specific'] is Map
           ? _parseInt((data['platform_specific'] as Map)['ngm_id'])
@@ -194,6 +261,7 @@ class Game {
       description: data['description'] as String?,
       images: imagesMap,
       roms: romsList,
+      variants: variants,
       features: GameFeatures.fromMap(data['features'] as Map<String, dynamic>?),
       contentLinks: ContentLinks.fromMap(
         data['content_links'] as Map<String, dynamic>?,
