@@ -11,7 +11,28 @@
  * untouched. We only return derived buffers in memory.
  */
 
-import sharp = require("sharp");
+type SharpPipeline = {
+  metadata: () => Promise<{ width?: number; height?: number; orientation?: number | null }>;
+  rotate: () => SharpPipeline;
+  resize: (options: Record<string, unknown>) => SharpPipeline;
+  modulate: (options: Record<string, unknown>) => SharpPipeline;
+  normalise: () => SharpPipeline;
+  sharpen: (options: Record<string, unknown>) => SharpPipeline;
+  extract: (options: Record<string, unknown>) => SharpPipeline;
+  jpeg: (options: Record<string, unknown>) => {
+    toBuffer: (options?: Record<string, unknown>) => Promise<{ data: Buffer; info: { width: number; height: number } }>;
+  };
+};
+
+type SharpFactory = {
+  (input?: Buffer | string, options?: Record<string, unknown>): SharpPipeline;
+  (options?: Record<string, unknown>): SharpPipeline;
+};
+
+const getSharp = (): SharpFactory => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return require("sharp") as SharpFactory;
+};
 
 export type PreparedImage = {
   buffer: Buffer;
@@ -44,7 +65,7 @@ const CROP_DIMENSION = 1024;
 const SHARP_INIT = { failOn: "none" as const };
 
 async function toPreparedJpeg(
-  pipeline: sharp.Sharp,
+  pipeline: SharpPipeline,
   quality: number,
 ): Promise<PreparedImage> {
   const out = await pipeline.jpeg({ quality }).toBuffer({ resolveWithObject: true });
@@ -57,6 +78,7 @@ async function toPreparedJpeg(
 }
 
 export async function preprocessImage(input: Buffer): Promise<PreprocessResult> {
+  const sharp = getSharp();
   const meta = await sharp(input, SHARP_INIT).metadata();
   const origW = meta.width ?? 0;
   const origH = meta.height ?? 0;

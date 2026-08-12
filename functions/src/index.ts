@@ -10,21 +10,21 @@
  * `./recognition/pipeline.ts`.
  */
 
-import { initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { getApps, initializeApp } from "firebase-admin/app";
+import { Firestore, getFirestore } from "firebase-admin/firestore";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { defineSecret } from "firebase-functions/params";
 import * as logger from "firebase-functions/logger";
-import OpenAI from "openai";
 
-import { processAccountDeletion } from "./account_deletion";
-import { runScanPipeline } from "./recognition/pipeline";
 import { RecognitionMode } from "./recognition/types";
 
-const app = initializeApp();
 const DATABASE_ID = "otakudb";
-const db = getFirestore(app, DATABASE_ID);
 const OPENAI_API_KEY = defineSecret("OPENAI_API_KEY");
+
+function getDb(): Firestore {
+  const app = getApps().length > 0 ? getApps()[0] : initializeApp();
+  return getFirestore(app, DATABASE_ID);
+}
 
 export const processAccountDeletionRequest = onDocumentCreated(
   {
@@ -33,7 +33,9 @@ export const processAccountDeletionRequest = onDocumentCreated(
     region: "europe-west1",
   },
   async (event) => {
+    const { processAccountDeletion } = await import("./account_deletion");
     const userId = event.params.userId;
+    const db = getDb();
     await processAccountDeletion({ db, userId });
   },
 );
@@ -48,6 +50,7 @@ export const processCollectionScanJob = onDocumentCreated(
     timeoutSeconds: 240,
   },
   async (event) => {
+    const db = getDb();
     const userId = event.params.userId;
     const jobId = event.params.jobId;
     const jobRef = db.doc(`users/${userId}/scan_jobs/${jobId}`);
@@ -116,6 +119,8 @@ export const processCollectionScanJob = onDocumentCreated(
         }
       }
 
+      const { runScanPipeline } = await import("./recognition/pipeline");
+      const { default: OpenAI } = await import("openai");
       const openai = new OpenAI({ apiKey: OPENAI_API_KEY.value() });
       await runScanPipeline({
         db, jobRef, userId, jobId, imagePath, mode, openai,
